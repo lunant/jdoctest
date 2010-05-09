@@ -1,0 +1,32 @@
+
+.doctest, .doctest * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    list-style: none;
+    vertical-align: baseline;
+}
+
+.doctest h2 {
+    font-size: 15px;
+    font-weight: bolder;
+}
+
+.doctest .assertions li {
+    padding: 2px 0;
+    margin: 5px;
+    border: 1px solid #333;
+}
+
+.doctest code {
+    display: block;
+    padding: 5px;
+}
+
+.doctest code.expected {
+    width: 200px;
+    float: left;
+    background: #eee;
+}

@@ -35,7 +35,7 @@ $.doctest.fn = {
 
     start: /\/\*\*/,
     end: /\*\//,
-    code: />\s*(.+)\s*$/,
+    prompt: />\s*(.+)\s*$/,
     flags: /\/\/doctest:\s*(.+)\s*$/,
 
     testjs: function( scriptUrl ) {
@@ -128,11 +128,11 @@ $.doctest.fn = {
             i = parseInt( i );
             line = docLines[ i ];
 
-            if ( this.code.exec( line ) ) {
+            if ( this.prompt.exec( line ) ) {
                 if ( test !== undefined ) {
                     keep( test );
                 }
-                test = {line: i, code: line.match( this.code )[ 1 ]};
+                test = {line: i, code: line.match( this.prompt )[ 1 ]};
                 hasFlag = test.code.match( this.flags );
                 if ( hasFlag ) {
                     test.flags = hasFlag[ 1 ].split( /\s+/ );

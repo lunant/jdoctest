@@ -53,7 +53,7 @@ doctest.fn = {
         > jQuery.doctest.testjs( "test/nothing.js" );
         [object Object]
         > $( "script[src$=test/nothing.js]" ).length;
-        12
+        1
         */
 
         // Load the script

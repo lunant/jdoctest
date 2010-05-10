@@ -35,13 +35,13 @@ $.doctest.fn = {
 
     start: /\/\*\*/,
     end: /\*\//,
-    code: />>>\s*(.+)\s*$/,
+    code: />\s*(.+)\s*$/,
     flags: /\/\/doctest:\s*(.+)\s*$/,
 
     testjs: function( scriptUrl ) {
         /**
-        >>> jQuery.doctest.testjs( "test/nothing.js" );
-        >>> $( "script[src$=test/nothing.js]" ).length;
+        > jQuery.doctest.testjs( "test/nothing.js" );
+        > $( "script[src$=test/nothing.js]" ).length;
         1
         */
         if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
@@ -81,16 +81,16 @@ $.doctest.fn = {
 
     describe: function( code ) {
         /**
-        >>> code = "/*" + "*\n>>> 1 + 1;\n2\n*" + "/"; //doctest: +SKIP
-        >>> code.length;
+        > code = "/*" + "*\n>>> 1 + 1;\n2\n*" + "/"; //doctest: +SKIP
+        > code.length;
         19
-        >>> description = $.doctest.describe( code );
+        > description = $.doctest.describe( code );
         [object Object]
-        >>> description.length;
+        > description.length;
         1
-        >>> description[0].code;
+        > description[0].code;
         1 + 1;
-        >>> description[0].expected;
+        > description[0].expected;
         2
         */
         var description = [],

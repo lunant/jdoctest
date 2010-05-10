@@ -44,7 +44,7 @@ var doctest = function( scriptUrl ) {
 // Methods
 doctest.fn = {
 
-    // Console object, it should contains log(), error() method
+    // Console should contains log(), error() method
     console: console,
 
     // Test the script file
@@ -273,13 +273,13 @@ doctest.fn = {
             message = [];
             message.push( passedItems.length + " items passed all tests:" );
             message.push( passedMsg.join( nl ) );
-            this.console.error( message.join( nl ) );
+            this.console.log( message.join( nl ) );
         }
         if ( failedItems.length ) {
             message = [];
             message.push( failedItems.length + " items had failures:" );
             message.push( failedMsg.join( nl ) );
-            this.console.log( message.join( nl ) );
+            this.console.error( message.join( nl ) );
         }
 
         message = [

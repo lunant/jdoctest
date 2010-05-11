@@ -48,12 +48,147 @@ doctest.fn = doctest.prototype = {
     // Initialize
     init: function( scriptUrl, options ) {
         this.scriptUrl = scriptUrl;
-        this.result = self.testjs( scriptUrl, this.complete );
+        this.result = self.testjs( scriptUrl, this.events );
         return this;
     },
 
-    complete: undefined
+    verbose: function() {
+        this.pass(function( test ) {
+            // Log seccess message
+            self.console.log([
+                "Trying:",
+                ____ + test.code,
+                "Expecting:",
+                ____ + test.expected,
+                "ok"
+            ].join( "\n" ) );
+        });
+
+        this.complete(function( result ) {
+            var message, msg,
+                passedMsg = [], failedMsg = [], emptyMsg = [],
+                passedItems = [], failedItems = [], emptyItems = [],
+                tests = 0, passed = 0, failed = 0,
+                item, nl = "\n";
+
+            // for item in result
+            for ( var i in result ) {
+                item = result[ i ];
+
+                tests += item.tests;
+                passed += item.passed;
+                failed += item.failed;
+
+                msg = th( parseInt( i ) + 1 ) + " item(line " + item.line + ")";
+
+                // Empty item
+                if ( item.tests === 0 ) {
+                    emptyItems.push( item );
+                    msg = ____ + msg;
+                    emptyMsg.push( msg );
+
+                // All tests passed item
+                } else if ( item.passed === item.tests ) {
+                    passedItems.push( item );
+                    msg = ____ + item.tests + " tests in " + msg;
+                    passedMsg.push( msg );
+
+                // This item had some failures
+                } else {
+                    failedItems.push( item );
+                    msg = ____ + item.failed + " of " +
+                        item.tests + " in " + msg;
+                    failedMsg.push( msg );
+                }
+            }
+
+            if ( i === undefined ) {
+                return;
+            }
+
+            // Output empty items message
+            if ( emptyItems.length ) {
+                message = [];
+                message.push( emptyItems.length + " items had no tests:" );
+                message.push( emptyMsg.join( nl ) );
+                self.console.log( message.join( nl ) );
+            }
+
+            // Output passed items message
+            if ( passedItems.length ) {
+                message = [];
+                message.push( passedItems.length + " items passed all tests:" );
+                message.push( passedMsg.join( nl ) );
+                self.console.log( message.join( nl ) );
+            }
+
+            // Output failed items message with console.error
+            if ( failedItems.length ) {
+                message = [];
+                message.push( failedItems.length + " items had failures:" );
+                message.push( failedMsg.join( nl ) );
+                self.console.error( message.join( nl ) );
+            }
+
+            // Summary
+            message = [
+                tests + " tests in " + i + " items.",
+                passed + " passed and " + failed + " failed."
+            ];
+
+            // All tests passed?
+            if ( !failedItems.length ) {
+                message.push( "Test passed." );
+            }
+
+            self.console.log( message.join( nl ) );
+        });
+    },
+
+    events: {
+        complete: undefined,
+        pass: undefined,
+        fail: undefined
+    },
+
+    toString: function() {
+        /**
+        > ({});
+        [object Object]
+        > $.doctest();
+        [$.doctest Object]
+        > $.doctest( "test/nothing-fn.toString.js" );
+        [$.doctest Object]
+        */
+        return "[$.doctest Object]";
+    }
 };
+
+// Event setters
+for ( var i in doctest.fn.events ) {
+    /**
+    > dt = $.doctest() //doctest: +SKIP
+    > $.isFunction( dt.events.complete );
+    false
+    > dt.complete(function() {});
+    [$.doctest Object]
+    > $.isFunction( dt.events.complete );
+    true
+    > $.isFunction( dt.events.pass );
+    false
+    > $.isFunction( dt.events.fail );
+    false
+    > dt.pass(function() {}).fail(function() {});
+    [$.doctest Object]
+    > $.isFunction( dt.events.pass );
+    true
+    > $.isFunction( dt.events.fail );
+    true
+    */
+    doctest.fn[ i ] = eval(
+        "(function( fn ) { this.events." + i + " = fn; return this; })"
+    );
+}
 
 // Give the init function the doctest prototype for later instantiation
 doctest.fn.init.prototype = doctest.fn;
@@ -68,40 +203,52 @@ doctest.extend({
     },
 
     // Test the script file
-    testjs: function( scriptUrl, complete ) {
+    testjs: function( scriptUrl, events ) {
         /**
-        > $.doctest.testjs( "test/nothing.js" );
+        > $.doctest.testjs( "test/nothing-testjs.js" );
         [object Object]
-        > $( "script[src$=test/nothing.js]" ).length;
+        > $( "script[src$=test/nothing-testjs.js]" ).length;
         1
         */
 
-        // Load the script
-        if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
-            var markup = '<script class="doctest" type="text/javascript" '
-                       + 'src="' + scriptUrl + '"></script>';
-            $( markup ).appendTo( document.body );
-        }
+        var result = {},
+            start = events && events.start || self.events.start,
+            complete = events && events.complete || self.events.complete;
 
-        var result = {};
+        var run = function( code ) {
+            var description = self.describe( code );
 
-        complete = complete || self.complete;
-
-        // Get code of the script and run tests
-        $.getScript( scriptUrl, function( code ) {
             // Set result
-            $.extend( result, self.run( self.describe( code ) ) );
+            $.extend( result, self.run( description, events ) );
 
             // Call complete event
             return complete( result );
-        });
+        };
+
+		// Handle $.doctest(), $.doctest( null ) or $.doctest( undefined )
+        if ( !scriptUrl ) {
+            return result;
+            run( $( "html" ).html() );
+
+		// Handle $.doctest( "example.js" )
+        } else {
+            // Load the script
+            if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
+                var markup = '<script class="doctest" type="text/javascript" '
+                           + 'src="' + scriptUrl + '"></script>';
+                $( markup ).appendTo( document.body );
+            }
+
+            // Get code of the script and run tests
+            $.getScript( scriptUrl, run );
+        }
 
         // Result is empty yet. It will come later
         return result;
     },
 
     // Run tests
-    run: function( description, assert ) {
+    run: function( description, events, assert ) {
         /**
         > d = [[{ line: 12, code: "1+1;", expected: "2", flags: []}]] //doctest: +SKIP
         > $.doctest.run( d )[ 0 ].passed;
@@ -111,6 +258,8 @@ doctest.extend({
             result = [],
             passed, failed;
 
+        pass = events && events.pass || self.events.pass;
+        fail = events && events.fail || self.events.fail;
         assert = assert || self.assert;
 
         // for item in description
@@ -130,23 +279,12 @@ doctest.extend({
 
                 try {
                     assert( test );
+                    pass( test );
                     passed++;
 
-                    // Log seccess message
-                    self.console.log([
-                        "Trying:",
-                        ____ + test.code,
-                        "Expecting:",
-                        ____ + test.expected,
-                        "ok"
-                    ].join( "\n" ) );
-                } catch (e) {
-                    if ( e instanceof self.TestError ) {
-                        failed++;
-
-                        // Log failure message
-                        $.proxy( self.console, "error" )( String( e ) );
-                    }
+                } catch ( error ) {
+                    fail( error );
+                    failed++;
                 }
             }
 
@@ -264,83 +402,6 @@ doctest.extend({
         return description;
     },
 
-    // Test complete event
-    complete: function( result ) {
-        var message, msg,
-            passedMsg = [], failedMsg = [], emptyMsg = [],
-            passedItems = [], failedItems = [], emptyItems = [],
-            tests = 0, passed = 0, failed = 0,
-            item, nl = "\n";
-
-        // for item in result
-        for ( var i in result ) {
-            item = result[ i ];
-
-            tests += item.tests;
-            passed += item.passed;
-            failed += item.failed;
-
-            msg = th( parseInt( i ) + 1 ) + " item(line " + item.line + ")";
-
-            // Empty item
-            if ( item.tests === 0 ) {
-                emptyItems.push( item );
-                msg = ____ + msg;
-                emptyMsg.push( msg );
-
-            // All tests passed item
-            } else if ( item.passed === item.tests ) {
-                passedItems.push( item );
-                msg = ____ + item.tests + " tests in " + msg;
-                passedMsg.push( msg );
-
-            // This item had some failures
-            } else {
-                failedItems.push( item );
-                msg = ____ + item.failed + " of " +
-                    item.tests + " in " + msg;
-                failedMsg.push( msg );
-            }
-        }
-
-        // Output empty items message
-        if ( emptyItems.length ) {
-            message = [];
-            message.push( emptyItems.length + " items had no tests:" );
-            message.push( emptyMsg.join( nl ) );
-            self.console.log( message.join( nl ) );
-        }
-
-        // Output passed items message
-        if ( passedItems.length ) {
-            message = [];
-            message.push( passedItems.length + " items passed all tests:" );
-            message.push( passedMsg.join( nl ) );
-            self.console.log( message.join( nl ) );
-        }
-
-        // Output failed items message with console.error
-        if ( failedItems.length ) {
-            message = [];
-            message.push( failedItems.length + " items had failures:" );
-            message.push( failedMsg.join( nl ) );
-            self.console.error( message.join( nl ) );
-        }
-
-        // Summary
-        message = [
-            tests + " tests in " + i + " items.",
-            passed + " passed and " + failed + " failed."
-        ];
-
-        // All tests passed?
-        if ( !failedItems.length ) {
-            message.push( "Test passed." );
-        }
-
-        self.console.log( message.join( nl ) );
-    },
-
     // Assert test object
     assert: function( test ) {
         /**
@@ -389,19 +450,65 @@ doctest.extend({
         return eval( test.code );//$.globalEval( test.code );
     },
 
+    // Default event handlers
+    events: {
+        complete: function( result ) {
+            // Quiet
+        },
+
+        // Call when each test passed
+        pass: function( test ) {
+            // Quiet
+        },
+
+        // Call when each test failed
+        fail: function( error ) {
+            /*
+            >> e = new $.doctest.TestError({
+            ...   line: 12,
+            ...   code: "13",
+            ...   expected: "12"
+            ... }, 13 );
+            [$.doctest.TestError Object]
+
+            >>> $.doctest.events.fail( e );
+            Line 12
+            Failed example:
+                13
+            Expected:
+                12
+            Got:
+                13
+            */
+            if ( error instanceof self.TestError ) {
+                self.console.error([
+                    "Line " + error.test.line,
+                    "Failed example:",
+                    ____ + error.test.code,
+                    "Expected:",
+                    ____ + error.test.expected,
+                    "Got:",
+                    ____ + error.got
+                ].join( "\n" ) );
+            } else {
+                self.console.error([
+                    "Line " + error.test.line,
+                    "Failed example:",
+                    ____ + error.test.code,
+                    "Expected:",
+                    ____ + error.test.expected,
+                    "Got:",
+                    ____ + String( error )
+                ].join( "\n" ) );
+            }
+        }
+    },
+
     TestError: function( test, got ) {
         this.test = test;
         this.got = got;
         this.toString = function() {
-            return [
-                "Line " + this.test.line,
-                "Failed example:",
-                ____ + this.test.code,
-                "Expected:",
-                ____ + this.test.expected,
-                "Got:",
-                ____ + this.got
-            ].join( "\n" );
+            return "[$.doctest.TestError Object]";
         }
     },
 

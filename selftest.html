@@ -4,25 +4,23 @@
 <head> 
 <meta http-equiv="Content-Type"
       content="application/xhtml+xml; charset=UTF-8" /> 
-<title>jquery.doctest.js</title>
-<link rel="repository" href="http://github.com/heungsub/jquery.doctest.js"/> 
-<style type="text/css">
-  body {
-  }
-</style>
+<title>Self-Test &laquo; jquery.doctest.js</title>
 <link rel="stylesheet" type="text/css" href="jquery.doctest.css" />
 </head>
 <body>
-<h1>jquery.doctest.js</h1>
-<p>See at <a href="http://github.com/heungsub/jquery.doctest.js">GitHub</a>.</p>
-<p>You can check the test results
-   if your browser supports <code>console</code>.</p>
+Self-Test of <code>jquery.doctest.js</code>.
 <script type="text/javascript" src="/resources/scripts/jquery.js"></script>
 <script type="text/javascript" src="jquery.doctest.js"></script>
+<script type="text/javascript" src="jquery.doctest.visualize.js"></script>
 <script type="text/javascript">
-  $.doctest( "tests/equals.js" ).verbose();
-  $.doctest( "tests/failed.js" ).verbose();
-  $.doctest( "tests/example.js" ).verbose();
+  $.doctest.console.error = function( message ) {
+    $( "body" ).css({
+        background: "#c00",
+        color: "#fff"
+    });
+    console.error( message );
+  };
+  $.doctest( "jquery.doctest.js" );
 </script>
 </body>
 </html>

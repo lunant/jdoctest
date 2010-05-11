@@ -143,6 +143,8 @@ doctest.fn = doctest.prototype = {
 
             self.console.log( message.join( nl ) );
         });
+
+        return this;
     },
 
     events: {

@@ -10,7 +10,7 @@
 (function( $, undefined ) {
 
 var doctest = function( scriptUrl ) {
-        return doctest.testjs( scriptUrl );
+        return new doctest.fn.init( scriptUrl );
     },
 
     // Is this line a start of docstring
@@ -41,11 +41,31 @@ var doctest = function( scriptUrl ) {
         }
     };
 
-// Methods
-doctest.fn = {
+var self = doctest;
 
+// Methods
+doctest.fn = doctest.prototype = {
+    // Initialize
+    init: function( scriptUrl, options ) {
+        this.scriptUrl = scriptUrl;
+        this.result = self.testjs( scriptUrl, this.complete );
+        return this;
+    },
+
+    complete: undefined
+};
+
+// Give the init function the doctest prototype for later instantiation
+doctest.fn.init.prototype = doctest.fn;
+
+doctest.extend = doctest.fn.extend = $.extend;
+
+doctest.extend({
     // Console should contains log(), error() method
-    console: console,
+    console: {
+        log: $.proxy( console, "log" ),
+        error: $.proxy( console, $.browser.webkit ? "error" : "log" )
+    },
 
     // Test the script file
     testjs: function( scriptUrl, complete ) {
@@ -65,16 +85,16 @@ doctest.fn = {
 
         var result = {};
 
-        complete = complete || this.complete;
+        complete = complete || self.complete;
 
         // Get code of the script and run tests
-        $.getScript( scriptUrl, $.proxy( function( code ) {
+        $.getScript( scriptUrl, function( code ) {
             // Set result
-            $.extend( result, this.run( this.describe( code ) ) );
+            $.extend( result, self.run( self.describe( code ) ) );
 
             // Call complete event
             return complete( result );
-        }, doctest.fn ) );
+        });
 
         // Result is empty yet. It will come later
         return result;
@@ -91,7 +111,7 @@ doctest.fn = {
             result = [],
             passed, failed;
 
-        assert = assert || this.assert;
+        assert = assert || self.assert;
 
         // for item in description
         for ( var i in description ) {
@@ -109,11 +129,11 @@ doctest.fn = {
                 }
 
                 try {
-                    $.proxy( assert, this )( test );
+                    assert( test );
                     passed++;
 
                     // Log seccess message
-                    this.console.log([
+                    self.console.log([
                         "Trying:",
                         ____ + test.code,
                         "Expecting:",
@@ -121,11 +141,11 @@ doctest.fn = {
                         "ok"
                     ].join( "\n" ) );
                 } catch (e) {
-                    if ( e instanceof this.TestError ) {
+                    if ( e instanceof self.TestError ) {
                         failed++;
 
                         // Log failure message
-                        $.proxy( this.console, "error" )( e.toString() );
+                        $.proxy( self.console, "error" )( String( e ) );
                     }
                 }
             }
@@ -288,7 +308,7 @@ doctest.fn = {
             message = [];
             message.push( emptyItems.length + " items had no tests:" );
             message.push( emptyMsg.join( nl ) );
-            this.console.log( message.join( nl ) );
+            self.console.log( message.join( nl ) );
         }
 
         // Output passed items message
@@ -296,7 +316,7 @@ doctest.fn = {
             message = [];
             message.push( passedItems.length + " items passed all tests:" );
             message.push( passedMsg.join( nl ) );
-            this.console.log( message.join( nl ) );
+            self.console.log( message.join( nl ) );
         }
 
         // Output failed items message with console.error
@@ -304,7 +324,7 @@ doctest.fn = {
             message = [];
             message.push( failedItems.length + " items had failures:" );
             message.push( failedMsg.join( nl ) );
-            this.console.error( message.join( nl ) );
+            self.console.error( message.join( nl ) );
         }
 
         // Summary
@@ -318,7 +338,7 @@ doctest.fn = {
             message.push( "Test passed." );
         }
 
-        this.console.log( message.join( nl ) );
+        self.console.log( message.join( nl ) );
     },
 
     // Assert test object
@@ -333,7 +353,7 @@ doctest.fn = {
 
         // Evaluation!
         try {
-            got = this.eval( test );
+            got = self.eval( test );
         } catch ( error ) {
             got = error;
         }
@@ -345,8 +365,8 @@ doctest.fn = {
             flag = test.flags[ i ].replace( /^\+/, "" );
 
             // Check support the flag
-            if ( this.flags[ flag ] !== undefined ) {
-                var returned = this.flags[ flag ]( test );
+            if ( self.flags[ flag ] !== undefined ) {
+                var returned = self.flags[ flag ]( test );
 
                 // Just return if flag returns anything
                 if ( returned !== undefined ) {
@@ -357,7 +377,7 @@ doctest.fn = {
 
         // Stringify and compare
         if ( String( test.expected ) !== String( got ) ) {
-            throw new this.TestError( test, got );
+            throw new self.TestError( test, got );
         }
 
         // If no problem
@@ -390,9 +410,8 @@ doctest.fn = {
             return true;
         }
     }
-};
+});
 
-$.extend( doctest, doctest.fn );
 $.extend({
     doctest: doctest
 });

@@ -3,15 +3,15 @@ This is the "example" module.
 
 The example module supplies one function, factorial().  For example,
 
-> factorial( 5 );
+>>> factorial( 5 );
 120
 */
 
 function factorial( n ) {
     /**
-    > factorial( 1 );
+    >>> factorial( 1 );
     1
-    > factorial( 30 );
+    >>> factorial( 30 );
     2.6525285981219103e+32
     */
 

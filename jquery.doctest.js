@@ -20,13 +20,15 @@ var doctest = function( scriptUrl ) {
     end = /\*\//,
 
     // Is this line a test code
-    prompt = /^\s*>\s*(.+)\s*$/,
+    prompt = /^>>>\s*(.+)\s*$/,
 
     // Is this line a continued test code
-    continued = /^\s*\.\s*(.+)\s*$/,
+    continued = /^\.\.\.\s*(.+)\s*$/,
 
     // Check if this line has flags
     flags = /\/\/doctest:\s*(.+)\s*$/,
+
+    blank = /^\s*$/,
 
     // A tab string
     ____ = "    ",
@@ -44,7 +46,13 @@ var doctest = function( scriptUrl ) {
         }
     };
 
+// Alias for static methods
 var self = doctest;
+
+// Make jQuery.doctest
+$.extend({
+    doctest: self
+});
 
 // Methods
 doctest.fn = doctest.prototype = {
@@ -130,7 +138,7 @@ doctest.fn = doctest.prototype = {
                 message = [];
                 message.push( failedItems.length + " items had failures:" );
                 message.push( failedMsg.join( nl ) );
-                self.console.error( message.join( nl ) );
+                self.console.warn( message.join( nl ) );
             }
 
             // Summary
@@ -158,36 +166,36 @@ doctest.fn = doctest.prototype = {
 
     toString: function() {
         /**
-        > ({});
+        >>> ({});
         [object Object]
-        > $.doctest();
-        [$.doctest Object]
-        > $.doctest( "test/nothing-fn.toString.js" );
-        [$.doctest Object]
+        >>> $.doctest();
+        [object $.doctest]
+        >>> $.doctest( "test/nothing-fn.toString.js" );
+        [object $.doctest]
         */
-        return "[$.doctest Object]";
+        return "[object $.doctest]";
     }
 };
 
 // Event setters
 for ( var i in doctest.fn.events ) {
     /**
-    > dt = $.doctest() //doctest: +SKIP
-    > $.isFunction( dt.events.complete );
+    >>> dt = $.doctest() //doctest: +SKIP
+    >>> $.isFunction( dt.events.complete );
     false
-    > dt.complete(function() {});
-    [$.doctest Object]
-    > $.isFunction( dt.events.complete );
+    >>> dt.complete(function() {});
+    [object $.doctest]
+    >>> $.isFunction( dt.events.complete );
     true
-    > $.isFunction( dt.events.pass );
+    >>> $.isFunction( dt.events.pass );
     false
-    > $.isFunction( dt.events.fail );
+    >>> $.isFunction( dt.events.fail );
     false
-    > dt.pass(function() {}).fail(function() {});
-    [$.doctest Object]
-    > $.isFunction( dt.events.pass );
+    >>> dt.pass(function() {}).fail(function() {});
+    [object $.doctest]
+    >>> $.isFunction( dt.events.pass );
     true
-    > $.isFunction( dt.events.fail );
+    >>> $.isFunction( dt.events.fail );
     true
     */
     doctest.fn[ i ] = eval(
@@ -204,15 +212,16 @@ doctest.extend({
     // Console should contains log(), error() method
     console: {
         log: $.proxy( console, "log" ),
-        error: $.proxy( console, $.browser.webkit ? "error" : "log" )
+        error: $.proxy( console, $.browser.webkit ? "error" : "warn" ),
+        warn: $.proxy( console, "warn" )
     },
 
     // Test the script file
     testjs: function( scriptUrl, events ) {
         /**
-        > $.doctest.testjs( "test/nothing-testjs.js" );
+        >>> $.doctest.testjs( "test/nothing-testjs.js" );
         [object Object]
-        > $( "script[src$=test/nothing-testjs.js]" ).length;
+        >>> $( "script[src$=test/nothing-testjs.js]" ).length;
         1
         */
 
@@ -233,7 +242,7 @@ doctest.extend({
 		// Handle $.doctest(), $.doctest( null ) or $.doctest( undefined )
         if ( !scriptUrl ) {
             return result;
-            run( $( "html" ).html() );
+            // run( $( "html" ).html() );
 
 		// Handle $.doctest( "example.js" )
         } else {
@@ -255,8 +264,8 @@ doctest.extend({
     // Run tests
     run: function( description, events, assert ) {
         /**
-        > d = [[{ line: 12, code: "1+1;", expected: "2", flags: []}]] //doctest: +SKIP
-        > $.doctest.run( d )[ 0 ].passed;
+        >>> d = [[{ line: 12, code: "1+1;", expected: "2", flags: []}]] //doctest: +SKIP
+        >>> $.doctest.run( d )[ 0 ].passed;
         1
         */
         var test, item, line,
@@ -309,33 +318,43 @@ doctest.extend({
     // Parse the code and return a description
     describe: function( code ) {
         /**
-        > code = "/*" + "*\n> 1 + 1;\n2\n*" + "/"; //doctest: +SKIP
-        > code.length;
-        17
-        > description = $.doctest.describe( code );
+        >>> code = "/*" + "*\n>>> 1 + 1;\n2\n*" + "/"; //doctest: +SKIP
+        >>> code.length;
+        19
+        >>> description = $.doctest.describe( code );
         [object Object]
-        > description.length;
+        >>> description.length;
         1
-        > description[0][0].code;
+        >>> description[0][0].code;
         1 + 1;
-        > description[0][0].expected;
+        >>> description[0][0].expected;
         2
-        > description[0][0].line;
+        >>> description[0][0].line;
         2
-        > description[0][0].flags.length;
+        >>> description[0][0].flags.length;
         0
         */
         var description = [], items = [], itemLines = [],
             isItem = false, hasFlag = false,
             lines = code.split( "\n" ),
-            line, finalLine, item, test;
+            line, finalLine, item, test, indent;
 
         for ( var i in lines ) {
             line = lines[ i ];
 
+            // Validate indentation
+            if ( indent !== undefined && !blank.exec( line ) ) {
+                if ( line.search( indent ) !== 0 ) {
+                    throw new self.errors.IndentationError( i );
+                } else {
+                    line = line.slice( indent.length );
+                }
+            }
+
             // When the start line of a docstring
             if ( start.exec( line ) ) {
                 isItem = true;
+                indent = line.slice( 0, line.search( start ) );
                 continue;
 
             // When the end line of a docstring
@@ -343,12 +362,13 @@ doctest.extend({
                 items.push( itemLines );
                 itemLines = [];
                 isItem = false;
+                indent = undefined;
             }
 
             // When the line in a docstring
             if ( isItem ) {
                 finalLine = parseInt( i ) + 1;
-                itemLines[ finalLine ] = $.trim( line );
+                itemLines[ finalLine ] = line;
             }
         }
 
@@ -399,6 +419,11 @@ doctest.extend({
                     if ( continued.exec( line ) ) {
                         test.code.push( line.match( continued )[1] );
 
+                    // Blank line
+                    } else if ( blank.exec( line ) ) {
+                        keep( test );
+                        test = undefined;
+
                     // When the line means expected value
                     } else {
                         if ( test.expected === undefined ) {
@@ -423,9 +448,9 @@ doctest.extend({
     // Assert test object
     assert: function( test ) {
         /**
-        > $.doctest.assert({ code: "1+'0';", expected: "10", flags: [] });
+        >>> $.doctest.assert({ code: "1+'0';", expected: "10", flags: [] });
         true
-        > $.doctest.assert({ code: "1+0;", expected: "1", flags: [] });
+        >>> $.doctest.assert({ code: "1+0;", expected: "1", flags: [] });
         true
         */
         var got, flag;
@@ -456,7 +481,7 @@ doctest.extend({
 
         // Stringify and compare
         if ( String( test.expected ) !== String( got ) ) {
-            throw new self.TestError( test, got );
+            throw new self.errors.TestError( test, got );
         }
 
         // If no problem
@@ -482,24 +507,20 @@ doctest.extend({
         // Call when each test failed
         fail: function( error ) {
             /*
-            >> e = new $.doctest.TestError({
+            >>> e = new $.doctest.errors.TestError({
             ...   line: 12,
             ...   code: "13",
             ...   expected: "12"
             ... }, 13 );
-            [$.doctest.TestError Object]
+            [object $.doctest.errors.TestError]
 
             >>> $.doctest.events.fail( e );
-            Line 12
-            Failed example:
-                13
-            Expected:
-                12
-            Got:
-                13
+
+            Issue: catching the console output is impossible
             */
-            if ( error instanceof self.TestError ) {
-                self.console.error([
+            var message;
+            if ( error instanceof self.errors.TestError ) {
+                message = [
                     "Line " + error.test.line,
                     "Failed example:",
                     ____ + error.test.code,
@@ -507,9 +528,9 @@ doctest.extend({
                     ____ + error.test.expected,
                     "Got:",
                     ____ + error.got
-                ].join( "\n" ) );
+                ].join( "\n" );
             } else {
-                self.console.error([
+                message = [
                     "Line " + error.test.line,
                     "Failed example:",
                     ____ + error.test.code,
@@ -517,16 +538,9 @@ doctest.extend({
                     ____ + error.test.expected,
                     "Got:",
                     ____ + String( error )
-                ].join( "\n" ) );
+                ].join( "\n" );
             }
-        }
-    },
-
-    TestError: function( test, got ) {
-        this.test = test;
-        this.got = got;
-        this.toString = function() {
-            return "[$.doctest.TestError Object]";
+            return self.console.error( message );
         }
     },
 
@@ -534,11 +548,24 @@ doctest.extend({
         SKIP: function() {
             return true;
         }
-    }
-});
+    },
 
-$.extend({
-    doctest: doctest
+    errors: {
+        TestError: function( test, got ) {
+            this.test = test;
+            this.got = got;
+            this.toString = function() {
+                return "[object $.doctest.errors.TestError]";
+            }
+        },
+
+        IndentationError: function( line ) {
+            this.line = line;
+            this.toString = function() {
+                return "[object $.doctest.errors.IndentaionError]";
+            }
+        }
+    }
 });
 
 })( jQuery );

@@ -20,7 +20,10 @@ var doctest = function( scriptUrl ) {
     end = /\*\//,
 
     // Is this line a test code
-    prompt = />\s*(.+)\s*$/,
+    prompt = /^\s*>\s*(.+)\s*$/,
+
+    // Is this line a continued test code
+    continued = /^\s*\.\s*(.+)\s*$/,
 
     // Check if this line has flags
     flags = /\/\/doctest:\s*(.+)\s*$/,
@@ -350,11 +353,16 @@ doctest.extend({
         }
 
         var keep = function( test ) {
+            // Merge code
+            test.code = test.code.join( "\n" );
+
+            // Merge expected value
             if ( test.expected === undefined ) {
                 test.expected = undefined;
             } else {
                 test.expected = test.expected.join( "\n" );
             }
+
             item.push( test );
         }
 
@@ -374,22 +382,30 @@ doctest.extend({
 
                     test = {
                         line: i,
-                        code: line.match( prompt )[ 1 ]
+                        code: [line.match( prompt )[ 1 ]]
                     };
 
                     // Find flags
-                    hasFlag = test.code.match( flags );
+                    hasFlag = test.code[0].match( flags );
 
                     if ( hasFlag ) {
                         test.flags = hasFlag[ 1 ].split( /\s+/ );
                     } else {
                         test.flags = [];
                     }
+
                 } else if ( test !== undefined ) {
-                    if ( test.expected === undefined ) {
-                        test.expected = [];
+                    // When the line contains continued prompt
+                    if ( continued.exec( line ) ) {
+                        test.code.push( line.match( continued )[1] );
+
+                    // When the line means expected value
+                    } else {
+                        if ( test.expected === undefined ) {
+                            test.expected = [];
+                        }
+                        test.expected.push( line );
                     }
-                    test.expected.push( line );
                 }
 
                 // The test must be keeped

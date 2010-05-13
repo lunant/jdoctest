@@ -13,18 +13,6 @@ var doctest = function( scriptUrl ) {
         return new doctest.fn.init( scriptUrl );
     },
 
-    // Is this line a start of docstring
-    start = /\/\*\*/,
-
-    // Is this line a end of docstring
-    end = /\*\//,
-
-    // Is this line a test code
-    prompt = /^>>>\s*(.+)\s*$/,
-
-    // Is this line a continued test code
-    continued = /^\.\.\.\s*(.+)\s*$/,
-
     // Check if this line has flags
     flags = /\/\/doctest:\s*(.+)\s*$/,
 
@@ -44,6 +32,16 @@ var doctest = function( scriptUrl ) {
         } else {
             return n + "th";
         }
+    },
+
+    escapeRegExp = function( t ) {
+        var specials = [
+            "/", ".", "*", "+", "?", "|",
+            "(", ")", "[", "]", "{", "}", "\\"
+        ];
+        var r = new RegExp( "(\\" + specials.join( "|\\" ) + ")", "g" );
+
+        return t.replace( r, "\\$1" );
     };
 
 // Alias for static methods
@@ -216,6 +214,14 @@ doctest.extend({
         warn: $.proxy( console, "warn" )
     },
 
+    // Default symbols
+    symbols: {
+        docStart: "/**",
+        docEnd: "*/",
+        prompt: ">>> ",
+        continued: "... "
+    },
+
     // Test the script file
     testjs: function( scriptUrl, events ) {
         /**
@@ -334,10 +340,27 @@ doctest.extend({
         >>> description[0][0].flags.length;
         0
         */
-        var description = [], items = [], itemLines = [],
+        var lines = code.split( "\n" ),
+
+            // Modes
             isItem = false, hasFlag = false,
-            lines = code.split( "\n" ),
-            line, finalLine, item, test, indent;
+
+            description = [], items = [], itemLines = [],
+            line, finalLine, item, test, indent,
+
+            _docStart = self.symbols.docStart,
+            _docEnd = self.symbols.docEnd,
+            _prompt = self.symbols.prompt,
+            _continued = self.symbols.continued,
+            docStart, docEnd, prompt, continued,
+
+            spaces = "^\\s*",
+            group = "(.+)$";
+
+        docStart = new RegExp( escapeRegExp( _docStart ) );
+        docEnd = new RegExp( escapeRegExp( _docEnd ) );
+        prompt = new RegExp( spaces + escapeRegExp( _prompt ) + group );
+        continued = new RegExp( spaces + escapeRegExp( _continued ) + group );
 
         for ( var i in lines ) {
             line = lines[ i ];
@@ -352,13 +375,13 @@ doctest.extend({
             }
 
             // When the start line of a docstring
-            if ( start.exec( line ) ) {
+            if ( docStart.exec( line ) ) {
                 isItem = true;
-                indent = line.slice( 0, line.search( start ) );
+                indent = line.slice( 0, line.search( docStart ) );
                 continue;
 
             // When the end line of a docstring
-            } else if ( isItem && end.exec( line ) ) {
+            } else if ( isItem && docEnd.exec( line ) ) {
                 items.push( itemLines );
                 itemLines = [];
                 isItem = false;

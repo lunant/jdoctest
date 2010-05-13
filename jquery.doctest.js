@@ -48,16 +48,15 @@ var doctest = function( scriptUrl ) {
 var self = doctest;
 
 // Make jQuery.doctest
-$.extend({
-    doctest: self
-});
+$.extend({ doctest: self });
 
 // Methods
 doctest.fn = doctest.prototype = {
     // Initialize
     init: function( scriptUrl, options ) {
         this.scriptUrl = scriptUrl;
-        this.result = self.testjs( scriptUrl, this.events );
+        $.extend( this.options, options );
+        this.result = self.testjs( scriptUrl, this.options );
         return this;
     },
 
@@ -156,12 +155,6 @@ doctest.fn = doctest.prototype = {
         return this;
     },
 
-    events: {
-        complete: undefined,
-        pass: undefined,
-        fail: undefined
-    },
-
     toString: function() {
         /**
         >>> ({});
@@ -174,32 +167,6 @@ doctest.fn = doctest.prototype = {
         return "[object $.doctest]";
     }
 };
-
-// Event setters
-for ( var i in doctest.fn.events ) {
-    /**
-    >>> dt = $.doctest() //doctest: +SKIP
-    >>> $.isFunction( dt.events.complete );
-    false
-    >>> dt.complete(function() {});
-    [object $.doctest]
-    >>> $.isFunction( dt.events.complete );
-    true
-    >>> $.isFunction( dt.events.pass );
-    false
-    >>> $.isFunction( dt.events.fail );
-    false
-    >>> dt.pass(function() {}).fail(function() {});
-    [object $.doctest]
-    >>> $.isFunction( dt.events.pass );
-    true
-    >>> $.isFunction( dt.events.fail );
-    true
-    */
-    doctest.fn[ i ] = eval(
-        "(function( fn ) { this.events." + i + " = fn; return this; })"
-    );
-}
 
 // Give the init function the doctest prototype for later instantiation
 doctest.fn.init.prototype = doctest.fn;
@@ -223,7 +190,7 @@ doctest.extend({
     },
 
     // Test the script file
-    testjs: function( scriptUrl, events ) {
+    testjs: function( scriptUrl, options ) {
         /**
         >>> $.doctest.testjs( "test/nothing-testjs.js" );
         [object Object]
@@ -231,15 +198,17 @@ doctest.extend({
         1
         */
 
+        options = self.options( options );
+
         var result = {},
-            start = events && events.start || self.events.start,
-            complete = events && events.complete || self.events.complete;
+            start = options.start,
+            complete = options.complete;
 
         var run = function( code ) {
             var description = self.describe( code );
 
             // Set result
-            $.extend( result, self.run( description, events ) );
+            $.extend( result, self.run( description, options ) );
 
             // Call complete event
             return complete( result );
@@ -268,19 +237,21 @@ doctest.extend({
     },
 
     // Run tests
-    run: function( description, events, assert ) {
+    run: function( description, options ) {
         /**
         >>> d = [[{ line: 12, code: "1+1;", expected: "2", flags: []}]] //doctest: +SKIP
         >>> $.doctest.run( d )[ 0 ].passed;
         1
         */
-        var test, item, line,
-            result = [],
-            passed, failed;
+        options = self.options( options );
 
-        pass = events && events.pass || self.events.pass;
-        fail = events && events.fail || self.events.fail;
-        assert = assert || self.assert;
+        var result = [],
+            test, item, line,
+            passed, failed,
+
+            // Events
+            pass = options.pass,
+            fail = options.fail;
 
         // for item in description
         for ( var i in description ) {
@@ -298,7 +269,7 @@ doctest.extend({
                 }
 
                 try {
-                    assert( test );
+                    self.assert( test );
                     pass( test );
                     passed++;
 
@@ -322,7 +293,7 @@ doctest.extend({
     },
 
     // Parse the code and return a description
-    describe: function( code ) {
+    describe: function( code, options ) {
         /**
         >>> code = "/*" + "*\n>>> 1 + 1;\n2\n*" + "/"; //doctest: +SKIP
         >>> code.length;
@@ -340,6 +311,8 @@ doctest.extend({
         >>> description[0][0].flags.length;
         0
         */
+        options = self.options( options );
+
         var lines = code.split( "\n" ),
 
             // Modes
@@ -348,19 +321,19 @@ doctest.extend({
             description = [], items = [], itemLines = [],
             line, finalLine, item, test, indent,
 
-            _docStart = self.symbols.docStart,
-            _docEnd = self.symbols.docEnd,
-            _prompt = self.symbols.prompt,
-            _continued = self.symbols.continued,
+            _docStart = options.docStart,
+            _docEnd = options.docEnd,
+            _prompt = options.prompt,
+            _continued = options.continued,
             docStart, docEnd, prompt, continued,
 
             spaces = "^\\s*",
-            group = "(.+)$";
+            input = "(.+)$";
 
-        docStart = new RegExp( escapeRegExp( _docStart ) );
-        docEnd = new RegExp( escapeRegExp( _docEnd ) );
-        prompt = new RegExp( spaces + escapeRegExp( _prompt ) + group );
-        continued = new RegExp( spaces + escapeRegExp( _continued ) + group );
+        docStart = new RegExp( spaces + escapeRegExp( _docStart ) );
+        docEnd = new RegExp( spaces + escapeRegExp( _docEnd ) );
+        prompt = new RegExp( spaces + escapeRegExp( _prompt ) + input );
+        continued = new RegExp( spaces + escapeRegExp( _continued ) + input );
 
         for ( var i in lines ) {
             line = lines[ i ];
@@ -377,7 +350,7 @@ doctest.extend({
             // When the start line of a docstring
             if ( docStart.exec( line ) ) {
                 isItem = true;
-                indent = line.slice( 0, line.search( docStart ) );
+                indent = line.slice( 0, line.match( spaces )[ 0 ].length );
                 continue;
 
             // When the end line of a docstring
@@ -588,6 +561,10 @@ doctest.extend({
                 return "[object $.doctest.errors.IndentaionError]";
             }
         }
+    },
+
+    options: function( options ) {
+        return $.extend( {}, self.events, self.symbols, options );
     }
 });
 

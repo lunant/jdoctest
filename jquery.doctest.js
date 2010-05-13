@@ -9,8 +9,8 @@
  */
 (function( $, undefined ) {
 
-var doctest = function( scriptUrl ) {
-        return new doctest.fn.init( scriptUrl );
+var doctest = function( scriptUrl, options ) {
+        return new doctest.fn.init( scriptUrl, options );
     },
 
     // Check if this line has flags
@@ -52,6 +52,29 @@ $.extend({ doctest: self });
 
 // Methods
 doctest.fn = doctest.prototype = {
+    options: {},
+
+    pass: function( callback ) {
+        $.extend( this.options, {
+            pass: callback
+        });
+        return this;
+    },
+
+    fail: function( callback ) {
+        $.extend( this.options, {
+            fail: callback
+        });
+        return this;
+    },
+
+    complete: function( callback ) {
+        $.extend( this.options, {
+            complete: callback
+        });
+        return this;
+    },
+
     // Initialize
     init: function( scriptUrl, options ) {
         this.scriptUrl = scriptUrl;
@@ -71,7 +94,7 @@ doctest.fn = doctest.prototype = {
                 "ok"
             ].join( "\n" ) );
         });
-
+        
         this.complete(function( result ) {
             var message, msg,
                 passedMsg = [], failedMsg = [], emptyMsg = [],
@@ -198,20 +221,17 @@ doctest.extend({
         1
         */
 
-        options = self.options( options );
-
-        var result = {},
-            start = options.start,
-            complete = options.complete;
+        var result = {};
 
         var run = function( code ) {
-            var description = self.describe( code );
+            var opt = self.options( options ),
+                description = self.describe( code, options );
 
             // Set result
             $.extend( result, self.run( description, options ) );
 
             // Call complete event
-            return complete( result );
+            return opt.complete( result );
         };
 
 		// Handle $.doctest(), $.doctest( null ) or $.doctest( undefined )
@@ -239,19 +259,24 @@ doctest.extend({
     // Run tests
     run: function( description, options ) {
         /**
-        >>> d = [[{ line: 12, code: "1+1;", expected: "2", flags: []}]] //doctest: +SKIP
+        >>> d = [[{
+        ...     line: 12,
+        ...     code: "1+1;",
+        ...     expected: "2",
+        ...     flags: []
+        ... }]] //doctest: +SKIP
         >>> $.doctest.run( d )[ 0 ].passed;
         1
         */
-        options = self.options( options );
+        var opt = self.options( options ),
 
-        var result = [],
+            result = [],
             test, item, line,
             passed, failed,
 
             // Events
-            pass = options.pass,
-            fail = options.fail;
+            pass = opt.pass,
+            fail = opt.fail;
 
         // for item in description
         for ( var i in description ) {
@@ -311,9 +336,8 @@ doctest.extend({
         >>> description[0][0].flags.length;
         0
         */
-        options = self.options( options );
-
-        var lines = code.split( "\n" ),
+        var opt = self.options( options ),
+            lines = code.split( "\n" ),
 
             // Modes
             isItem = false, hasFlag = false,
@@ -321,19 +345,22 @@ doctest.extend({
             description = [], items = [], itemLines = [],
             line, finalLine, item, test, indent,
 
-            _docStart = options.docStart,
-            _docEnd = options.docEnd,
-            _prompt = options.prompt,
-            _continued = options.continued,
+            docStartSymbol = opt.docStart,
+            docEndSymbol = opt.docEnd,
+            promptSymbol = opt.prompt,
+            continuedSymbol = opt.continued,
+
             docStart, docEnd, prompt, continued,
 
             spaces = "^\\s*",
-            input = "(.+)$";
+            input = "(.+)$",
+            
+            e = escapeRegExp;
 
-        docStart = new RegExp( spaces + escapeRegExp( _docStart ) );
-        docEnd = new RegExp( spaces + escapeRegExp( _docEnd ) );
-        prompt = new RegExp( spaces + escapeRegExp( _prompt ) + input );
-        continued = new RegExp( spaces + escapeRegExp( _continued ) + input );
+        docStart = new RegExp( spaces + e( docStartSymbol ) );
+        docEnd = new RegExp( spaces + e( docEndSymbol ) );
+        prompt = new RegExp( spaces + e( promptSymbol ) + input );
+        continued = new RegExp( spaces + e( continuedSymbol ) + input );
 
         for ( var i in lines ) {
             line = lines[ i ];
@@ -402,7 +429,7 @@ doctest.extend({
                     };
 
                     // Find flags
-                    hasFlag = test.code[0].match( flags );
+                    hasFlag = test.code[ 0 ].match( flags );
 
                     if ( hasFlag ) {
                         test.flags = hasFlag[ 1 ].split( /\s+/ );
@@ -414,6 +441,15 @@ doctest.extend({
                     // When the line contains continued prompt
                     if ( continued.exec( line ) ) {
                         test.code.push( line.match( continued )[1] );
+
+                        // Find flags
+                        var l = test.code.length - 1;
+                        hasFlag = test.code[ l ].match( flags );
+
+                        if ( hasFlag ) {
+                            var newFlags = hasFlag[ 1 ].split( /\s+/ );
+                            test.flags = $.merge( test.flags, newFlags );
+                        }
 
                     // Blank line
                     } else if ( blank.exec( line ) ) {

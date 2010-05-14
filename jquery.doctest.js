@@ -78,7 +78,7 @@ doctest.fn = doctest.prototype = {
     // Initialize
     init: function( scriptUrl, options ) {
         this.scriptUrl = scriptUrl;
-        $.extend( this.options, options );
+        this.options = $.extend( {}, this.options, options );
         this.result = self.testjs( scriptUrl, this.options );
         return this;
     },

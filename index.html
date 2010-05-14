@@ -16,12 +16,16 @@
 <script type="text/javascript" src="/resources/scripts/jquery.js"></script>
 <script type="text/javascript" src="jquery.doctest.js"></script>
 <script type="text/javascript">
+  $.doctest( "tests/equals.js" ).verbose();
+  $.doctest( "tests/example.js" ).verbose();
+  $.doctest( "tests/failed.js" ).verbose();
+  $.doctest( "tests/multiline.js" ).verbose();
   $.doctest( "tests/symbol.js", {
     docStart: "/* <doctest> *\\",
     docEnd: "\\* </doctest> */",
     prompt: "js> ",
     continued: "..> "
-  } ).verbose();
+  }).verbose();
 </script>
 </body>
 </html>

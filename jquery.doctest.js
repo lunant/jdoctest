@@ -18,8 +18,26 @@ var doctest = function( scriptUrl, options ) {
 
     blank = /^\s*$/,
 
-    // A tab string
+    // Add tab string each line
     ____ = "    ",
+    shift = function( text, depth ) {
+        depth = depth || 1;
+
+        var input = text.split( "\n" ),
+            output = [],
+            buffer;
+
+        for ( var i in input ) {
+            buffer = "";
+            for ( var j = 0; j < depth; j++ ) {
+                buffer += ____;
+            }
+            buffer += input[ i ];
+            output.push( buffer );
+        }
+
+        return output.join( "\n" );
+    }
 
     th = function( n ) {
         n = parseInt( n );
@@ -88,9 +106,9 @@ doctest.fn = doctest.prototype = {
             // Log seccess message
             self.console.log([
                 "Trying:",
-                ____ + test.code,
+                shift( test.code ),
                 "Expecting:",
-                ____ + test.expected,
+                shift( test.expected ),
                 "ok"
             ].join( "\n" ) );
         });
@@ -505,16 +523,20 @@ doctest.extend({
             if ( self.flags[ flag ] !== undefined ) {
                 var returned = self.flags[ flag ]( test, got );
 
-                // Just return if flag returns anything
-                if ( returned !== undefined ) {
-                    return returned;
-                }
-
+                // OutputChecker
                 if ( returned.test !== undefined ) {
                     test = returned.test;
                 }
                 if ( returned.got !== undefined ) {
                     got = returned.got;
+                }
+
+                // DocTestRunner flag
+                if ( typeof returned === "boolean" ) {
+                    if ( !returned ) {
+                        throw new self.errors.TestError( test, got );
+                    }
+                    return true;
                 }
             }
         }
@@ -629,7 +651,7 @@ doctest.extend({
             var e = escapeRegExp,
                 ellipsis = new RegExp( e( e( "..." ) ), "g" );
                 pattern = e( test.expected ).replace( ellipsis, ".*" );
-            return (new RegExp( pattern )).exec( got );
+            return !!(new RegExp( pattern )).exec( got );
         }
     },
 

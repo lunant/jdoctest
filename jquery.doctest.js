@@ -18,6 +18,8 @@ var doctest = function( scriptUrl, options ) {
 
     blank = /^\s*$/,
 
+    scriptUrl = /\.js$/,
+
     // Add tab string each line
     ____ = "    ",
     shift = function( text, depth ) {
@@ -65,7 +67,11 @@ var doctest = function( scriptUrl, options ) {
 // Alias for static methods
 var self = doctest;
 
-// Make jQuery.doctest
+/** Make jQuery.doctest
+
+    >>> $.isFunction( $.doctest );
+    true
+*/
 $.extend({ doctest: self });
 
 // Methods
@@ -94,10 +100,37 @@ doctest.fn = doctest.prototype = {
     },
 
     // Initialize
-    init: function( scriptUrl, options ) {
-        this.scriptUrl = scriptUrl;
+    init: function( script, options ) {
+        /**
+        >>> $.doctest( "example.js" ).scriptUrl;
+        example.js
+        >>> __vlaah__ = function __vlaah__() {
+        ...     // http://vlaah.com/
+        ... } //doctest: SKIP
+        >>> $.doctest( __vlaah__ ).funcName;
+        __vlaah__
+        */
         this.options = $.extend( {}, this.options, options );
-        this.result = self.testjs( scriptUrl, this.options );
+
+        // Handle $.doctest( "example.js" )
+        if ( scriptUrl.exec( script ) ) {
+            this.scriptUrl = script;
+            this.result = self.testFile( script, this.options );
+
+        // Handle $.doctest( exampleFunction )
+        } else if ( $.isFunction( script ) ) {
+            this.funcName = script.name;
+            this.result = self.testFunc( script, this.options );
+
+        // Handle $.doctest( "/** >>> 'Hi'; ..." )
+        } else if ( script ) {
+            this.result = self.testCode( script, this.options );
+
+        // Handle $.doctest() or $.doctest( null )
+        } else {
+            this.result = {};
+        }
+
         return this;
     },
 
@@ -231,47 +264,55 @@ doctest.extend({
     },
 
     // Test the script file
-    testjs: function( scriptUrl, options ) {
+    testFile: function( scriptUrl, options ) {
         /**
-        >>> $.doctest.testjs( "test/nothing-testjs.js" );
+        >>> $.doctest.testFile( "test/nothing-testFile.js" );
         [object Object]
-        >>> $( "script[src$=test/nothing-testjs.js]" ).length;
+        >>> $( "script[src$=test/nothing-testFile.js]" ).length;
         1
         */
 
         var result = {};
 
         var run = function( code ) {
-            var opt = self.options( options ),
-                description = self.describe( code, options );
+            var opt = self.options( options );
 
             // Set result
-            $.extend( result, self.run( description, options ) );
+            $.extend( result, self.testCode( code, options ) );
 
             // Call complete event
             return opt.complete( result );
         };
 
-		// Handle $.doctest(), $.doctest( null ) or $.doctest( undefined )
-        if ( !scriptUrl ) {
-            return result;
-            // run( $( "html" ).html() );
-
-		// Handle $.doctest( "example.js" )
-        } else {
-            // Load the script
-            if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
-                var markup = '<script class="doctest" type="text/javascript" '
-                           + 'src="' + scriptUrl + '"></script>';
-                $( markup ).appendTo( document.body );
-            }
-
-            // Get code of the script and run tests
-            $.getScript( scriptUrl, run );
+        // Load the script
+        if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
+            var markup = '<script class="doctest" type="text/javascript" '
+                       + 'src="' + scriptUrl + '"></script>';
+            $( markup ).appendTo( document.body );
         }
+
+        // Get code of the script and run tests
+        $.getScript( scriptUrl, run );
 
         // Result is empty yet. It will come later
         return result;
+    },
+
+    // Test the code
+    testCode: function( code, options ) {
+        var opt = self.options( options ),
+            description = self.describe( code, options );
+
+        // Set result
+        return self.run( description, options );
+    },
+
+    testFunc: function( func, options ) {
+        /**
+        >>> $.doctest.testFunc( $.doctest.run );
+        [object Object]
+        */
+        return self.testCode( String( func ), options );
     },
 
     // Run tests

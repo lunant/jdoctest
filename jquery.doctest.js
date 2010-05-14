@@ -361,23 +361,14 @@ doctest.extend({
         docEnd = new RegExp( spaces + e( docEndSymbol ) );
         prompt = new RegExp( spaces + e( promptSymbol ) + input );
         continued = new RegExp( spaces + e( continuedSymbol ) + input );
+        spaces = new RegExp( spaces );
 
         for ( var i in lines ) {
             line = lines[ i ];
 
-            // Validate indentation
-            if ( indent !== undefined && !blank.exec( line ) ) {
-                if ( line.search( indent ) !== 0 ) {
-                    throw new self.errors.IndentationError( i );
-                } else {
-                    line = line.slice( indent.length );
-                }
-            }
-
             // When the start line of a docstring
             if ( docStart.exec( line ) ) {
                 isItem = true;
-                indent = line.slice( 0, line.match( spaces )[ 0 ].length );
                 continue;
 
             // When the end line of a docstring
@@ -385,7 +376,6 @@ doctest.extend({
                 items.push( itemLines );
                 itemLines = [];
                 isItem = false;
-                indent = undefined;
             }
 
             // When the line in a docstring
@@ -423,6 +413,8 @@ doctest.extend({
                         keep( test );
                     }
 
+                    indent = line.match( spaces )[ 0 ];
+
                     test = {
                         line: i,
                         code: [line.match( prompt )[ 1 ]]
@@ -438,30 +430,39 @@ doctest.extend({
                     }
 
                 } else if ( test !== undefined ) {
-                    // When the line contains continued prompt
-                    if ( continued.exec( line ) ) {
-                        test.code.push( line.match( continued )[1] );
-
-                        // Find flags
-                        var l = test.code.length - 1;
-                        hasFlag = test.code[ l ].match( flags );
-
-                        if ( hasFlag ) {
-                            var newFlags = hasFlag[ 1 ].split( /\s+/ );
-                            test.flags = $.merge( test.flags, newFlags );
-                        }
-
                     // Blank line
-                    } else if ( blank.exec( line ) ) {
+                    if ( blank.exec( line ) ) {
                         keep( test );
                         test = undefined;
 
-                    // When the line means expected value
                     } else {
-                        if ( test.expected === undefined ) {
-                            test.expected = [];
+                        // Validate indention
+                        if ( line.match( spaces )[ 0 ].search( indent ) < 0 ) {
+                            throw new self.errors.IndentationError( line );
+                        } else {
+                            line = line.slice( indent.length );
                         }
-                        test.expected.push( line );
+
+                        // When the line contains continued prompt
+                        if ( continued.exec( line ) ) {
+                            test.code.push( line.match( continued )[1] );
+
+                            // Find flags
+                            var l = test.code.length - 1;
+                            hasFlag = test.code[ l ].match( flags );
+
+                            if ( hasFlag ) {
+                                var newFlags = hasFlag[ 1 ].split( /\s+/ );
+                                test.flags = $.merge( test.flags, newFlags );
+                            }
+
+                        // When the line means expected value
+                        } else {
+                            if ( test.expected === undefined ) {
+                                test.expected = [];
+                            }
+                            test.expected.push( line );
+                        }
                     }
                 }
 
@@ -485,7 +486,7 @@ doctest.extend({
         >>> $.doctest.assert({ code: "1+0;", expected: "1", flags: [] });
         true
         */
-        var got, flag;
+        var got, expected, flag;
 
         // Evaluation!
         try {
@@ -502,17 +503,25 @@ doctest.extend({
 
             // Check support the flag
             if ( self.flags[ flag ] !== undefined ) {
-                var returned = self.flags[ flag ]( test );
+                var returned = self.flags[ flag ]( test, got );
 
                 // Just return if flag returns anything
                 if ( returned !== undefined ) {
                     return returned;
                 }
+
+                if ( returned.test !== undefined ) {
+                    test = returned.test;
+                }
+                if ( returned.got !== undefined ) {
+                    got = returned.got;
+                }
             }
         }
 
         // Stringify and compare
-        if ( String( test.expected ) !== String( got ) ) {
+        expected = String( test.expected ).replace( /<BLANKLINE>/, "" );
+        if ( expected !== String( got ) ) {
             throw new self.errors.TestError( test, got );
         }
 
@@ -577,8 +586,37 @@ doctest.extend({
     },
 
     flags: {
+        // When specified, do not run the example at all. This can be useful
+        // in contexts where doctest examples serve as both documentation and
+        // test cases, and an example should be included for documentation
+        // purposes, but should not be checked. E.g., the example’s output
+        // might be random; or the example might depend on resources which
+        // would be unavailable to the test driver.
+        //
+        // The SKIP flag can also be used for temporarily “commenting out”
+        // examples.
         SKIP: function() {
             return true;
+        },
+
+        // When specified, all sequences of whitespace (blanks and newlines)
+        // are treated as equal. Any sequence of whitespace within the expected
+        // output will match any sequence of whitespace within the actual
+        // output. By default, whitespace must match exactly.
+        // NORMALIZE_WHITESPACE is especially useful when a line of expected
+        // output is very long, and you want to wrap it across multiple lines
+        // in your source.
+        NORMALIZE_WHITESPACE: function( test, got ) {
+            var whitespace = /[ \t\n]+/g;
+
+            test = $.extend( {}, test, {
+                expected: test.expected.replace( whitespace, " " )
+            });
+
+            return {
+                test: test,
+                got: got.replace( whitespace, " " )
+            };
         }
     },
 

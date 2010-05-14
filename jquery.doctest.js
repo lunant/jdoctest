@@ -617,6 +617,19 @@ doctest.extend({
                 test: test,
                 got: got.replace( whitespace, " " )
             };
+        },
+
+        // When specified, an ellipsis marker (...) in the expected output can
+        // match any substring in the actual output. This includes substrings
+        // that span line boundaries, and empty substrings, so it’s best to
+        // keep usage of this simple. Complicated uses can lead to the same
+        // kinds of “oops, it matched too much!” surprises that .* is prone
+        // to in regular expressions.
+        ELLIPSIS: function( test, got ) {
+            var e = escapeRegExp,
+                ellipsis = new RegExp( e( e( "..." ) ), "g" );
+                pattern = e( test.expected ).replace( ellipsis, ".*" );
+            return (new RegExp( pattern )).exec( got );
         }
     },
 

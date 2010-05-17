@@ -99,16 +99,22 @@ doctest.fn = doctest.prototype = {
         return this;
     },
 
-    // Initialize
     init: function( script, options ) {
-        /**
-        >>> $.doctest( "example.js" ).scriptUrl;
-        example.js
-        >>> __vlaah__ = function __vlaah__() {
-        ...     // http://vlaah.com/
-        ... } //doctest: SKIP
-        >>> $.doctest( __vlaah__ ).funcName;
-        __vlaah__
+        /** Initialize doctest
+
+        You can initilize doctest from script file url.
+
+            >>> var example = $.doctest( "example.js" );
+            >>> example.scriptUrl;
+            example.js
+
+        Or function.
+
+            >>> var __vlaah__ = function __vlaah__() {
+            ...     // http://vlaah.com/
+            ... } //doctest: SKIP
+            >>> $.doctest( __vlaah__ ).funcName;
+            __vlaah__
         */
         this.options = $.extend( {}, this.options, options );
 
@@ -233,12 +239,12 @@ doctest.fn = doctest.prototype = {
 
     toString: function() {
         /**
-        >>> ({});
-        [object Object]
-        >>> $.doctest();
-        [object $.doctest]
-        >>> $.doctest( "test/nothing-fn.toString.js" );
-        [object $.doctest]
+            >>> ({});
+            [object Object]
+            >>> $.doctest();
+            [object $.doctest]
+            >>> $.doctest( "test/nothing-fn.toString.js" );
+            [object $.doctest]
         */
         return "[object $.doctest]";
     }
@@ -265,13 +271,13 @@ doctest.extend({
         continued: "... "
     },
 
-    // Test the script file
     testFile: function( scriptUrl, options ) {
-        /**
-        >>> $.doctest.testFile( "test/nothing-testFile.js" );
-        [object Object]
-        >>> $( "script[src$=test/nothing-testFile.js]" ).length;
-        1
+        /** Test the script file
+
+            >>> $.doctest.testFile( "test/nothing-testFile.js" );
+            [object Object]
+            >>> $( "script[src$=test/nothing-testFile.js]" ).length;
+            1
         */
 
         var result = {};
@@ -311,8 +317,8 @@ doctest.extend({
 
     testFunc: function( func, options ) {
         /**
-        >>> $.doctest.testFunc( $.doctest.run );
-        [object Object]
+            >>> $.doctest.testFunc( $.doctest.run );
+            [object Object]
         */
         return self.testCode( String( func ), options );
     },
@@ -320,14 +326,14 @@ doctest.extend({
     // Run tests
     run: function( description, options ) {
         /**
-        >>> d = [[{
-        ...     line: 12,
-        ...     code: "1+1;",
-        ...     expected: "2",
-        ...     flags: []
-        ... }]] //doctest: +SKIP
-        >>> $.doctest.run( d )[ 0 ].passed;
-        1
+            >>> d = [[{
+            ...     line: 12,
+            ...     code: "1+1;",
+            ...     expected: "2",
+            ...     flags: []
+            ... }]] //doctest: +SKIP
+            >>> $.doctest.run( d )[ 0 ].passed;
+            1
         */
         var opt = self.options( options ),
 
@@ -378,24 +384,26 @@ doctest.extend({
         return result;
     },
 
-    // Parse the code and return a description
     describe: function( code, options ) {
-        /**
-        >>> code = "/*" + "*\n>>> 1 + 1;\n2\n*" + "/"; //doctest: +SKIP
-        >>> code.length;
-        19
-        >>> description = $.doctest.describe( code );
-        [object Object]
-        >>> description.length;
-        1
-        >>> description[0][0].code;
-        1 + 1;
-        >>> description[0][0].expected;
-        2
-        >>> description[0][0].line;
-        2
-        >>> description[0][0].flags.length;
-        0
+        /** Parse the code and return a description
+
+            >>> var code = "/*" + "*\n>>> 1 + 1;\n2\n*" + "/";
+            >>> code.length;
+            19
+            >>> var description = $.doctest.describe( code );
+            >>> description;
+            [object Object]
+
+            >>> description.length;
+            1
+            >>> description[0][0].code;
+            1 + 1;
+            >>> description[0][0].expected;
+            2
+            >>> description[0][0].line;
+            2
+            >>> description[0][0].flags.length;
+            0
         */
         var opt = self.options( options ),
             lines = code.split( "\n" ),
@@ -542,10 +550,18 @@ doctest.extend({
     // Assert test object
     assert: function( test ) {
         /**
-        >>> $.doctest.assert({ code: "1+'0';", expected: "10", flags: [] });
-        true
-        >>> $.doctest.assert({ code: "1+0;", expected: "1", flags: [] });
-        true
+            >>> $.doctest.assert({
+            ...     code: "1+'0';",
+            ...     expected: "10",
+            ...     flags: []
+            ... });
+            true
+            >>> $.doctest.assert({
+            ...     code: "1+0;",
+            ...     expected: "1",
+            ...     flags: []
+            ... });
+            true
         */
         var got, expected, flag;
 
@@ -615,16 +631,16 @@ doctest.extend({
         // Call when each test failed
         fail: function( error ) {
             /*
-            >>> e = new $.doctest.errors.TestError({
-            ...   line: 12,
-            ...   code: "13",
-            ...   expected: "12"
-            ... }, 13 );
-            [object $.doctest.errors.TestError]
+                >>> e = new $.doctest.errors.TestError({
+                ...   line: 12,
+                ...   code: "13",
+                ...   expected: "12"
+                ... }, 13 );
+                [object $.doctest.errors.TestError]
 
-            >>> $.doctest.events.fail( e );
+                >>> $.doctest.events.fail( e );
 
-            Issue: catching the console output is impossible
+                Issue: catching the console output is impossible
             */
             var message;
             if ( error instanceof self.errors.TestError ) {

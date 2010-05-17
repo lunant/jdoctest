@@ -452,7 +452,7 @@ doctest.extend({
 
             // Merge expected value
             if ( test.expected === undefined ) {
-                test.expected = undefined;
+                test.expected = String( undefined );
             } else {
                 test.expected = test.expected.join( "\n" );
             }
@@ -596,7 +596,9 @@ doctest.extend({
 
     // Evaluate test object
     eval: function( test ) {
-        return eval( test.code );//$.globalEval( test.code );
+        with ( window ) {
+            return eval( test.code );//$.globalEval( test.code );
+        }
     },
 
     // Default event handlers
@@ -637,13 +639,7 @@ doctest.extend({
                 ].join( "\n" );
             } else {
                 message = [
-                    "Line " + error.test.line,
-                    "Failed example:",
-                    ____ + error.test.code,
-                    "Expected:",
-                    ____ + error.test.expected,
-                    "Got:",
-                    ____ + String( error )
+                    error.type + ": " + error.message
                 ].join( "\n" );
             }
             return self.console.error( message );

@@ -221,6 +221,8 @@ doctest.fn = doctest.prototype = {
             // All tests passed?
             if ( !failedItems.length ) {
                 message.push( "Test passed." );
+            } else {
+                message.push( "Test failed." );
             }
 
             self.console.log( message.join( nl ) );

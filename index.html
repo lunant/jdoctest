@@ -17,17 +17,31 @@
 <script type="text/javascript" src="/resources/scripts/jquery.js"></script>
 <script type="text/javascript" src="jquery.doctest.js"></script>
 <script type="text/javascript">
-  $.doctest( "tests/scope.js" ).verbose();
-//  $.doctest( "tests/equals.js" ).verbose();
-//  $.doctest( "tests/example.js" ).verbose();
-//  $.doctest( "tests/failed.js" ).verbose();
-//  $.doctest( "tests/multiline.js" ).verbose();
-//  $.doctest( "tests/symbol.js", {
-//    docStart: "/* <doctest> *\\",
-//    docEnd: "\\* </doctest> */",
-//    prompt: "js> ",
-//    continued: "..> "
-//  }).verbose();
+  $.doctest( "tests/delay.js.php", {
+    verbose: true
+  });
+  $.doctest( "tests/scope.js", {
+    verbose: true
+  });
+  $.doctest( "tests/equals.js", {
+    verbose: true
+  });
+  $.doctest( "tests/example.js", {
+    verbose: true
+  });
+  $.doctest( "tests/failed.js", {
+    verbose: true
+  });
+  $.doctest( "tests/multiline.js", {
+    verbose: true
+  });
+  $.doctest( "tests/symbol.js", {
+    docStart: "/* <doctest> *\\",
+    docEnd: "\\* </doctest> */",
+    prompt: "js> ",
+    continued: "..> ",
+    verbose: true
+  });
 </script>
 </body>
 </html>

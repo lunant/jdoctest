@@ -18,7 +18,7 @@ var doctest = function( scriptUrl, options ) {
 
     blank = /^\s*$/,
 
-    scriptUrl = /\.js$/,
+    scriptUrl = /\.js/,
 
     // Add tab string each line
     ____ = "    ",
@@ -76,7 +76,16 @@ $.extend({ doctest: self });
 
 // Methods
 doctest.fn = doctest.prototype = {
-    options: {},
+    options: {
+        verbose: false
+    },
+
+    run: function( callback ) {
+        $.extend( this.options, {
+            run: callback
+        });
+        return this;
+    },
 
     pass: function( callback ) {
         $.extend( this.options, {
@@ -118,18 +127,27 @@ doctest.fn = doctest.prototype = {
         */
         this.options = $.extend( {}, this.options, options );
 
+        var setVerbose = $.proxy(function() {
+            if ( this.options.verbose ) {
+                this.verbose();
+            }
+        }, this );
+
         // Handle $.doctest( "example.js" )
         if ( scriptUrl.exec( script ) ) {
             this.scriptUrl = script;
+            setVerbose();
             this.result = self.testFile( script, this.options );
 
         // Handle $.doctest( exampleFunction )
         } else if ( $.isFunction( script ) ) {
             this.funcName = script.name;
+            setVerbose();
             this.result = self.testFunc( script, this.options );
 
         // Handle $.doctest( "/** >>> 'Hi'; ..." )
         } else if ( script ) {
+            setVerbose();
             this.result = self.testCode( script, this.options );
 
         // Handle $.doctest() or $.doctest( null )
@@ -141,6 +159,14 @@ doctest.fn = doctest.prototype = {
     },
 
     verbose: function() {
+        var title = this.scriptUrl || this.funcName;
+
+        if ( title ) {
+            this.run(function() {
+                self.console.log( "Testing " + title + "..." );
+            });
+        }
+
         this.pass(function( test ) {
             // Log seccess message
             self.console.log([
@@ -256,6 +282,19 @@ doctest.fn.init.prototype = doctest.fn;
 doctest.extend = doctest.fn.extend = $.extend;
 
 doctest.extend({
+    queue: [],
+    descriptions: {},
+
+    hash: function( code, size ) {
+        var hash = 0;
+        code = String( code ),
+        size = size || Math.pow( 10, 20 );
+        for ( var i = 0; i < code.length; i++ ) {
+            hash += code.charCodeAt( i ) * (i + 1);
+        }
+        return Math.abs( hash ) % size;
+    },
+
     // Console should contains log(), error() method
     console: {
         log: $.proxy( console, "log" ),
@@ -280,17 +319,19 @@ doctest.extend({
             1
         */
 
-        var result = {};
+        var result = {},
+            hash = self.hash( scriptUrl ),
+            run = function( code ) {
+                var opt = self.options( options );
 
-        var run = function( code ) {
-            var opt = self.options( options );
+                // Set result
+                $.extend( result, self.testCode( hash, code, options ) );
 
-            // Set result
-            $.extend( result, self.testCode( code, options ) );
+                // Call complete event
+                return opt.complete( result );
+            };
 
-            // Call complete event
-            return opt.complete( result );
-        };
+        self.queue.push( hash );
 
         // Load the script
         if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
@@ -307,12 +348,12 @@ doctest.extend({
     },
 
     // Test the code
-    testCode: function( code, options ) {
-        var opt = self.options( options ),
-            description = self.describe( code, options );
+    testCode: function( hash, code, options ) {
+        options = self.options( options );
+        var description = self.describe( code, options );
 
         // Set result
-        return self.run( description, options );
+        return self.run( hash, description, options );
     },
 
     testFunc: function( func, options ) {
@@ -320,11 +361,33 @@ doctest.extend({
             >>> $.doctest.testFunc( $.doctest.run );
             [object Object]
         */
-        return self.testCode( String( func ), options );
+        var hash = self.hash( func );
+        self.queue.push( hash );
+        return self.testCode( hash, options );
     },
 
     // Run tests
-    run: function( description, options ) {
+    run: function( hash, description, options ) {
+        self.descriptions[ hash ] = description;
+
+        for ( var i in self.queue ) {
+            if ( self.queue[ i ] == hash ) {
+                for ( var j in self.queue ) {
+                    var hash = self.queue[ j ];
+                    if ( self.descriptions[ hash ] === undefined ) {
+                        break;
+                    } else {
+                        self._run( self.descriptions[ hash ], options );
+                        delete self.queue[ j ];
+                        delete self.descriptions[ hash ];
+                    }
+                }
+            }
+            break;
+        }
+    },
+
+    _run: function( description, options ) {
         /**
             >>> d = [[{
             ...     line: 12,
@@ -342,8 +405,11 @@ doctest.extend({
             passed, failed,
 
             // Events
+            run = opt.run,
             pass = opt.pass,
             fail = opt.fail;
+
+        run( description );
 
         // for item in description
         for ( var i in description ) {
@@ -629,6 +695,10 @@ doctest.extend({
 
     // Default event handlers
     events: {
+        run: function( description ) {
+            // Quiet
+        },
+
         complete: function( result ) {
             // Quiet
         },

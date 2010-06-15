@@ -20,8 +20,15 @@ var doctest = function( scriptUrl, options ) {
 
     scriptUrl = /\.js/,
 
-    // Add tab string each line
+    // Test types
+    fileType = "file",
+    funcType = "func",
+    codeType = "code",
+
+    // A tab
     ____ = "    ",
+
+    // Add tab string each line
     shift = function( text, depth ) {
         depth = depth || 1;
 
@@ -62,6 +69,15 @@ var doctest = function( scriptUrl, options ) {
         var r = new RegExp( "(\\" + specials.join( "|\\" ) + ")", "g" );
 
         return t.replace( r, "\\$1" );
+    },
+
+    bindFunc = function( eventType ) {
+        return function( callback ) {
+            var opt = {};
+            opt[ eventType ] = callback;
+            $.extend( this.options, opt );
+            return this;
+        };
     };
 
 // Alias for static methods
@@ -77,36 +93,14 @@ $.extend({ doctest: self });
 // Methods
 doctest.fn = doctest.prototype = {
     options: {
-        verbose: false
+        verbose: false,
+        test: true
     },
 
-    run: function( callback ) {
-        $.extend( this.options, {
-            run: callback
-        });
-        return this;
-    },
-
-    pass: function( callback ) {
-        $.extend( this.options, {
-            pass: callback
-        });
-        return this;
-    },
-
-    fail: function( callback ) {
-        $.extend( this.options, {
-            fail: callback
-        });
-        return this;
-    },
-
-    complete: function( callback ) {
-        $.extend( this.options, {
-            complete: callback
-        });
-        return this;
-    },
+    start: bindFunc( "start" ),
+    pass: bindFunc( "pass" ),
+    fail: bindFunc( "fail" ),
+    complete: bindFunc( "complete" ),
 
     init: function( script, options ) {
         /** Initialize doctest
@@ -125,47 +119,119 @@ doctest.fn = doctest.prototype = {
             >>> $.doctest( __vlaah__ ).funcName;
             __vlaah__
         */
-        this.options = $.extend( {}, this.options, options );
-
-        var setVerbose = $.proxy(function() {
-            if ( this.options.verbose ) {
-                this.verbose();
-            }
-        }, this );
+        this.options = $.extend( {}, self.events, this.options, options );
+        this.result = {};
 
         // Handle $.doctest( "example.js" )
         if ( scriptUrl.exec( script ) ) {
-            this.scriptUrl = script;
-            setVerbose();
-            this.result = self.testFile( script, this.options );
+            this.hash = self.hash( script );
+            this.title = this.scriptUrl = script;
+            this.type = fileType;
 
         // Handle $.doctest( exampleFunction )
         } else if ( $.isFunction( script ) ) {
-            this.funcName = script.name;
-            setVerbose();
-            this.result = self.testFunc( script, this.options );
+            this.hash = self.hash( script );
+            this.title = script.name || ("function#" + this.hash);
+            this.code = self.unescape( script );
+            this.type = funcType;
 
         // Handle $.doctest( "/** >>> 'Hi'; ..." )
         } else if ( script ) {
-            setVerbose();
-            this.result = self.testCode( script, this.options );
+            this.hash = self.hash( script );
+            this.title = "code#" + this.hash;
+            this.code = self.unescape( script );
+            this.type = codeType;
 
         // Handle $.doctest() or $.doctest( null )
         } else {
-            this.result = {};
+            return this;
+        }
+
+        if ( this.options.verbose ) {
+            this.verbose();
+        }
+
+        this.described = this.completed = this.testing = false;
+        this.description = this.describe();
+
+        if ( this.options.test ) {
+            this.test();
         }
 
         return this;
     },
 
-    verbose: function() {
-        var title = this.scriptUrl || this.funcName;
+    describe: function() {
+        var description = {},
+            describe = $.proxy(function() {
+                var code = this.code, options = this.options;
+                $.extend( description, self.describe( code, options ) );
+                this.described = true;
+            }, this );
 
-        if ( title ) {
-            this.run(function() {
-                self.console.log( "Testing " + title + "..." );
-            });
+        if ( this.code ) {
+            describe();
+
+        } else if ( this.type === fileType ) {
+            // Load the script
+            if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
+                var markup = '<script class="doctest" type="text/javascript" '
+                           + 'src="' + scriptUrl + '"></script>';
+                $( markup ).appendTo( document.body );
+            }
+
+            var callback = $.proxy(function( code ) {
+                this.code = code;
+                describe();
+                if ( this.testing ) {
+                    this.test( true );
+                }
+            }, this );
+
+            // Get code of the script and run tests
+            $.getScript( this.scriptUrl, callback );
         }
+
+        return description;
+    },
+
+    test: function( noQueue ) {
+        var first = false, opt = this.options, i;
+
+        noQueue || self.queue.push( this );
+
+        for ( i in self.queue ) {
+            first = this === self.queue[ i ];
+            break;
+        }
+
+        if ( this.described && first ) {
+            opt.start( this );
+            $.extend( this.result, self.test( this.description, opt ) );
+            opt.complete( this );
+            this.completed = true;
+
+            // Pop
+            delete self.queue[ i ];
+
+            for ( i in self.queue ) {
+                self.queue[ i ].test( true );
+                break;
+            }
+
+            this.testing = false;
+        } else {
+            // Pauses a testing
+            this.testing = true;
+        }
+
+        return this.result;
+    },
+
+    verbose: function() {
+        this.start(function( doctest ) {
+            self.console.log( "Testing " + doctest.title + "..." );
+        });
 
         this.pass(function( test ) {
             // Log seccess message
@@ -177,9 +243,10 @@ doctest.fn = doctest.prototype = {
                 "ok"
             ].join( "\n" ) );
         });
-        
-        this.complete(function( result ) {
-            var message, msg,
+
+        this.complete(function( doctest ) {
+            var result = doctest.result,
+                message, msg,
                 passedMsg = [], failedMsg = [], emptyMsg = [],
                 passedItems = [], failedItems = [], emptyItems = [],
                 tests = 0, passed = 0, failed = 0,
@@ -272,7 +339,7 @@ doctest.fn = doctest.prototype = {
             >>> $.doctest( "test/nothing-fn.toString.js" );
             [object $.doctest]
         */
-        return "[object $.doctest]";
+        return "[$.doctest: " + this.title + "]";
     }
 };
 
@@ -285,12 +352,12 @@ doctest.extend({
     queue: [],
     descriptions: {},
 
-    hash: function( code, size ) {
+    hash: function( data, size ) {
         var hash = 0;
-        code = String( code ),
+        data = String( data ),
         size = size || Math.pow( 10, 20 );
-        for ( var i = 0; i < code.length; i++ ) {
-            hash += code.charCodeAt( i ) * (i + 1);
+        for ( var i = 0; i < data.length; i++ ) {
+            hash += data.charCodeAt( i ) * (i + 1);
         }
         return Math.abs( hash ) % size;
     },
@@ -310,63 +377,8 @@ doctest.extend({
         continued: "... "
     },
 
-    testFile: function( scriptUrl, options ) {
-        /** Test the script file
-
-            >>> $.doctest.testFile( "test/nothing-testFile.js" );
-            [object Object]
-            >>> $( "script[src$=test/nothing-testFile.js]" ).length;
-            1
-        */
-
-        var result = {},
-            hash = self.hash( scriptUrl ),
-            run = function( code ) {
-                var opt = self.options( options );
-
-                // Set result
-                $.extend( result, self.testCode( hash, code, options ) );
-
-                // Call complete event
-                return opt.complete( result );
-            };
-
-        self.queue.push( hash );
-
-        // Load the script
-        if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
-            var markup = '<script class="doctest" type="text/javascript" '
-                       + 'src="' + scriptUrl + '"></script>';
-            $( markup ).appendTo( document.body );
-        }
-
-        // Get code of the script and run tests
-        $.getScript( scriptUrl, run );
-
-        // Result is empty yet. It will come later
-        return result;
-    },
-
-    // Test the code
-    testCode: function( hash, code, options ) {
-        options = self.options( options );
-        var description = self.describe( code, options );
-
-        // Set result
-        return self.run( hash, description, options );
-    },
-
-    testFunc: function( func, options ) {
-        /**
-            >>> $.doctest.testFunc( $.doctest.run );
-            [object Object]
-        */
-        var hash = self.hash( func );
-        self.queue.push( hash );
-        return self.testCode( hash, options );
-    },
-
     // Run tests
+    /*
     run: function( hash, description, options ) {
         self.descriptions[ hash ] = description;
 
@@ -385,9 +397,9 @@ doctest.extend({
             }
             break;
         }
-    },
+    },*/
 
-    _run: function( description, options ) {
+    test: function( description, options ) {
         /**
             >>> d = [[{
             ...     line: 12,
@@ -405,11 +417,8 @@ doctest.extend({
             passed, failed,
 
             // Events
-            run = opt.run,
             pass = opt.pass,
             fail = opt.fail;
-
-        run( description );
 
         // for item in description
         for ( var i in description ) {
@@ -690,16 +699,16 @@ doctest.extend({
 
     // Unescapes a docstring
     unescape: function( doc ) {
-        return doc.replace( /\*\\\//g, "*/" );
+        return String( doc ).replace( /\*\\\//g, "*/" );
     },
 
     // Default event handlers
     events: {
-        run: function( description ) {
+        start: function( doctest ) {
             // Quiet
         },
 
-        complete: function( result ) {
+        complete: function( doctest ) {
             // Quiet
         },
 
@@ -743,26 +752,10 @@ doctest.extend({
     },
 
     flags: {
-        // When specified, do not run the example at all. This can be useful
-        // in contexts where doctest examples serve as both documentation and
-        // test cases, and an example should be included for documentation
-        // purposes, but should not be checked. E.g., the example’s output
-        // might be random; or the example might depend on resources which
-        // would be unavailable to the test driver.
-        //
-        // The SKIP flag can also be used for temporarily “commenting out”
-        // examples.
         SKIP: function() {
             return true;
         },
 
-        // When specified, all sequences of whitespace (blanks and newlines)
-        // are treated as equal. Any sequence of whitespace within the expected
-        // output will match any sequence of whitespace within the actual
-        // output. By default, whitespace must match exactly.
-        // NORMALIZE_WHITESPACE is especially useful when a line of expected
-        // output is very long, and you want to wrap it across multiple lines
-        // in your source.
         NORMALIZE_WHITESPACE: function( test, got ) {
             var whitespace = /[ \t\n\s]+/g,
                 normalize = function( str ) {
@@ -779,12 +772,6 @@ doctest.extend({
             };
         },
 
-        // When specified, an ellipsis marker (...) in the expected output can
-        // match any substring in the actual output. This includes substrings
-        // that span line boundaries, and empty substrings, so it’s best to
-        // keep usage of this simple. Complicated uses can lead to the same
-        // kinds of “oops, it matched too much!” surprises that .* is prone
-        // to in regular expressions.
         ELLIPSIS: function( test, got ) {
             var e = escapeRegExp,
                 ellipsis = new RegExp( e( e( "..." ) ), "g" );

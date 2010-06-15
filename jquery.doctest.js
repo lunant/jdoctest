@@ -97,11 +97,6 @@ doctest.fn = doctest.prototype = {
         test: true
     },
 
-    start: bindFunc( "start" ),
-    pass: bindFunc( "pass" ),
-    fail: bindFunc( "fail" ),
-    complete: bindFunc( "complete" ),
-
     init: function( script, options ) {
         /** Initialize doctest
 
@@ -116,7 +111,7 @@ doctest.fn = doctest.prototype = {
             >>> var __vlaah__ = function __vlaah__() {
             ...     // http://vlaah.com/
             ... } //doctest: SKIP
-            >>> $.doctest( __vlaah__ ).funcName;
+            >>> $.doctest( __vlaah__ ).title;
             __vlaah__
         */
         this.options = $.extend( {}, self.events, this.options, options );
@@ -162,10 +157,13 @@ doctest.fn = doctest.prototype = {
     },
 
     describe: function() {
-        var description = {},
+        var description = {
+                doctest: this
+            },
             describe = $.proxy(function() {
                 var code = this.code, options = this.options;
                 $.extend( description, self.describe( code, options ) );
+                options.described( this );
                 this.described = true;
             }, this );
 
@@ -229,102 +227,108 @@ doctest.fn = doctest.prototype = {
     },
 
     verbose: function() {
-        this.start(function( doctest ) {
-            self.console.log( "Testing " + doctest.title + "..." );
-        });
+        $.extend( this.options, {
+            start: function( doctest ) {
+                self.console.log( "Testing " + doctest.title + "..." );
+            },
 
-        this.pass(function( test ) {
-            // Log seccess message
-            self.console.log([
-                "Trying:",
-                shift( test.code ),
-                "Expecting:",
-                shift( test.expected ),
-                "ok"
-            ].join( "\n" ) );
-        });
+            pass: function( test ) {
+                // Log seccess message
+                self.console.log([
+                    "Trying:",
+                    shift( test.code ),
+                    "Expecting:",
+                    shift( test.expected ),
+                    "ok"
+                ].join( "\n" ) );
+            },
 
-        this.complete(function( doctest ) {
-            var result = doctest.result,
-                message, msg,
-                passedMsg = [], failedMsg = [], emptyMsg = [],
-                passedItems = [], failedItems = [], emptyItems = [],
-                tests = 0, passed = 0, failed = 0,
-                item, nl = "\n";
+            complete: function( doctest ) {
+                var result = doctest.result,
+                    message, msg,
+                    passedMsg = [], failedMsg = [], emptyMsg = [],
+                    passedItems = [], failedItems = [], emptyItems = [],
+                    tests = 0, passed = 0, failed = 0,
+                    item, nl = "\n";
 
-            // for item in result
-            for ( var i in result ) {
-                item = result[ i ];
+                // for item in result
+                for ( var i in result ) {
+                    item = result[ i ];
 
-                tests += item.tests;
-                passed += item.passed;
-                failed += item.failed;
+                    tests += item.tests;
+                    passed += item.passed;
+                    failed += item.failed;
 
-                msg = th( parseInt( i ) + 1 ) + " item(line " + item.line + ")";
+                    var line = item.line;
+                    msg = th( parseInt( i ) + 1 ) + " item(line " + line + ")";
 
-                // Empty item
-                if ( item.tests === 0 ) {
-                    emptyItems.push( item );
-                    msg = ____ + msg;
-                    emptyMsg.push( msg );
+                    // Empty item
+                    if ( item.tests === 0 ) {
+                        emptyItems.push( item );
+                        msg = ____ + msg;
+                        emptyMsg.push( msg );
 
-                // All tests passed item
-                } else if ( item.passed === item.tests ) {
-                    passedItems.push( item );
-                    msg = ____ + item.tests + " tests in " + msg;
-                    passedMsg.push( msg );
+                    // All tests passed item
+                    } else if ( item.passed === item.tests ) {
+                        passedItems.push( item );
+                        msg = ____ + item.tests + " tests in " + msg;
+                        passedMsg.push( msg );
 
-                // This item had some failures
-                } else {
-                    failedItems.push( item );
-                    msg = ____ + item.failed + " of " +
-                        item.tests + " in " + msg;
-                    failedMsg.push( msg );
+                    // This item had some failures
+                    } else {
+                        failedItems.push( item );
+                        msg = ____ + item.failed + " of " +
+                            item.tests + " in " + msg;
+                        failedMsg.push( msg );
+                    }
                 }
-            }
 
-            if ( i === undefined ) {
-                return;
-            }
+                if ( i === undefined ) {
+                    return;
+                }
 
-            // Output empty items message
-            if ( emptyItems.length ) {
-                message = [];
-                message.push( emptyItems.length + " items had no tests:" );
-                message.push( emptyMsg.join( nl ) );
+                // Output empty items message
+                if ( emptyItems.length ) {
+                    message = [
+                        emptyItems.length + " items had no tests:"
+                    ];
+                    message.push( emptyMsg.join( nl ) );
+                    self.console.log( message.join( nl ) );
+                }
+
+                // Output passed items message
+                if ( passedItems.length ) {
+                    message = [
+                        passedItems.length + " items passed all tests:"
+                    ];
+                    message.push( passedMsg.join( nl ) );
+                    self.console.log( message.join( nl ) );
+                }
+
+                // Output failed items message with console.error
+                if ( failedItems.length ) {
+                    message = [
+                        failedItems.length + " items had failures:"
+                    ];
+                    message.push( failedMsg.join( nl ) );
+                    self.console.warn( message.join( nl ) );
+                }
+
+                // Summary
+                message = [
+                    tests + " tests in " + i + " items.",
+                    passed + " passed and " + failed + " failed."
+                ];
+
+                // All tests passed?
+                if ( !failedItems.length ) {
+                    message.push( "Test passed." );
+                } else {
+                    message.push( "Test failed." );
+                }
+
                 self.console.log( message.join( nl ) );
             }
-
-            // Output passed items message
-            if ( passedItems.length ) {
-                message = [];
-                message.push( passedItems.length + " items passed all tests:" );
-                message.push( passedMsg.join( nl ) );
-                self.console.log( message.join( nl ) );
-            }
-
-            // Output failed items message with console.error
-            if ( failedItems.length ) {
-                message = [];
-                message.push( failedItems.length + " items had failures:" );
-                message.push( failedMsg.join( nl ) );
-                self.console.warn( message.join( nl ) );
-            }
-
-            // Summary
-            message = [
-                tests + " tests in " + i + " items.",
-                passed + " passed and " + failed + " failed."
-            ];
-
-            // All tests passed?
-            if ( !failedItems.length ) {
-                message.push( "Test passed." );
-            } else {
-                message.push( "Test failed." );
-            }
-
-            self.console.log( message.join( nl ) );
         });
 
         return this;
@@ -335,11 +339,11 @@ doctest.fn = doctest.prototype = {
             >>> ({});
             [object Object]
             >>> $.doctest();
-            [object $.doctest]
+            [$.doctest]
             >>> $.doctest( "test/nothing-fn.toString.js" );
-            [object $.doctest]
+            [$.doctest: test/nothing-fn.toString.js]
         */
-        return "[$.doctest: " + this.title + "]";
+        return "[$.doctest" + (this.title ? ": " + this.title : "") + "]";
     }
 };
 
@@ -407,7 +411,7 @@ doctest.extend({
             ...     expected: "2",
             ...     flags: []
             ... }]] //doctest: +SKIP
-            >>> $.doctest.run( d )[ 0 ].passed;
+            >>> $.doctest.test( d )[ 0 ].passed;
             1
         */
         var opt = self.options( options ),
@@ -422,6 +426,9 @@ doctest.extend({
 
         // for item in description
         for ( var i in description ) {
+            if ( String( parseInt( i ) ) === "NaN" ) {
+                continue;
+            }
             item = description[ i ];
             passed = failed = 0,
             line = 1;
@@ -437,11 +444,11 @@ doctest.extend({
 
                 try {
                     self.assert( test );
-                    pass( test );
+                    pass( test, description );
                     passed++;
 
                 } catch ( error ) {
-                    fail( error );
+                    fail( error, description );
                     failed++;
                 }
             }
@@ -702,8 +709,58 @@ doctest.extend({
         return String( doc ).replace( /\*\\\//g, "*/" );
     },
 
+    flags: {
+        SKIP: function() {
+            return true;
+        },
+
+        NORMALIZE_WHITESPACE: function( test, got ) {
+            var whitespace = /[ \t\n\s]+/g,
+                normalize = function( str ) {
+                    return $.trim( str.replace( whitespace, " " ) );
+                };
+
+            test = $.extend( {}, test, {
+                expected: normalize( test.expected )
+            });
+
+            return {
+                test: test,
+                got: normalize( got )
+            };
+        },
+
+        ELLIPSIS: function( test, got ) {
+            var e = escapeRegExp,
+                ellipsis = new RegExp( e( e( "..." ) ), "g" );
+                pattern = e( test.expected ).replace( ellipsis, ".*" );
+            return !!(new RegExp( pattern )).exec( got );
+        }
+    },
+
+    errors: {
+        TestError: function( test, got ) {
+            this.test = test;
+            this.got = got;
+            this.toString = function() {
+                return "[object $.doctest.errors.TestError]";
+            }
+        },
+
+        IndentationError: function( line ) {
+            this.line = line;
+            this.toString = function() {
+                return "[object $.doctest.errors.IndentaionError]";
+            }
+        }
+    },
+
     // Default event handlers
     events: {
+        described: function( doctest ) {
+            // Quiet
+        },
+
         start: function( doctest ) {
             // Quiet
         },
@@ -748,52 +805,6 @@ doctest.extend({
                 ].join( "\n" );
             }
             return self.console.error( message );
-        }
-    },
-
-    flags: {
-        SKIP: function() {
-            return true;
-        },
-
-        NORMALIZE_WHITESPACE: function( test, got ) {
-            var whitespace = /[ \t\n\s]+/g,
-                normalize = function( str ) {
-                    return $.trim( str.replace( whitespace, " " ) );
-                };
-
-            test = $.extend( {}, test, {
-                expected: normalize( test.expected )
-            });
-
-            return {
-                test: test,
-                got: normalize( got )
-            };
-        },
-
-        ELLIPSIS: function( test, got ) {
-            var e = escapeRegExp,
-                ellipsis = new RegExp( e( e( "..." ) ), "g" );
-                pattern = e( test.expected ).replace( ellipsis, ".*" );
-            return !!(new RegExp( pattern )).exec( got );
-        }
-    },
-
-    errors: {
-        TestError: function( test, got ) {
-            this.test = test;
-            this.got = got;
-            this.toString = function() {
-                return "[object $.doctest.errors.TestError]";
-            }
-        },
-
-        IndentationError: function( line ) {
-            this.line = line;
-            this.toString = function() {
-                return "[object $.doctest.errors.IndentaionError]";
-            }
         }
     },
 

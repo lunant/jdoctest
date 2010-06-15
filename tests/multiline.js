@@ -1,8 +1,14 @@
 /**
+>>> var a;
 >>> Math.round(
 ...   1.111
 ... );
 1
+
+>>> for ( var i = 0; i < 10000; i++ ) {
+...     i;
+... }
+9999
 
 This is an example of jquery.doctest.js
 

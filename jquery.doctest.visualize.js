@@ -117,7 +117,13 @@ $.extend( doctest_visualization.prototype, {
                     test = doctest.description[ j ][ k ];
                     testId = getTestId( test, doctest.description );
 
-                    code = test.code.split( "\n" );
+                    testElem = $( markups.test );
+                    testElem.attr( "id", testId );
+                    testElem.find( "dd.expected code" ).text( test.expected );
+
+                    var el = testElem.find( "dd.code code" ).text( test.code );
+
+                    code = el.html().split( "\n" );
                     for ( var l in code ) {
                         code[ l ] = '<span class="prompt">'
                                   + (l > 0 ? "... " : ">>> ")
@@ -125,10 +131,7 @@ $.extend( doctest_visualization.prototype, {
                     }
                     code = code.join( "\n" );
 
-                    testElem = $( markups.test );
-                    testElem.attr( "id", testId );
-                    testElem.find( "dd.code code" ).html( code );
-                    testElem.find( "dd.expected code" ).text( test.expected );
+                    el.html( code );
 
                     testElem.appendTo( doctestElem );
 

@@ -13,6 +13,8 @@ function factorial( n ) {
     1
     >>> factorial( 30 );
     2.6525285981219103e+32
+    >>> factorial( -1 );;
+    Error: n must be >= 0
     */
 
     if ( n < 0 ) {

@@ -3,4 +3,13 @@
 
 >>> a;
 1
+
+>>> window.b = 2;
+2
+>>> b;
+2
+>>> window.b;
+2
+>>> window;
+[object DOMWindow]
 */

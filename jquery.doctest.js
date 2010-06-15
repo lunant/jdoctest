@@ -405,6 +405,8 @@ doctest.extend({
             >>> description[0][0].flags.length;
             0
         */
+        code = self.unescape( code );
+
         var opt = self.options( options ),
             lines = code.split( "\n" ),
 
@@ -574,6 +576,9 @@ doctest.extend({
 
         // Process flags
         for ( var i in test.flags ) {
+            if ( typeof test.flags[ i ] !== "string" ) {
+                continue;
+            }
 
             // Get flag name
             flag = test.flags[ i ].replace( /^\+/, "" );
@@ -615,6 +620,11 @@ doctest.extend({
         with ( window ) {
             return eval( test.code );//$.globalEval( test.code );
         }
+    },
+
+    // Unescapes a docstring
+    unescape: function( doc ) {
+        return doc.replace( /\*\\\//g, "*/" );
     },
 
     // Default event handlers
@@ -684,15 +694,18 @@ doctest.extend({
         // output is very long, and you want to wrap it across multiple lines
         // in your source.
         NORMALIZE_WHITESPACE: function( test, got ) {
-            var whitespace = /[ \t\n]+/g;
+            var whitespace = /[ \t\n\s]+/g,
+                normalize = function( str ) {
+                    return $.trim( str.replace( whitespace, " " ) );
+                };
 
             test = $.extend( {}, test, {
-                expected: test.expected.replace( whitespace, " " )
+                expected: normalize( test.expected )
             });
 
             return {
                 test: test,
-                got: got.replace( whitespace, " " )
+                got: normalize( got )
             };
         },
 

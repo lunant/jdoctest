@@ -46,7 +46,7 @@ var doctest = function( scriptUrl, options ) {
         }
 
         return output.join( "\n" );
-    }
+    },
 
     th = function( n ) {
         n = parseInt( n );
@@ -149,6 +149,9 @@ doctest.fn = doctest.prototype = {
         this.described = this.completed = this.testing = false;
         this.description = this.describe();
 
+        // TODO: delete it.
+        console.log(this.description);
+
         if ( this.options.test ) {
             this.test();
         }
@@ -198,7 +201,7 @@ doctest.fn = doctest.prototype = {
 
         noQueue || self.queue.push( this );
 
-        for ( i in self.queue ) {
+        for ( i = 0; i < self.queue.length; i++ ) {
             first = this === self.queue[ i ];
             break;
         }
@@ -469,10 +472,13 @@ doctest.extend({
     describe: function( code, options ) {
         /** Parse the code and return a description
 
-            >>> var code = "/*" + "*\n>>> 1 + 1;\n2\n*" + "/";
+            >>> var code = "/++\n>>> 1 + 1;\n2\n+/";
             >>> code.length;
             19
-            >>> var description = $.doctest.describe( code );
+            >>> var description = $.doctest.describe( code, {
+            ...     docStart: "/++",
+            ...     docEnd: "+/"
+            ... });
             >>> description;
             [object Object]
 
@@ -496,7 +502,7 @@ doctest.extend({
             isItem = false, hasFlag = false,
 
             description = [], items = [], itemLines = [],
-            line, finalLine, item, test, indent,
+            line, finalLine, item, test, comment, indent,
 
             docStartSymbol = opt.docStart,
             docEndSymbol = opt.docEnd,
@@ -539,18 +545,34 @@ doctest.extend({
         }
 
         var keep = function( test ) {
-            // Merge code
-            test.code = test.code.join( "\n" );
+                // merge code
+                test.code = test.code.join( "\n" );
 
-            // Merge expected value
-            if ( test.expected === undefined ) {
-                test.expected = String( undefined );
-            } else {
-                test.expected = test.expected.join( "\n" );
-            }
+                // merge expected value
+                if ( test.expected === undefined ) {
+                    test.expected = String( undefined );
+                } else {
+                    test.expected = test.expected.join( "\n" );
+                }
 
-            item.push( test );
-        }
+                item.push( test );
+            },
+            keepComment = function( comment ) {
+                // unshift
+                var baseIndent = comment[ 0 ].match( spaces )[ 0 ];
+                for ( var i in comment ) {
+                    var indent = comment[ i ].match( spaces )[ 0 ];
+                    if ( indent.length > baseIndent.length ) {
+                        indent = baseIndent;
+                    }
+                    comment[ i ] = comment[ i ].slice( indent.length );
+                }
+
+                // merge lines
+                comment = comment.join( "\n" );
+
+                item.push( comment );
+            };
 
         for ( var j in items ) {
             item = [];
@@ -564,6 +586,9 @@ doctest.extend({
                 if ( prompt.exec( line ) ) {
                     if ( test !== undefined ) {
                         keep( test );
+                    } else if ( comment !== undefined ) {
+                        keepComment( comment );
+                        comment = undefined;
                     }
 
                     indent = line.match( spaces )[ 0 ];
@@ -617,12 +642,22 @@ doctest.extend({
                             test.expected.push( line );
                         }
                     }
+                } else if ( line ) {
+                    if ( comment === undefined ) {
+                        comment = [ line ];
+                    } else {
+                        comment.push( line );
+                    }
                 }
+            }
 
-                // The test must be keeped
-                if ( test !== undefined && i === finalLine ) {
-                    keep( test );
-                }
+            // The test must be keeped
+            if ( test !== undefined ) {
+                keep( test );
+                test = undefined;
+            } else if ( comment !== undefined ) {
+                keepComment( comment );
+                comment = undefined;
             }
 
             description.push( item );
@@ -810,7 +845,9 @@ doctest.extend({
 
     options: function( options ) {
         return $.extend( {}, self.events, self.symbols, options );
-    }
+    },
+
+    sandbox: $( "<body></body>" )
 });
 
 })( jQuery );

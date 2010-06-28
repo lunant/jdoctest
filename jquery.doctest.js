@@ -149,9 +149,6 @@ doctest.fn = doctest.prototype = {
         this.described = this.completed = this.testing = false;
         this.description = this.describe();
 
-        // TODO: delete it.
-        console.log(this.description);
-
         if ( this.options.test ) {
             this.test();
         }
@@ -201,7 +198,7 @@ doctest.fn = doctest.prototype = {
 
         noQueue || self.queue.push( this );
 
-        for ( i = 0; i < self.queue.length; i++ ) {
+        for ( i in self.queue ) {
             first = this === self.queue[ i ];
             break;
         }
@@ -438,6 +435,9 @@ doctest.extend({
 
             // for test in item
             for ( var j in item ) {
+                if ( typeof item[ j ] === "string" ) {
+                    continue;
+                }
                 test = item[ j ];
 
                 // Line number of the item
@@ -567,6 +567,12 @@ doctest.extend({
                     }
                     comment[ i ] = comment[ i ].slice( indent.length );
                 }
+
+                /*
+                if ( !item.length ) {
+                    item.subject = comment[ 0 ];
+                }
+                */
 
                 // merge lines
                 comment = comment.join( "\n" );

@@ -1,4 +1,4 @@
-/**
+/*
  * jquery.doctest.js beta
  * http://lab.heungsub.net/jquery.doctest.js
  * http://github.com/lunant/jquery.doctest.js
@@ -94,7 +94,8 @@ $.extend({ doctest: self });
 doctest.fn = doctest.prototype = {
     options: {
         verbose: false,
-        test: true
+        test: true,
+        context: window
     },
 
     init: function( script, options ) {
@@ -111,7 +112,7 @@ doctest.fn = doctest.prototype = {
             >>> var __vlaah__ = function __vlaah__() {
             ...     // http://vlaah.com/
             ... } //doctest: SKIP
-            >>> $.doctest( __vlaah__ ).title;
+            >>> $.doctest( __vlaah__ ).name;
             __vlaah__
         */
         this.options = $.extend( {}, self.events, this.options, options );
@@ -120,20 +121,20 @@ doctest.fn = doctest.prototype = {
         // Handle $.doctest( "example.js" )
         if ( scriptUrl.exec( script ) ) {
             this.hash = self.hash( script );
-            this.title = this.scriptUrl = script;
+            this.name = this.scriptUrl = script;
             this.type = fileType;
 
         // Handle $.doctest( exampleFunction )
         } else if ( $.isFunction( script ) ) {
             this.hash = self.hash( script );
-            this.title = script.name || ("function#" + this.hash);
+            this.name = script.name || ("function#" + this.hash);
             this.code = self.unescape( script );
             this.type = funcType;
 
         // Handle $.doctest( "/** >>> 'Hi'; ..." )
         } else if ( script ) {
             this.hash = self.hash( script );
-            this.title = "code#" + this.hash;
+            this.name = "code#" + this.hash;
             this.code = self.unescape( script );
             this.type = codeType;
 
@@ -141,6 +142,8 @@ doctest.fn = doctest.prototype = {
         } else {
             return this;
         }
+
+        this.basename = this.name.split( "/" ).reverse()[ 0 ];
 
         if ( this.options.verbose ) {
             this.verbose();
@@ -229,7 +232,7 @@ doctest.fn = doctest.prototype = {
     verbose: function() {
         $.extend( this.options, {
             start: function( doctest ) {
-                self.console.log( "Testing " + doctest.title + "..." );
+                self.console.log( "Testing " + doctest.name + "..." );
             },
 
             pass: function( test ) {
@@ -343,7 +346,7 @@ doctest.fn = doctest.prototype = {
             >>> $.doctest( "test/nothing-fn.toString.js" );
             [$.doctest: test/nothing-fn.toString.js]
         */
-        return "[$.doctest" + (this.title ? ": " + this.title : "") + "]";
+        return "[$.doctest" + (this.name ? ": " + this.name : "") + "]";
     }
 };
 
@@ -446,7 +449,7 @@ doctest.extend({
                 }
 
                 try {
-                    self.assert( test );
+                    self.assert( test, opt );
                     pass( test, description );
                     passed++;
 
@@ -666,14 +669,16 @@ doctest.extend({
                 comment = undefined;
             }
 
-            description.push( item );
+            if ( item.length ) {
+                description.push( item );
+            }
         }
 
         return description;
     },
 
     // Assert test object
-    assert: function( test ) {
+    assert: function( test, options ) {
         /**
             >>> $.doctest.assert({
             ...     code: "1+'0';",
@@ -689,10 +694,11 @@ doctest.extend({
             true
         */
         var got, expected, flag;
+        options = self.options( options );
 
         // Evaluation!
         try {
-            got = self.eval( test );
+            got = self.eval( test, options );
         } catch ( error ) {
             got = error;
         }
@@ -739,10 +745,11 @@ doctest.extend({
     },
 
     // Evaluate test object
-    eval: function( test ) {
-        with ( window ) {
-            return eval( test.code );//$.globalEval( test.code );
-        }
+    eval: function( test, options ) {
+        var context = self.options( options ).context || window;
+        with ( context ) {
+            return window.eval.call( window, test.code );
+        ii}
     },
 
     // Unescapes a docstring

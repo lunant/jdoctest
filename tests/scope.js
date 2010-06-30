@@ -10,6 +10,6 @@
 2
 >>> window.b;
 2
->>> window;
-[object DOMWindow]
+>>> window; //doctest: +ELLIPSIS
+[object ...Window]
 */

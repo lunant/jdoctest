@@ -7,6 +7,7 @@ BASE_FILES = ${SRC_DIR}/doctest.js \
 	${SRC_DIR}/errors.js \
 	${SRC_DIR}/item.js \
 	${SRC_DIR}/runner.js \
+	${SRC_DIR}/paragraph.js \
 	${SRC_DIR}/example.js \
 	${SRC_DIR}/comment.js \
 	${SRC_DIR}/flags.js
@@ -26,11 +27,14 @@ all: build
 ${DIST_DIR}:
 	@@mkdir -p ${DIST_DIR}
 
-build: ${DIST_DIR} ${DOCTEST}
+build: ${DIST_DIR} clear ${DOCTEST}
+
+clear:
+	rm -f ${DOCTEST}
 
 ${DOCTEST}:
 	@@echo "Building" ${DOCTEST}
-	@@echo ${DATE}
+	@@echo "at" ${DATE}
 	@@cat ${MODULES} | \
 		sed s/Date:.*/"Date: ${DATE}"/ | \
 		${VER} > ${DOCTEST};

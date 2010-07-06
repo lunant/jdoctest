@@ -1,7 +1,7 @@
 ([원문보기][post])
 
-바로 어제까지 야근 및 특근 릴레이를 끝나치고 짬 내어 [jquery.doctest.js][at-lab]를 만들었습니다.
-jquery.doctest.js는 Python의 [doctest][] 모듈을 흉내낸 [jQuery][]용 테스트 라이브러리입니다.
+바로 어제까지 야근 및 특근 릴레이를 끝나치고 짬 내어 [doctest.js][at-lab]를 만들었습니다.
+doctest.js는 Python의 [doctest][] 모듈을 흉내낸 [jQuery][]용 테스트 라이브러리입니다.
 
 바로가기: [프로젝트 페이지][at-lab], [저장소][at-github]
 
@@ -47,17 +47,17 @@ jquery.doctest.js는 Python의 [doctest][] 모듈을 흉내낸 [jQuery][]용 테
 
 이 스크립트에는 `/**`로 시작해서 `*/`로 닫히는 주석들이 있습니다. 테스트는 그 안에 작성하면 됩니다.
 
-테스트하기 위해 `jQuery.doctest`를 실행합니다. `jQuery.doctest`는 인자로 스크립트의 파일명을 받습니다. jQuery에 의존성이 있으니 미리 불러오는 것을 잊지 마세요!
+테스트하기 위해 `doctest`를 실행합니다. `doctest`는 인자로 스크립트의 파일명을 받습니다. jQuery에 의존성이 있으니 미리 불러오는 것을 잊지 마세요!
 
     <script type="test/javascript" src="jquery-1.4.1.js"></script>
-    <script type="test/javascript" src="jquery.doctest.js"></script>
+    <script type="test/javascript" src="doctest.js"></script>
     <script type="test/javascript">
     // <![CDATA[
         jQuery.doctest( "example.js" );
     // ]]>
     </script>
 
-jquery.doctest.js는 Python의 doctest처럼 REPL로 보이는 부분을 테스트코드로 취해 실행해봅니다. 이 경우 `factorial( 5 );`의 결과가 `5`인지, `factorial( 1 );`의 결과가 `1`인지, `factorial( 30 );`의 결과가 `2.6525285981219103e+32`인지 테스트합니다.
+doctest.js는 Python의 doctest처럼 REPL로 보이는 부분을 테스트코드로 취해 실행해봅니다. 이 경우 `factorial( 5 );`의 결과가 `5`인지, `factorial( 1 );`의 결과가 `1`인지, `factorial( 30 );`의 결과가 `2.6525285981219103e+32`인지 테스트합니다.
 
     XHR finished loading: "example.js".
     ----
@@ -111,15 +111,15 @@ jquery.doctest.js는 Python의 doctest처럼 REPL로 보이는 부분을 테스�
 
 [저장소][at-github]는 GitHub에 만들어두었습니다. 다음 명령어로 소스를 내려받을 수 있습니다.
 
-    $ git clone git://github.com/heungsub/jquery.doctest.js.git jquery.doctest.js
+    $ git clone git://github.com/lunant/doctest.js.git doctest.js
 
 라이센스는 [jQuery][]와 동일한 [MIT][]+[GPL2][]입니다. 라이센스를 위반하지 않는 한 자유롭게 사용하실 수 있습니다.
 
- [at-lab]: http://lab.heungsub.net/jquery.doctest.js/
- [at-github]: http://github.com/heungsub/jquery.doctest.js
+ [at-lab]: http://lab.heungsub.net/doctest.js/
+ [at-github]: http://github.com/lunant/doctest.js
  [jquery]: http://jquery.com/
  [doctest]: http://docs.python.org/library/doctest.html
- [example.js]: http://github.com/heungsub/jquery.doctest.js/blob/master/tests/example.js
+ [example.js]: http://github.com/heungsub/doctest.js/blob/master/tests/example.js
  [mit]: http://ko.wikipedia.org/wiki/MIT_%ED%97%88%EA%B0%80%EC%84%9C
  [gpl2]:http://ko.wikipedia.org/wiki/GNU_%EC%9D%BC%EB%B0%98_%EA%B3%B5%EC%A4%91_%EC%82%AC%EC%9A%A9_%ED%97%88%EA%B0%80%EC%84%9C#GPLv2
 

@@ -1,4 +1,4 @@
-jquery.doctest.js is a test library for jQuery projects, using conventions from Python's [doctest][] module.
+doctest.js is a test library for jQuery projects, using conventions from Python's [doctest][] module.
 
 Links: [Project Page][at-lab], [Repository][at-github]
 
@@ -55,17 +55,17 @@ First, let's create a javascript file called [`example.js`][example.js].
 
 This script has a comment section that starts with `/**` and ends with `*/`. Write your tests within this section.
 
-In order to test this file, run `jQuery.doctest` with the filename of the script as the argument. Since jquery.doctest.js depends on jQuery, don't forget to import jQuery first!
+In order to test this file, run `doctest` with the filename of the script as the argument. Since doctest.js depends on jQuery, don't forget to import jQuery first!
 
     <script type="test/javascript" src="jquery-1.4.1.js"></script>
-    <script type="test/javascript" src="jquery.doctest.js"></script>
+    <script type="test/javascript" src="doctest.js"></script>
     <script type="test/javascript">
     // <![CDATA[
         jQuery.doctest( "example.js" );
     // ]]>
     </script>
 
-Just like Python's doctest, jquery.doctest.js takes comment that look like REPL and executes it. For the example above, it tests if the result from evaluating `factorial( 5 );` is `5`,`factorial( 1 );` is  `1`, and `factorial( 30 );` is `2.6525285981219103e+32`.
+Just like Python's doctest, doctest.js takes comment that look like REPL and executes it. For the example above, it tests if the result from evaluating `factorial( 5 );` is `5`,`factorial( 1 );` is  `1`, and `factorial( 30 );` is `2.6525285981219103e+32`.
 
     XHR finished loading: "example.js".
     ----
@@ -117,14 +117,14 @@ Congratulations, our first example passed every test! Now here is an example of 
 
 Currently, the test results are printed out to `console`; if your browser does not support `console`, you cannot check the results.
 
-[Repository][at-github] for jquery.doctest.js is hosted at [Lunant][]'s GitHub account. You can download the source code with the following command.
+[Repository][at-github] for doctest.js is hosted at [Lunant][]'s GitHub account. You can download the source code with the following command.
 
-    $ git clone git://github.com/lunant/jquery.doctest.js.git jquery.doctest.js
+    $ git clone git://github.com/lunant/doctest.js.git doctest.js
 
-Just like [jQuery][], jquery.doctest.js is licensed with [MIT][]+[GPL2][], so feel free to use and manipulate as long as you respect these licenses.
+Just like [jQuery][], doctest.js is licensed with [MIT][]+[GPL2][], so feel free to use and manipulate as long as you respect these licenses.
 
- [at-lab]: http://lab.heungsub.net/jquery.doctest.js/
- [at-github]: http://github.com/lunant/jquery.doctest.js
+ [at-lab]: http://lab.heungsub.net/doctest.js/
+ [at-github]: http://github.com/lunant/doctest.js
  [jquery]: http://jquery.com/
  [doctest]: http://docs.python.org/library/doctest.html
  [example.js]: http://github.com/lunant/jquery.doctest.js/blob/master/tests/example.js

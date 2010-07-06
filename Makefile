@@ -27,7 +27,7 @@ all: build
 ${DIST_DIR}:
 	@@mkdir -p ${DIST_DIR}
 
-build: ${DIST_DIR} clear ${DOCTEST}
+build: ${DIST_DIR} ${DOCTEST}
 
 clear:
 	rm -f ${DOCTEST}

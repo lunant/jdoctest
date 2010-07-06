@@ -16,13 +16,13 @@ MODULES = ${SRC_DIR}/intro.js \
 	${BASE_FILES} \
 	${SRC_DIR}/outro.js
 
-DOCTEST = ${DIST_DIR}/jquery.doctest.js
+DOCTEST = ${DIST_DIR}/doctest.js
 DOCTEST_VER = `cat version.txt`
 VER = sed s/@VERSION/${DOCTEST_VER}/
 DATE = `git log -1 | grep Date: | sed 's/[^:]*: *//'`
 
 all: build
-	@@echo "jquery.doctest.js build complete."
+	@@echo "doctest.js build complete."
 
 ${DIST_DIR}:
 	@@mkdir -p ${DIST_DIR}

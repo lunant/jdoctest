@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>DocTest Visualize</title>
+<meta name="author" value="Heungsub Lee" />
+<link rel="stylesheet/less" type="text/css" href="visualize.less" />
+<style type="text/css">
+  body { margin: 0; padding: 0; }
+</style>
+<!--[if lte IE 8]><script src="external/html5.js"></script><![endif]--> 
+<script src="external/less.js"></script>
+<script src="external/jquery.js"></script>
+<script src="external/jquery.jqote2.js"></script>
+<script src="../doctest/doctest.js"></script>
+<script src="../doctest/errors.js"></script>
+<script src="../doctest/item.js"></script>
+<script src="../doctest/runner.js"></script>
+<script src="../doctest/paragraph.js"></script>
+<script src="../doctest/example.js"></script>
+<script src="../doctest/comment.js"></script>
+<script src="../doctest/flags.js"></script>
+<script>
+  $.doctest = DocTest;
+</script>
+<script src="visualize.js"></script>
+</head>
+<body>
+<script type="text/html" class="template">
+  <aside>
+    <ul class="status">
+      <li><span class="time">0</span> ms</li>
+      <li><span class="success">0</span> success</li>
+      <li><span class="failure">0</span> failure</li>
+      <li><span class="examples"><%=this.length %></span> examples</li>
+    </ul>
+    <nav>
+      <ul>
+        <li class="test-all"><span>Test All Examples</span></li>
+        <% for ( var i in this.doctests ) { %>
+          <% var doctest = this.doctests[ i ]; %>
+          <li id="nav-<%=doctest.id %>">
+            <a href="#<%=doctest.id %>"><%=doctest.basename %></a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+    <p class="agent"><%=this.agent %></p>
+  </aside>
+  <section class="body">
+    <% for ( var i in this.doctests ) { %>
+      <% var doctest = this.doctests[ i ]; %>
+      <section id="<%=doctest.id %>" class="doctest">
+        <h><a href="#<%=doctest.id %>"><%=doctest.basename %></a></h>
+        <% for ( var j in doctest.children ) { %>
+          <% var item = doctest.children[ j ]; %>
+          <article class="item">
+            <section class="body">
+              <% for ( var k in item.children ) { %>
+                <% var p = item.children[ k ]; %>
+                <% if ( p.ref instanceof $.doctest.Comment ) { %>
+                  <p id="<%=p.id %>"
+                    title="line <%=p.ref.lineNo %>"><%=this.h( p.ref ) %></p>
+                <% } else { %>
+                  <dl id="<%=p.id %>" class="example"
+                    title="line <%=p.ref.lineNo %>">
+                    <dt class="source">source</dt>
+                    <dd class="source">
+                      <pre><%=this.h( p.ref.source ) %></pre>
+                    </dd>
+                    <dd class="line">line <%=p.ref.lineNo %></dd>
+                    <% if ( p.ref.want !== undefined ) { %>
+                      <dt class="want">want</dt>
+                      <dd class="want">
+                        <pre><%=this.h( p.ref.want ) %></pre>
+                      </dd>
+                    <% } %>
+                    <dt class="got">got</dt>
+                    <dd class="got"><pre></pre></dd>
+                  </dl>
+                <% } %>
+              <% } %>
+            </section>
+          </article>
+        <% } %>
+      </section>
+    <% } %>
+  </section>
+  <footer>
+    <p>powered by
+      <a href="http://lab.heungsub.net/jquery.doctest.js">jquery.doctest.js</a>
+    </p>
+  </footer>
+</script>
+<script>
+  $.doctest.visualize({
+    "../doctest/doctest.js": { loadScript: false },
+    "../doctest/errors.js": { loadScript: false },
+    "../doctest/item.js": { loadScript: false },
+    "../doctest/runner.js": { loadScript: false },
+    "../doctest/paragraph.js": { loadScript: false },
+    "../doctest/example.js": { loadScript: false },
+    "../doctest/comment.js": { loadScript: false },
+    "../doctest/flags.js": { loadScript: false }
+  }).appendTo( document.body );
+</script>
+</body>
+</html>
+

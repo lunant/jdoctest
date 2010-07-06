@@ -175,9 +175,9 @@ doctest.fn = doctest.prototype = {
 
         } else if ( this.type === fileType ) {
             // Load the script
-            if ( !$( "script[src=" + scriptUrl + "]" ).length ) {
+            if ( !$( "script[src=" + this.scriptUrl + "]" ).length ) {
                 var markup = '<script class="doctest" type="text/javascript" '
-                           + 'src="' + scriptUrl + '"></script>';
+                           + 'src="' + this.scriptUrl + '"></script>';
                 $( markup ).appendTo( document.body );
             }
 
@@ -370,10 +370,14 @@ doctest.extend({
     },
 
     // Console should contains log(), error() method
-    console: {
+    console: window.console ? {
         log: $.proxy( console, "log" ),
         error: $.proxy( console, $.browser.webkit ? "error" : "warn" ),
         warn: $.proxy( console, "warn" )
+    } : {
+        log: function() {},
+        error: function() {},
+        warn: function() {}
     },
 
     // Default symbols

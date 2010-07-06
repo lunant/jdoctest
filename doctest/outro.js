@@ -1,3 +1,6 @@
 
-})( jQuery, this );
+$.extend({
+    doctest: DocTest
+});
 
+})( jQuery, this );

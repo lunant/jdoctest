@@ -3,7 +3,7 @@ function HTTPError( xhr ) {
     this.message = xhr.statusText;
 };
 
-function DocTestFailure( example ) {
+function Failure( example ) {
     this.name = arguments.callee.name;
     this.message = "expected " + example.want + ", not " + example.got;
 };
@@ -12,5 +12,7 @@ var error = new Error();
 error.toString = function() {
     return this.name + ": " + this.message;
 };
-HTTPError.prototype = DocTestFailure.prototype = error;
+HTTPError.prototype = Failure.prototype = error;
 
+DocTest.HTTPError = HTTPError;
+DocTest.Failure = Failure;

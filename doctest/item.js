@@ -76,7 +76,7 @@ Item.fn = Item.prototype = {
                 childLines = [];
             } else if ( !blankLine ) {
                 isComment = true;
-                l = +i + this.line;
+                lineNo = +i + this.lineNo;
             }
 
             if ( isExample || isComment ) {
@@ -93,6 +93,8 @@ Item.fn = Item.prototype = {
     },
 
     testAll: function() {
+        var k = 0, example = this.description[ k ];
+
         for ( var i in this.description ) {
             if ( !isArrayElem( this.description, i ) ) {
                 continue;
@@ -114,3 +116,5 @@ Item.fn = Item.prototype = {
 
 Item.fn.init.prototype = Item.fn;
 Item.extend = Item.fn.extend = $.extend;
+
+DocTest.Item = Item;

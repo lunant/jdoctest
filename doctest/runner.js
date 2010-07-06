@@ -30,3 +30,4 @@ Runner.extend = function( proto ) {
     return cls;
 };
 
+DocTest.Runner = Runner;

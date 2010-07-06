@@ -16,6 +16,7 @@ var DocTest = function( script, options ) {
     fileType = "file",
     funcType = "func",
     srcType = "src",
+    nullType = "null",
 
     isArrayElem = function( collection, index ) {
         var exists = collection[ index ] !== undefined;
@@ -67,14 +68,15 @@ DocTest.fn = DocTest.prototype = {
             <<<o>>> <<<o>>> 
         */
         test: true,
+        loadScript: true,
         log: window.console ? {
             info: $.proxy( window.console.log, window.console ),
             warn: $.proxy( window.console.warn, window.console ),
             error: $.proxy( window.console.error, window.console )
         } : {
-            info: $.proxy( window.alert, window ),
-            warn: $.proxy( window.alert, window ),
-            error: $.proxy( window.alert, window )
+            info: alert,
+            warn: alert,
+            error: alert
         },
         symbols: {
             start: "/**",
@@ -85,7 +87,7 @@ DocTest.fn = DocTest.prototype = {
         events: {
             success: null,
             failure: null,
-            describe: null,
+            described: null,
             complete: null
         }
     },
@@ -93,17 +95,20 @@ DocTest.fn = DocTest.prototype = {
     init: function( script, options ) {
         /** Initialize doctest document.
 
-            >>> var nulldoc = $.doctest();
+            >>> var noTest = {
+            ...     test: false
+            ... };
+            >>> var nulldoc = $.doctest( null, noTest );
             >>> nulldoc instanceof $.doctest;
             true
 
         You can customize symbols for doctest parsing with options param.
 
-            >>> var customdoc = $.doctest( null, {
+            >>> var customdoc = $.doctest( null, $.extend({
             ...     symbols: {
             ...         end: "END"
             ...     }
-            ... });
+            ... }, noTest ) );
             >>> customdoc.symbols.end;
             END
             >>> "[ " + customdoc.symbols.continued + "]";
@@ -111,11 +116,11 @@ DocTest.fn = DocTest.prototype = {
 
         Custom log object.
 
-            >>> var customlog = $.doctest( null, {
+            >>> var customlog = $.doctest( null, $.extend({
             ...     log: {
             ...         info: window.alert
             ...     }
-            ... }).log;
+            ... }, noTest ) ).log;
             >>> customlog.info.name;
             alert
             >>> customlog.warn === $.doctest.fn.options.log.warn;
@@ -123,12 +128,12 @@ DocTest.fn = DocTest.prototype = {
 
         The type of the first argument.
 
-            >>> var filedoc = $.doctest( "nothing.js" );
+            >>> var filedoc = $.doctest( "nothing.js", noTest );
             >>> filedoc.type;
             file
-            >>> $.doctest(function() {}).type;
+            >>> $.doctest(function() {}, noTest ).type;
             func
-            >>> var srcdoc = $.doctest( "var a = 1;" );
+            >>> var srcdoc = $.doctest( "var a = 1;", noTest );
             >>> srcdoc.type;
             src
             >>> srcdoc.source;
@@ -163,7 +168,8 @@ DocTest.fn = DocTest.prototype = {
 
         // Handle $.doctest()
         } else {
-            return this;
+            this.type = nullType;
+            return;
         }
 
         this.status = {
@@ -185,25 +191,16 @@ DocTest.fn = DocTest.prototype = {
             describe = $.proxy(function( source ) {
                 $.extend( items, this.parse( source ) );
                 this.described = true;
-                this.trigger( "describe" );
+                this.trigger( "described", this );
             }, this );
 
         if ( this.source ) {
             describe( this.source );
         } else if ( this.scriptUrl ) {
-            // Load the script
-            if ( !$( "script[src=" + this.scriptUrl + "]" ).length ) {
-                var markup = [
-                    '<script class="doctest" src="',
-                    this.scriptUrl,
-                    '"></script>'
-                ].join( "" );
-                $( markup ).appendTo( document.body );
-            }
-
             // Get source of the script and run tests
             $.ajax({
                 url: this.scriptUrl,
+                dataType: "text",
                 context: this,
                 success: function( source ) {
                     this.source = source;
@@ -213,6 +210,14 @@ DocTest.fn = DocTest.prototype = {
                     }
                 },
                 error: function( xhr ) {
+                    if ( this.testing ) {
+                        for ( var i in self.queue ) {
+                            if ( self.queue[ i ] === this ) {
+                                delete self.queue[ i ];
+                                break;
+                            }
+                        }
+                    }
                     throw new HTTPError( xhr );
                 }
             });
@@ -224,7 +229,8 @@ DocTest.fn = DocTest.prototype = {
     parse: function( source ) {
         source = self.unescape( source );
 
-        var items = [],
+        var item,
+            items = [],
             lines = source.split( nl ),
             line,
             lineNo,
@@ -254,7 +260,11 @@ DocTest.fn = DocTest.prototype = {
             // When the end line of a docstring
             } else if ( isItem && end.exec( line ) ) {
                 itemCode = trimIndent( itemLines.join( nl ) );
-                items.push( Item( itemCode, lineNo, this ) );
+                item = Item( itemCode, lineNo, this );
+                items.push( item );
+                var oldExamples = this.status.examples,
+                    newExamples = item.status.examples;
+                this.status.examples = $.merge( oldExamples, newExamples );
                 itemLines = [];
                 isItem = false;
             }
@@ -282,6 +292,9 @@ DocTest.fn = DocTest.prototype = {
             for ( var i in this.items ) {
                 if ( !isArrayElem( this.items, i ) ) {
                     continue;
+                } else if ( this.options.loadScript ) {
+                    var script = $( '<script class="doctest"></script>' );
+                    script.text( this.source ).appendTo( document.body );
                 }
                 itemStatus = this.items[ i ].testAll();
                 for ( var j in this.status ) {
@@ -290,6 +303,7 @@ DocTest.fn = DocTest.prototype = {
                     }
                 }
             }
+            this.trigger( "complete", this );
             this.completed = true;
 
             // Pop
@@ -309,13 +323,18 @@ DocTest.fn = DocTest.prototype = {
         return this.status;
     },
 
-    trigger: function( eventType ) {
-        var fn = this.options.events[ eventType ];
+    trigger: function( eventType, arg1, arg2/*, ...*/ ) {
+        var fn = this.options.events[ eventType ],
+            args = Array.prototype.slice.call( arguments, 1 );
         if ( $.isFunction( fn ) ) {
-            return fn.call( this );
+            return fn.apply( this, args );
         } else {
             return null;
         }
+    },
+
+    toString: function() {
+        return "[doctest " + this.name + "]";
     }
 };
 
@@ -369,8 +388,4 @@ DocTest.extend({
     },
 
     flags: {}
-});
-
-$.extend({
-    doctest: DocTest
 });

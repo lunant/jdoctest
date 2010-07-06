@@ -2,7 +2,7 @@ var Example = function( source, line, item ) {
         return new Example.fn.init( source, line, item );
     };
 
-Example.fn = Example.prototype = {
+Example.fn = Example.prototype = $.extend( new Paragraph, {
     init: function( repl, lineNo, item ) {
         this.lineNo = +lineNo;
         this.item = item;
@@ -107,13 +107,15 @@ Example.fn = Example.prototype = {
             runner.reportStart( this );
             runner.run( this );
             runner.reportSuccess( this );
+            this.doctest.trigger( "success", this );
             return true;
         } catch ( error ) {
-            if ( error instanceof DocTestFailure ) {
+            if ( error instanceof Failure ) {
                 runner.reportFailure( this, error );
             } else {
                 runner.reportError( this, error );
             }
+            this.doctest.trigger( "failure", this, error );
             return false;
         }
     },
@@ -123,7 +125,7 @@ Example.fn = Example.prototype = {
             return window.eval.call( window, source );
         }
     }
-};
+});
 
 Example.fn.init.prototype = Example.fn;
 Example.extend = Example.fn.extend = $.extend;
@@ -139,7 +141,7 @@ Example.extend({
             if ( this.check( example ) ) {
                 return true;
             } else {
-                throw new DocTestFailure( example );
+                throw new Failure( example );
             }
         },
         reportFailure: function( example, error ) {
@@ -151,3 +153,4 @@ Example.extend({
     })
 });
 
+DocTest.Example = Example;

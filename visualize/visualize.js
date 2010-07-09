@@ -142,7 +142,7 @@ Visualization.fn = Visualization.prototype = {
         },
         got: function( example ) {
             var elem = $( document.getElementById( self.id( example ) ) );
-            elem.find( "dd.got pre" ).html( example.got );
+            elem.find( "dd.got pre" ).text( String( example.got ) );
         },
         complete: function( doctest ) {
             this.done = this.done || 0;

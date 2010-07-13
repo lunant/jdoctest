@@ -13,13 +13,7 @@
 
 import sys, os
 sys.path.append(os.path.dirname(__file__))
-from syntax import JavascriptConsoleLexer
-from pygments.lexers import LEXERS
 
-# Add the Javascript console session lexer for tests with the doctest.js
-lexer = JavascriptConsoleLexer()
-LEXERS["JavascriptConsoleLexer"] = ("syntax", lexer.name, lexer.aliases,
-                                    lexer.filenames, lexer.mimetypes)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -33,7 +27,9 @@ LEXERS["JavascriptConsoleLexer"] = ("syntax", lexer.name, lexer.aliases,
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.coverage']
+extensions = ['sphinx.ext.coverage',
+              'ext.jscon',
+              'ext.autojs']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

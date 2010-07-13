@@ -5,6 +5,8 @@ doctest.js is a test library for `jQuery <http://jquery.com>`_ projects, using
 conventions from `Python <http://python.org>`_'s `doctest
 <http://docs.python.org/library/doctest.html>`_ module.
 
+.. autojs:: ../doctest/doctest.js
+
 What's doctest?
 ---------------
 
@@ -189,3 +191,5 @@ Just like jQuery, doctest.js is licensed with
     1
     2
     3
+
+

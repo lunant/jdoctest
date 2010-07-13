@@ -1,19 +1,24 @@
 import os
 from docutils import nodes
+from docutils.statemachine import ViewList
 from sphinx.util.compat import Directive
+from sphinx.util.nodes import nested_parse_with_titles
 
 
 class Paragraph(object):
 
     def __init__(self, body=""):
-        self.body = body
+        self.body = [body]
 
-    def __iadd__(self, body):
-        self.body += "\n" + body
+    def __iadd__(self, more_body):
+        self.body.append(more_body)
         return self
 
+    def __iter__(self):
+        return iter(self.body)
+
     def __repr__(self):
-        return self.body
+        return "\n".join(self.body)
 
 
 class Example(Paragraph): pass
@@ -37,11 +42,12 @@ class AutoJavaScript(Directive):
         is_item = False
         para = None
         for line in lines:
-            nude = line.strip()
+            docline = nude = line.strip()
             if nude.startswith(self.START):
                 is_item = True
+                docline = docline.replace(self.START, "").lstrip()
             if is_item:
-                docline = nude.replace(self.START, "").replace(self.END, "")
+                docline = docline.replace(self.END, "").rstrip()
                 if docline.startswith(self.PROMPT) or \
                    docline.startswith(self.CONTINUED):
                     if isinstance(para, Example):
@@ -74,8 +80,8 @@ class AutoJavaScript(Directive):
                 node["language"] = "jscon"
                 yield node
             elif isinstance(para, Comment):
-                para = str(para)
-                node = nodes.Text(para)
+                node = nodes.paragraph()
+                nested_parse_with_titles(self.state, ViewList(list(para)), node)
                 yield node
 
     def run(self):

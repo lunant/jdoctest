@@ -1,3 +1,7 @@
+/**
+doctest.js
+==========
+*/
 var DocTest = function( script, options ) {
         return new DocTest.fn.init( script, options );
     },

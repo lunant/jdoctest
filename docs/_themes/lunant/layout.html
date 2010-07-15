@@ -1,0 +1,15 @@
+{% extends "basic/layout.html" %}
+{% block extrahead %}
+  <script src="{{ pathto("_static/doctest.js", 1) }}"></script>
+  <script>
+  $(function() {
+    $( ".highlight-jscon pre" ).each(function() {
+      $.doctest( $( this ).text() );
+    });
+  });
+  </script>
+{% endblock %}
+{# do not display relbars #}
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}{% endblock %}
+

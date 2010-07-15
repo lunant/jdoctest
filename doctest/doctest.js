@@ -1,7 +1,3 @@
-/**
-doctest.js
-==========
-*/
 var DocTest = function( script, options ) {
         return new DocTest.fn.init( script, options );
     },
@@ -65,7 +61,9 @@ var DocTest = function( script, options ) {
 
 DocTest.fn = DocTest.prototype = {
     options: {
-        /** Default options.
+        /** .. js:attribute:: DocTest.options
+
+        Default options.
 
             >>> var opt = $.doctest.fn.options;
             >>> "<<<o>>> <<<o" + opt.symbols.prompt
@@ -97,7 +95,9 @@ DocTest.fn = DocTest.prototype = {
     },
 
     init: function( script, options ) {
-        /** Initialize doctest document.
+        /** .. js:function:: DocTest.init( script, options )
+
+        Initialize doctest document.
 
             >>> var noTest = {
             ...     test: false
@@ -356,7 +356,9 @@ DocTest.extend({
     queue: [],
 
     hash: function( data, size ) {
-        /** Simple hash
+        /** .. classmethod:: DocTest.hash
+
+        Simple hash
 
             >>> $.doctest.hash( "a" );
             97
@@ -383,7 +385,9 @@ DocTest.extend({
     },
 
     unescape: function( doc ) {
-        /** Unescapes a docstring
+        /** .. classmethod:: DocTest.unescape
+
+        Unescapes a docstring
 
             >>> $.doctest.unescape( "\//*****\\/" ).length;
             8

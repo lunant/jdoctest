@@ -1,9 +1,21 @@
-:mod:`doctest` --- DocTest.js internals
----------------------------------------
+DocTest.js internals
+~~~~~~~~~~~~~~~~~~~~
 
-Modules
-=======
+Documentors
+===========
 
-.. toctree::
+.. autojs:: ../doctest/doctest.js
+.. autojs:: ../doctest/item.js
 
-   doctest/doctest
+Paragraphs
+==========
+
+.. autojs:: ../doctest/example.js
+.. autojs:: ../doctest/comment.js
+
+Evaulators
+==========
+
+.. autojs:: ../doctest/flags.js
+.. autojs:: ../doctest/runner.js
+

@@ -1,15 +1,12 @@
-doctest.js
+DocTest.js
 ==========
 
 doctest.js is a test library for `jQuery <http://jquery.com>`_ projects, using
 conventions from `Python <http://python.org>`_'s `doctest
 <http://docs.python.org/library/doctest.html>`_ module.
 
-Table of contents
-=================
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    doctest
 
@@ -149,53 +146,22 @@ does not support ``console``, you cannot check the results.
 `Lunant <http://lunant.net>`_'s GitHub account. You can download the source
 code with the following command.
 
-.. sourcecode:: bash
+.. sourcecode:: console
 
     $ git clone git://github.com/lunant/doctest.js.git doctest.js
 
-Just like jQuery, doctest.js is licensed with
-`MIT <http://en.wikipedia.org/wiki/MIT_License>`_ +
-`GPL2 <http://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2>`_
-, so feel free to use and manipulate as long as you respect these licenses.
+.. seealso::
 
-.. sourcecode:: jscon
+    - Hello
+    - World
 
-    >>> $.doctest( "doctest.js" );
-    [object Object]
-    >>> for ( var i in [ 1, 2, 3 ] ) {
-    ...     i;
-    ... }
-    2
+.. note::
 
-    >>> var a = "foo";
-    >>> a;
-    foo
-    >>> 1 / 0;
-    Infinity
+    # Hello
+    # World
 
-    >>> var name = document.getElementById( "name" );
-    >>> name.id;
-    name
-
-    >>> name = $( "#name" );
-    [object Object]
-    >>> name instanceof $;
-    true
-    >>> name instanceof jQuery; // >>>
-    true
-    >>> /* >>> */ 1* 1;
-    1
-
-    >>> alert( "Hello, world!" ); //doctest: +SKIP
-
-.. sourcecode:: python
-
-    >>> jquery.doctest("doctest.js")
-    <jquery.doctest>
-    >>> for i in [1, 2, 3]:
-    ...     print i
-    1
-    2
-    3
-
-
+:license:
+    Since doctest.js depends on jQuery, it is also licensed with
+    `MIT <http://en.wikipedia.org/wiki/MIT_License>`_ +
+    `GPL2 <http://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2>`_
+    , so feel free to use and manipulate as long as you respect these licenses.

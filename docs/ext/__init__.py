@@ -1,1 +1,1 @@
-__all__ = ["jscon", "autojs"]
+__all__ = ["jscon", "autojs", "style"]

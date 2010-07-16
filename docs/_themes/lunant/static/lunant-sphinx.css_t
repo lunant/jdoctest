@@ -40,6 +40,11 @@ p, ul, ol {
   padding: 10px 0;
 }
 
+blockquote {
+  padding-left: 40px;
+  background: url("quote.gif") no-repeat left 10px;
+}
+
 .admonition p, .admonition ul, .admonition ol {
   padding: 0;
 }
@@ -145,8 +150,9 @@ li {
   border-radius: 10px;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
-  font-size: 20px;
+  font-size: 75%;
   color: #999;
+  background: #fff;
 }
 
 .headerlink:hover {

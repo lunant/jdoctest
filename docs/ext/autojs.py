@@ -7,116 +7,92 @@ from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
 
-class Paragraph(object):
-
-    def __init__(self, body="", indent=""):
-        self.body, self.indent = [body], indent
-
-    def __iadd__(self, more_body):
-        self.body.append(more_body)
-        return self
-
-    def __iter__(self):
-        return (self.indent + line for line in self.body)
-
-    def shift(self, indent=""):
-        for line in self:
-            yield indent + line
-
-    def __repr__(self):
-        return "\n".join(self.body)
-
-    def to_rst(self):
-        return list(self)
+START = "/**"
+END = "*/"
+PROMPT = ">>> "
+CONTINUED = "... "
 
 
-class Examples(Paragraph):
+class Section(object):
 
-    LEXER_ALIAS = "jscon"
+    BLANK = ""
+    LEXER = "jscon"
+    INDENT = "   "
 
-    def to_rst(self):
-        BLANK, INDENT = "", "   "
-        lines = [BLANK, "{0}.. sourcecode:: {1}".format(self.indent,
-                                                        self.LEXER_ALIAS),
-                 BLANK]
-        for line in self.shift(INDENT):
-            lines.append(line)
-        lines.append(BLANK)
-        return lines
+    def __init__(self, lines):
+        self.lines = list(lines)
+        self.indent = self.lines[0][:self.lines[0].find(START)]
 
-class Comment(Paragraph):
+    def to_rest(self):
+        rest = []
+        is_example = False
+        for line in self.lines:
+            line = re.sub("^" + self.indent, "", line)
+            lstripped = line.lstrip()
+            if lstripped.startswith(PROMPT):
+                rest.append(self.BLANK)
+                rest.append(".. sourcecode:: {0}".format(self.LEXER))
+                rest.append(self.BLANK)
+            if lstripped.startswith(PROMPT) or \
+               lstripped.startswith(CONTINUED) or \
+               is_example and lstripped:
+                is_example = True
+                line = self.INDENT + lstripped
+            elif is_example:
+                is_example = False
+            rest.append(line)
+        # shift contents if title exists and remove docstring literals
+        if self.has_title():
+            rest = self.shift_contents(rest)
+        rest = self.remove_doc_literals(rest)
+        return rest
 
-    def to_rst(self):
-        return [""] + list(self)
+    def shift_contents(self, rest):
+        def shift(line):
+            if line.strip():
+                return self.INDENT + line
+            else:
+                return self.BLANK
+        contents_from = rest.index(self.BLANK)
+        return rest[:contents_from] + map(shift, rest[contents_from:])
 
+    def remove_doc_literals(self, rest):
+        rest[0] = re.sub(re.escape(START) + "\s*", self.BLANK, rest[0])
+        rest[-1] = re.sub("\s*" + re.escape(END), self.BLANK, rest[-1])
+        return rest
 
-class JavaScript(object):
+    def has_title(self):
+        return bool(self.lines[0].replace(START, "").strip())
 
-    START = "/**"
-    END = "*/"
-    PROMPT = ">>> "
-    CONTINUED = "... "
+    def __str__(self):
+        return '<section has_title="{0}" indent="{1}">\n'.format(str(self.has_title()), self.indent) +"\n".join(self.lines) + "\n</section>"
+
+class JavaScriptDocument(object):
+
     INDENT = re.compile(r"^\s*")
 
     def __init__(self, path):
         self.path = path
         self.file = open(path)
 
-    def describe(self):
-        is_item = False
-        is_title = False
-        was_want = False
-        para = None
-        indent = None
+    def get_sections(self):
+        is_section = False
+        section_lines = []
         for line in self.file:
-            nude = line.strip()
-            docline = line.strip()
-            if nude.startswith(self.START):
-                is_item = True
-                is_title = True
-                indent = self.INDENT.match(line).group(0)
-                indent_pattern = re.compile("^" + indent)
-                docline = docline.replace(self.START, "").lstrip()
-                indent_addition = "   " if docline.strip() else ""
-            if is_item:
-                shift = indent_addition if not is_title else ""
-                docline = docline.replace(self.END, "").rstrip()
-                docline = indent_pattern.sub(shift, docline)
-                if nude.startswith(self.PROMPT) or \
-                   nude.startswith(self.CONTINUED):
-                    if isinstance(para, Examples):
-                        para += docline
-                    else:
-                        if isinstance(para, Comment):
-                            yield para
-                        para = Examples(docline, shift)
-                elif isinstance(para, Examples):
-                    if not nude:
-                        yield para
-                        para = None
-                    else:
-                        para += docline
-                elif not nude and isinstance(para, Paragraph):
-                    yield para
-                    para = None
-                else:
-                    if isinstance(para, Comment):
-                        para += docline
-                    else:
-                        para = Comment(docline, shift)#, indent)
-                is_title = False
-            if nude.endswith(self.END):
-                is_item = False
-                if isinstance(para, Paragraph):
-                    yield para
-                    para = None
+            line = re.sub("\n$", "", line)
+            if line.lstrip().startswith(START):
+                is_section = True
+            if is_section:
+                section_lines.append(line)
+            if line.rstrip().endswith(END):
+                is_section = False
+                yield Section(section_lines)
+                section_lines = []
 
-    def to_rst(self):
-        lines = []
-        for para in self.describe():
-            for line in para.to_rst():
-                lines.append(line)
-        return lines
+    def to_rest(self):
+        for sec in self.get_sections():
+            for line in sec.to_rest():
+                yield line
 
 
 class AutoJavaScript(Directive):
@@ -144,13 +120,15 @@ class AutoJavaScript(Directive):
         filename = os.path.basename(path)
         node = nodes.section()
         node.document = self.state.document
-        self.add_lines(JavaScript(path).to_rst())
+        self.add_lines(JavaScriptDocument(path).to_rest())
         nested_parse_with_titles(self.state, self.result, node)
         return node.children
+
 
 def setup(app):
     app.add_directive('autojs', AutoJavaScript)
 
+
 if __name__ == "__main__":
-    for line in JavaScript("../doctest/doctest.js").to_rst():
+    for line in JavaScriptDocument("ext/test.js").to_rest():
         print line

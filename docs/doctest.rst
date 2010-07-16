@@ -5,7 +5,7 @@ Documentors
 ===========
 
 .. autojs:: ../doctest/doctest.js
-.. autojs:: ../doctest/item.js
+.. autojs:: ../doctest/section.js
 
 Paragraphs
 ==========

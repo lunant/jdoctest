@@ -1,13 +1,13 @@
-var Comment = function( body, lineNo, item ) {
-        return new Comment.fn.init( body, lineNo, item );
+var Comment = function( body, lineNo, section ) {
+        return new Comment.fn.init( body, lineNo, section );
     };
 
 Comment.fn = Comment.prototype = $.extend( new Paragraph, {
-    init: function( body, lineNo, item ) {
+    init: function( body, lineNo, section ) {
         this.body = body;
         this.lineNo = lineNo;
-        this.item = item;
-        this.doctest = item.doctest;
+        this.section = section;
+        this.doctest = section.doctest;
     },
     toString: function() {
         return this.body;

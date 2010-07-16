@@ -143,7 +143,7 @@ DocTest.fn = DocTest.prototype = {
             >>> srcdoc.source;
             var a = 1;
 
-            >>> $.isArray( filedoc.items );
+            >>> $.isArray( filedoc.sections );
             true
         */
         this.options = $.extend( true, {}, this.options, options );
@@ -183,7 +183,7 @@ DocTest.fn = DocTest.prototype = {
             examples: []
         };
         this.described = this.completed = this.testing = false;
-        this.items = this.describe();
+        this.sections = this.describe();
 
         if ( this.options.test ) {
             this.testAll();
@@ -191,9 +191,9 @@ DocTest.fn = DocTest.prototype = {
     },
 
     describe: function() {
-        var items = [],
+        var sections = [],
             describe = $.proxy(function( source ) {
-                $.extend( items, this.parse( source ) );
+                $.extend( sections, this.parse( source ) );
                 this.described = true;
                 this.trigger( "described", this );
             }, this );
@@ -227,22 +227,22 @@ DocTest.fn = DocTest.prototype = {
             });
         }
 
-        return items;
+        return sections;
     },
 
     parse: function( source ) {
         source = self.unescape( source );
 
-        var item,
-            items = [],
+        var section,
+            sections = [],
             lines = source.split( nl ),
             line,
             lineNo,
-            itemLines = [],
-            itemCode,
+            sectionLines = [],
+            sectionCode,
 
             // Modes
-            isItem = false, hasFlag = false,
+            isSection = false, hasFlag = false,
 
             e = self.escapeRegExp,
 
@@ -257,33 +257,33 @@ DocTest.fn = DocTest.prototype = {
 
             // When the start line of a docstring
             if ( start.exec( line ) ) {
-                isItem = true;
+                isSection = true;
                 lineNo = +i + 1;
                 line = line.replace( this.symbols.start, "" );
 
             // When the end line of a docstring
-            } else if ( isItem && end.exec( line ) ) {
-                itemCode = trimIndent( itemLines.join( nl ) );
-                item = Item( itemCode, lineNo, this );
-                items.push( item );
+            } else if ( isSection && end.exec( line ) ) {
+                sectionCode = trimIndent( sectionLines.join( nl ) );
+                section = Section( sectionCode, lineNo, this );
+                sections.push( section );
                 var oldExamples = this.status.examples,
-                    newExamples = item.status.examples;
+                    newExamples = section.status.examples;
                 this.status.examples = $.merge( oldExamples, newExamples );
-                itemLines = [];
-                isItem = false;
+                sectionLines = [];
+                isSection = false;
             }
 
             // When the line in a docstring
-            if ( isItem ) {
-                itemLines.push( line );
+            if ( isSection ) {
+                sectionLines.push( line );
             }
         }
 
-        return items;
+        return sections;
     },
 
     testAll: function( noQueue ) {
-        var first = false, itemStatus, where;
+        var first = false, sectionStatus, where;
 
         noQueue || self.queue.push( this );
 
@@ -293,17 +293,17 @@ DocTest.fn = DocTest.prototype = {
         }
 
         if ( this.described && first ) {
-            for ( var i in this.items ) {
-                if ( !isArrayElem( this.items, i ) ) {
+            for ( var i in this.sections ) {
+                if ( !isArrayElem( this.sections, i ) ) {
                     continue;
                 } else if ( this.options.loadScript ) {
                     var script = $( '<script class="doctest"></script>' );
                     script.text( this.source ).appendTo( document.body );
                 }
-                itemStatus = this.items[ i ].testAll();
+                sectionStatus = this.sections[ i ].testAll();
                 for ( var j in this.status ) {
-                    if ( $.isArray( itemStatus[ j ] ) ) {
-                        $.merge( this.status[ j ], itemStatus[ j ] );
+                    if ( $.isArray( sectionStatus[ j ] ) ) {
+                        $.merge( this.status[ j ], sectionStatus[ j ] );
                     }
                 }
             }

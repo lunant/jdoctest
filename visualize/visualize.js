@@ -71,13 +71,13 @@ Visualization.fn = Visualization.prototype = {
             };
 
         $.each( this.doctests, function() {
-            var items = [], structure = struct( this, items );
+            var sections = [], structure = struct( this, sections );
             structure.basename = this.name.split( "/" ).reverse()[ 0 ];
             doctests.push( structure );
 
-            $.each( this.items, function() {
+            $.each( this.sections, function() {
                 var parags = [];
-                items.push( struct( this, parags ) );
+                sections.push( struct( this, parags ) );
 
                 $.each( this.description, function() {
                     parags.push( struct( this ) );

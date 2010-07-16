@@ -1,8 +1,8 @@
-var Item = function( source, line, doctest ) {
-        return new Item.fn.init( source, line, doctest );
+var Section = function( source, line, doctest ) {
+        return new Section.fn.init( source, line, doctest );
     };
 
-Item.fn = Item.prototype = {
+Section.fn = Section.prototype = {
     init: function( source, lineNo, doctest ) {
         this.options = doctest.options;
         this.source = source;
@@ -114,7 +114,7 @@ Item.fn = Item.prototype = {
     }
 };
 
-Item.fn.init.prototype = Item.fn;
-Item.extend = Item.fn.extend = $.extend;
+Section.fn.init.prototype = Section.fn;
+Section.extend = Section.fn.extend = $.extend;
 
-DocTest.Item = Item;
+DocTest.Section = Section;

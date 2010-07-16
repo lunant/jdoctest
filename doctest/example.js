@@ -1,12 +1,12 @@
-var Example = function( source, line, item ) {
-        return new Example.fn.init( source, line, item );
+var Example = function( source, line, section ) {
+        return new Example.fn.init( source, line, section );
     };
 
 Example.fn = Example.prototype = $.extend( new Paragraph, {
-    init: function( repl, lineNo, item ) {
+    init: function( repl, lineNo, section ) {
         this.lineNo = +lineNo;
-        this.item = item;
-        this.doctest = item.doctest;
+        this.section = section;
+        this.doctest = section.doctest;
 
         var example = this.parse( repl );
         this.source = example.source;

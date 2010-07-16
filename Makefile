@@ -5,7 +5,7 @@ DIST_DIR = ${PREFIX}/dist
 
 BASE_FILES = ${SRC_DIR}/doctest.js \
 	${SRC_DIR}/errors.js \
-	${SRC_DIR}/item.js \
+	${SRC_DIR}/section.js \
 	${SRC_DIR}/runner.js \
 	${SRC_DIR}/paragraph.js \
 	${SRC_DIR}/example.js \

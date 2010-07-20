@@ -1,6 +1,8 @@
 /* vim: set filetype=css: */
 @import url("basic.css");
 
+/* {{ theme_test }} */
+
 * {
   margin: 0;
   padding: 0;
@@ -10,13 +12,13 @@
 }
 
 body {
-  font-family: sans-serif;
+  font-family: {{ theme_bodyfont }};
   font-size: 15px;
-  background: #fafafa;
+  background: {{ theme_sidebarbgcolor }};
 }
 
 h1, h2, h3, h4, h5, h6, p.admonition-title, th.field-name {
-  font-family: "Times New Roman", serif;
+  font-family: {{ theme_headfont }};
   font-weight: normal;
   letter-spacing: -0.05em;
 }
@@ -24,19 +26,19 @@ h1, h2, h3, h4, h5, h6, p.admonition-title, th.field-name {
 h1 {
   font-size: 40px;
   margin: 0 -10px 10px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid {{ theme_h1underlinecolor }};
 }
 
 h2 {
   font-size: 25px;
-  margin-top: 20px;
 }
 
 p, li {
   line-height: 1.6;
 }
 
-p, ul, ol {
+p, ul, ol, h2, h3, h4, h5, h6, dl {
+  margin: 0;
   padding: 10px 0;
 }
 
@@ -53,18 +55,18 @@ pre, .admonition {
   margin: 10px -10px;
   padding: 9px;
 }
-
 pre, tt, code, .admonition {
   border: 1px solid;
   border-radius: 2px;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
 }
-
 pre, tt, code {
-  font-family: "Bitstream Vera Sans Mono", monospace;
-  border-color: #a9d2e2;
-  background: #e8f6fa;
+  background: {{ theme_codebgcolor }};
+}
+pre, tt, code {
+  font-family: {{ theme_codefont }};
+  border-color: {{ theme_codebordercolor }};
 }
 pre {
   font-size: 13px;
@@ -75,20 +77,23 @@ tt, code {
   padding: 0 0.25em;
 }
 
-dt tt {
+dt tt, dt em {
   border: none;
-  padding: 0;
-  font-family: "Courier New", monospace;
+  font-family: {{ theme_codeheadfont }}
 }
 
 tt.descname {
-  font-size: 1em;
+  font-size: 1.25em;
+}
+
+dt em {
+  font-style: normal;
+  color: {{ theme_codeheadargcolor }};
 }
 
 em.property {
-  margin-right: 1em;
   font-size: 11px;
-  color: #999;
+  color: {{ theme_codeheadhintcolor }};
 }
 
 div.admonition {
@@ -100,19 +105,19 @@ div.admonition {
 }
 
 .seealso {
-  border-color: #ddd;
-  background: #f4f4f4;
+  border-color: {{ theme_seealsobordercolor }};
+  background: {{ theme_seealsobgcolor }};
 }
 .seealso .admonition-title {
-  color: #666;
+  color: {{ theme_seealsoheadcolor }};
 }
 
 .note {
-  border-color: #eae5c0;
-  background: #ffe;
+  border-color: {{ theme_notebordercolor }};
+  background: {{ theme_notebgcolor }};
 }
 .note .admonition-title {
-  color: #c96;
+  color: {{ theme_noteheadcolor }};
 }
 
 th.field-name {
@@ -127,11 +132,11 @@ a:link, a:visited {
 }
 
 a:link {
-  color: #36c;
+  color: {{ theme_linkcolor }};
 }
 
 a:visited {
-  color: #369;
+  color: {{ theme_visitedcolor }};
 }
 
 a:hover {
@@ -184,8 +189,8 @@ p.logo {
 .documentwrapper {
   float: left;
   width: 700px;
-  background: #fff;
-  border-right: 1px solid #eee;
+  background: {{ theme_bodybgcolor }};
+  border-right: 1px solid {{ theme_sidebarbordercolor }};
 }
 
 .bodywrapper {
@@ -195,15 +200,16 @@ p.logo {
 .footer {
   width: 630px;
   padding: 20px 35px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid {{ theme_bodyshadowcolor }};
   font-size: 11px;
   color: #666;
 }
 
 .sphinxsidebar h3, .sphinxsidebar h4, .sphinxsidebar h5, .sphinxsidebar h6 {
-  border-top: 1px solid #eee;
+  border-top: 1px solid {{ theme_sidebarseparatorcolor }};
   padding-top: 10px;
   font-size: 12px;
+  letter-spacing: 0;
 }
 
 .sphinxsidebar h3 a, .sphinxsidebar h4 a, .sphinxsidebar h5 a,

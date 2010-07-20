@@ -342,7 +342,8 @@ DocTest.fn = DocTest.prototype = {
     }
 };
 
-/** Made ``DocTest.fn.init`` can returns ``DocTest`` object.
+/**
+Made ``DocTest.fn.init`` can returns ``DocTest`` object.
 
     >>> $.doctest() instanceof $.doctest;
     true

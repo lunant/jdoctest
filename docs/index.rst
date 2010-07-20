@@ -5,11 +5,6 @@ doctest.js is a test library for `jQuery <http://jquery.com>`_ projects, using
 conventions from `Python <http://python.org>`_'s `doctest
 <http://docs.python.org/library/doctest.html>`_ module.
 
-.. toctree::
-   :maxdepth: 3
-
-   doctest
-
 What's doctest?
 ---------------
 
@@ -25,6 +20,15 @@ What's doctest?
       input-output examples. Depending on whether the examples or the
       expository text are emphasized, this has the flavor of *literate testing*
       or *executable documentation*.
+
+References
+----------
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+
+   doctest/*
 
 Tutorial
 --------
@@ -149,16 +153,6 @@ code with the following command.
 .. sourcecode:: console
 
     $ git clone git://github.com/lunant/doctest.js.git doctest.js
-
-.. seealso::
-
-    - Hello
-    - World
-
-.. note::
-
-    # Hello
-    # World
 
 :license:
     Since doctest.js depends on jQuery, it is also licensed with

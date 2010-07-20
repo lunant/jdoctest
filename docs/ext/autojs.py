@@ -7,6 +7,9 @@ from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
 
+__all__ = ["AutoJavaScript"]
+
+
 START = "/**"
 END = "*/"
 PROMPT = ">>> "
@@ -96,12 +99,19 @@ class JavaScriptDocument(object):
 
 
 class AutoJavaScript(Directive):
+    """ Generate reStructuredText from JavaScript file.
 
-    START = "/**"
-    END = "*/"
-    PROMPT = ">>> "
-    CONTINUED = "... "
-    INDENT = re.compile(r"^\s*")
+    .. sourcecode:: rest
+
+       DocTest.js internals
+       --------------------
+
+       .. autojs:: doctest.js
+       .. autojs:: section.js
+       .. autojs:: example.js
+       .. autojs:: comment.js
+
+    """
 
     required_arguments = 1
 

@@ -7,6 +7,7 @@ var DocTest = function( script, options ) {
     flagComment = /\/\/.*doctest:\s*(.+)\s*$/,
     blank = /^\s*$/,
     scriptUrl = /\.js/,
+    notScriptUrl = /\n|\t/,
     __ = "^\\s*",
     xx = "(.+)$",
     nl = "\n",
@@ -151,12 +152,13 @@ DocTest.fn = DocTest.prototype = {
         this.symbols = this.options.symbols;
 
         // Handle $.doctest( "example.js" )
-        if ( scriptUrl.exec( script ) ) {
+        if ( !notScriptUrl.exec( script ) && scriptUrl.exec( script ) ) {
             this.hash = self.hash( script );
             this.name = this.scriptUrl = script;
             this.type = fileType;
 
         // Handle $.doctest( exampleFunction )
+        // It does not operate on Gecko
         } else if ( $.isFunction( script ) ) {
             this.hash = self.hash( script );
             this.name = script.name || ("function#" + this.hash);
@@ -199,7 +201,12 @@ DocTest.fn = DocTest.prototype = {
             }, this );
 
         if ( this.source ) {
-            describe( this.source );
+            var source = this.source;
+            if ( this.type === srcType ) {
+                source = this.symbols.start + nl + source;
+                source += nl + this.symbols.end;
+            }
+            describe( source );
         } else if ( this.scriptUrl ) {
             // Get source of the script and run tests
             $.ajax({

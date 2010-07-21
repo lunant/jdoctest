@@ -93,8 +93,6 @@ Section.fn = Section.prototype = {
     },
 
     testAll: function() {
-        var k = 0, example = this.description[ k ];
-
         for ( var i in this.description ) {
             if ( !isArrayElem( this.description, i ) ) {
                 continue;

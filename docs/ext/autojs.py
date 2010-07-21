@@ -32,7 +32,7 @@ class Section(object):
         for line in self.lines:
             line = re.sub("^" + self.indent, "", line)
             lstripped = line.lstrip()
-            if lstripped.startswith(PROMPT):
+            if not is_example and lstripped.startswith(PROMPT):
                 rest.append(self.BLANK)
                 rest.append(".. sourcecode:: {0}".format(self.LEXER))
                 rest.append(self.BLANK)
@@ -67,8 +67,6 @@ class Section(object):
     def has_title(self):
         return bool(self.lines[0].replace(START, "").strip())
 
-    def __str__(self):
-        return '<section has_title="{0}" indent="{1}">\n'.format(str(self.has_title()), self.indent) +"\n".join(self.lines) + "\n</section>"
 
 class JavaScriptDocument(object):
 

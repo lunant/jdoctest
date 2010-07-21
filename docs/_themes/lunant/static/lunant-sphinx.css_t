@@ -64,6 +64,10 @@ pre, tt, code, .admonition {
 pre, tt, code {
   background: {{ theme_codebgcolor }};
 }
+pre.failure {
+  border-color: #d46;
+  background: #fdd;
+}
 pre, tt, code {
   font-family: {{ theme_codefont }};
   border-color: {{ theme_codebordercolor }};

@@ -38,7 +38,7 @@ class JavascriptConsoleLexer(JavascriptLexer):
             if item[1] is Generic.Prompt:
                 is_example = True
                 is_output = False
-            elif is_example and item[2] == u"\n":
+            elif is_example and item[2].endswith(u"\n"):
                 is_example = False
                 is_output = True
             elif is_output:

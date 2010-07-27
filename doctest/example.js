@@ -1,30 +1,12 @@
-var Example = function( repl, lineNo, section ) {
-    /** .. class:: DocTest.Example( repl[, lineNo, section] )
-
-    It wraps an example and makes the example's each elements be grouped.
-
-        >>> var repl = [
-        ...     ">>> Math.PI; //doctest: +ELLIPSIS",
-        ...     "3.14..."
-        ... ].join( "\n" );
-        >>> var exam = DocTest.Example( repl );
-        >>> exam.source;
-        Math.PI; //doctest: +ELLIPSIS
-        >>> exam.lineNo;
-        1
-        >>> exam.want;
-        3.14...
-        >>> DocTest.flags.ELLIPSIS === exam.flags[ 0 ];
-        true
-    */
-    return new Example.fn.init( repl, lineNo, section );
-};
+var Example = function( source, line, section ) {
+        return new Example.fn.init( source, line, section );
+    };
 
 Example.fn = Example.prototype = $.extend( new Paragraph, {
     init: function( repl, lineNo, section ) {
-        this.lineNo = +lineNo || 1;
-        this.section = section || Section.fn;
-        this.doctest = section ? section.doctest : DocTest.fn;
+        this.lineNo = +lineNo;
+        this.section = section;
+        this.doctest = section.doctest;
 
         var example = this.parse( repl );
         this.source = example.source;
@@ -99,18 +81,6 @@ Example.fn = Example.prototype = $.extend( new Paragraph, {
     },
 
     test: function() {
-        /** .. function:: DocTest.Example.test
-
-        Test the example. You can get :attr:`DocTest.Example.got` after called
-        this methos.
-
-            >>> exam.got;
-            undefined
-            >>> exam.test();
-            true
-            >>> exam.got;
-            3.141592653589793
-        */
         var runner, runnerClass, check;
 
         try {

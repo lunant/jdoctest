@@ -61,10 +61,44 @@ var DocTest = function( script, options ) {
     };
 
 DocTest.fn = DocTest.prototype = {
-    init: function( script, options ) {
-        /** .. class:: DocTest( script[, options] )
+    options: {
+        /** .. js:attribute:: DocTest.options
 
-        Initialize a :class:`DocTest` instance.
+        Default options.
+
+            >>> var opt = $.doctest.fn.options;
+            >>> "<<<o>>> <<<o" + opt.symbols.prompt
+            <<<o>>> <<<o>>> 
+        */
+        test: true,
+        loadScript: true,
+        log: window.console ? {
+            info: $.proxy( window.console.log, window.console ),
+            warn: $.proxy( window.console.warn, window.console ),
+            error: $.proxy( window.console.error, window.console )
+        } : {
+            info: alert,
+            warn: alert,
+            error: alert
+        },
+        symbols: {
+            start: "/**",
+            end: "*/",
+            prompt: ">>> ",
+            continued: "... "
+        },
+        events: {
+            success: null,
+            failure: null,
+            described: null,
+            complete: null
+        }
+    },
+
+    init: function( script, options ) {
+        /** .. js:function:: DocTest.init( script, options )
+
+        Initialize doctest document.
 
             >>> var noTest = {
             ...     test: false
@@ -74,7 +108,6 @@ DocTest.fn = DocTest.prototype = {
             true
 
         You can customize symbols for doctest parsing with options param.
-        Follow the next code, if you want to change end symbol to ``END``.
 
             >>> var customdoc = $.doctest( null, $.extend({
             ...     symbols: {
@@ -86,8 +119,7 @@ DocTest.fn = DocTest.prototype = {
             >>> "[ " + customdoc.symbols.continued + "]";
             [ ... ]
 
-        You can change log methods also. If you want to report using
-        :func:`window.alert` follow the next code.
+        Custom log object.
 
             >>> var customlog = $.doctest( null, $.extend({
             ...     log: {
@@ -96,35 +128,28 @@ DocTest.fn = DocTest.prototype = {
             ... }, noTest ) ).log;
             >>> customlog.info.name;
             alert
-            >>> customlog.warn === $.doctest.fn.log.warn;
+            >>> customlog.warn === $.doctest.fn.options.log.warn;
             true
 
-        */
-        /** .. attribute:: DocTest.type
-
-        It is ``file`` when first argument is filename, or it is ``src`` when
-        first argument is JavaScript code string.
+        The type of the first argument.
 
             >>> var filedoc = $.doctest( "nothing.js", noTest );
             >>> filedoc.type;
             file
+            >>> $.doctest(function() {}, noTest ).type;
+            func
             >>> var srcdoc = $.doctest( "var a = 1;", noTest );
             >>> srcdoc.type;
             src
             >>> srcdoc.source;
             var a = 1;
 
-        */
-        /** .. attribute:: DocTest.sections
-
-        The array that contains section instances.
-
             >>> $.isArray( filedoc.sections );
             true
         */
         this.options = $.extend( true, {}, this.options, options );
-        this.log = $.extend( true, {}, this.log, this.options.log );
-        this.symbols = $.extend( true, {}, this.symbols, this.options.symbols);
+        this.log = this.options.log;
+        this.symbols = this.options.symbols;
 
         // Handle $.doctest( "example.js" )
         if ( !notScriptUrl.exec( script ) && scriptUrl.exec( script ) ) {
@@ -165,46 +190,6 @@ DocTest.fn = DocTest.prototype = {
         if ( this.options.test ) {
             this.testAll();
         }
-    },
-
-    options: {
-        /** .. js:attribute:: DocTest.options
-
-        Default options.
-
-            >>> var opt = $.doctest.fn.options;
-            >>> opt.test;
-            true
-            >>> opt.loadScript;
-            true
-            >>> opt.events.success;
-            null
-        */
-        test: true,
-        loadScript: true,
-        events: {
-            success: null,
-            failure: null,
-            described: null,
-            complete: null
-        }
-    },
-
-    log: window.console ? {
-        info: $.proxy( window.console.log, window.console ),
-        warn: $.proxy( window.console.warn, window.console ),
-        error: $.proxy( window.console.error, window.console )
-    } : {
-        info: window.alert,
-        warn: window.alert,
-        error: window.alert
-    },
-
-    symbols: {
-        start: "/**",
-        end: "*/",
-        prompt: ">>> ",
-        continued: "... "
     },
 
     describe: function() {
@@ -379,9 +364,9 @@ DocTest.extend({
     queue: [],
 
     hash: function( data, size ) {
-        /** .. function:: DocTest.hash
+        /** .. classmethod:: DocTest.hash
 
-        It hashes string simply.
+        Simple hash
 
             >>> $.doctest.hash( "a" );
             97
@@ -408,7 +393,7 @@ DocTest.extend({
     },
 
     unescape: function( doc ) {
-        /** .. function:: DocTest.unescape
+        /** .. classmethod:: DocTest.unescape
 
         Unescapes a docstring
 

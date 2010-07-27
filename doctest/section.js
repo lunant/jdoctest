@@ -1,38 +1,13 @@
-var Section = function( source, lineNo, doctest ) {
-    /** .. class:: DocTest.Section( source[, lineNo, doctest] )
-
-    It wraps a docstring within :data:`DocTest.symbols.start`, and
-    :data:`DocTest.symbols.end`. Such as:
-
-        >>> var docstring = [
-        ...     "/** Like it!",
-        ...     "",
-        ...     "This is a bug.",
-        ...     "Hi, bug?",
-        ...     "(BANG!)",
-        ...     "It's dead.",
-        ...     "",
-        ...     ">>> Section.fn instanceof Object;",
-        ...     "true",
-        ...     "*" + "/"
-        ... ].join( "\n" );
-        >>> var sect = DocTest.Section( docstring );
-        >>> sect.description.length;
-        3
-        >>> sect.description[ 0 ] instanceof DocTest.Comment;
-        true
-        >>> sect.description[ 2 ] instanceof DocTest.Example;
-        true
-    */
-    return new Section.fn.init( source, lineNo, doctest );
-};
+var Section = function( source, line, doctest ) {
+        return new Section.fn.init( source, line, doctest );
+    };
 
 Section.fn = Section.prototype = {
     init: function( source, lineNo, doctest ) {
+        this.options = doctest.options;
         this.source = source;
-        this.lineNo = +lineNo || 1;
-        this.doctest = doctest || DocTest.fn;
-        this.options = this.doctest.options;
+        this.lineNo = +lineNo;
+        this.doctest = doctest;
         this.status = {
             done: [],
             success: [],

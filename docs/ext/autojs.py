@@ -136,3 +136,7 @@ class AutoJavaScript(Directive):
 def setup(app):
     app.add_directive('autojs', AutoJavaScript)
 
+
+if __name__ == "__main__":
+    for line in JavaScriptDocument("ext/test.js").to_rest():
+        print line

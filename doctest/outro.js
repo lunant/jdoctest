@@ -2,6 +2,6 @@
 $.extend({
     doctest: DocTest
 });
-window.doctest = window.DocTest = DocTest;
+window.doctest = DocTest;
 
 })( jQuery, this );

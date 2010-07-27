@@ -1,10 +1,8 @@
 $(function() {
 
 $( ".highlight-jscon pre" ).each(function() {
-    var self = $( this ),
-        doct = $.doctest( self.text() );
-
-    if ( doct.status.failure.length ) {
+    var self = $( this );
+    if ( $.doctest( self.text() ).status.failure.length ) {
         self.addClass( "failure" );
     }
 });

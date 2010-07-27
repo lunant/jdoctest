@@ -10,6 +10,7 @@ Documentors
 Paragraphs
 ==========
 
+.. autojs:: ../doctest/paragraph.js
 .. autojs:: ../doctest/example.js
 .. autojs:: ../doctest/comment.js
 
@@ -19,3 +20,7 @@ Evaulators
 .. autojs:: ../doctest/flags.js
 .. autojs:: ../doctest/runner.js
 
+Errors
+======
+
+.. autojs:: ../doctest/errors.js

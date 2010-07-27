@@ -1,6 +1,6 @@
 $.extend( DocTest.flags, {
     NORMALIZE_WHITESPACE: function( example ) {
-        /** .. js:attribute:: DocTest.flags.NORMALIZE_WHITESPACE
+        /** .. data:: DocTest.flags.NORMALIZE_WHITESPACE
 
         If you want to test by normalized values use this flag.
 
@@ -16,21 +16,20 @@ $.extend( DocTest.flags, {
         return normalize( example.want ) === normalize( example.got );
     },
     ELLIPSIS: function( example ) {
-        /** .. js:attribute:: DocTest.flags.ELLIPSIS
+        /** .. data:: DocTest.flags.ELLIPSIS
 
         You can use ``...`` for wildcard. It matches any characters.
 
-            >>> "I threw away, but who was thrown is just me.";
-            ... //doctest: +ELLIPSIS
-            I...was thrown....
+            >>> 123456; //doctest: +ELLIPSIS
+            123...6
         */
         var e = DocTest.escapeRegExp,
             ellipsis = new RegExp( e( e( "..." ) ), "g" );
-            pattern = e( example.want ).replace( ellipsis, ".*" );
+            pattern = e( example.want ).replace( ellipsis, ".*?" );
         return !!(new RegExp( pattern )).exec( example.got );
     },
     SKIP: Runner.extend({
-        /** .. js:attribute:: DocTest.flags.SKIP
+        /** .. data:: DocTest.flags.SKIP
 
         DocTest does not test example that has ``SKIP`` flag.
 

@@ -15,14 +15,21 @@ Links
 .. _development version:
    http://github.com/sublee/jdoctest/zipball/master#egg=jdoctest-dev
 */
+this.jDoctest = (function( window, $ ) {
 
-//this.jDoctest = (function( win ) {
+// Checks dependencies
+if ( !$ ) {
+    throw new ReferenceError( "jDoctest needs jQuery framework" );
+}
 
-/***********************************************************************
-* Exceptions
-***********************************************************************/
-var Pause = function() {};
-Pause.prototype = new Error( "Pause" );
+if ( window.console === undefined ) {
+    // Makes a mock console
+    var empty = function() {},
+        console = {};
+    console.log = console.warn = console.error = empty;
+} else {
+    var console = window.console;
+}
 
 /***********************************************************************
 * jDoctest
@@ -46,7 +53,7 @@ var jDoctest = j = function( examples, source, fileName, lineNo ) {
     this.examples = examples;
     this.source = source;
     this.fileName = fileName;
-    this.lineNo = lineNo || 1;
+    this.lineNo = parseInt( lineNo || 1 );
 };
 j.prototype = {
     toString: function() {
@@ -72,9 +79,20 @@ j.prototype = {
 };
 
 /***********************************************************************
+* Exceptions
+***********************************************************************/
+j.errors = {
+    Pause: function() {
+        this.name = "Pause";
+    }
+};
+j.errors.Pause.prototype = new Error( "The running process has to pause" );
+
+/***********************************************************************
 * Utilities
 ***********************************************************************/
 var _ = {
+    ffff: "\uffff",
     repr: function( val ) {
         /**:jDoctest._repr( val )
 
@@ -99,7 +117,7 @@ var _ = {
         } else if ( $.isArray( val ) ) {
             var reprs = [];
             for ( var i = 0; i < val.length; i++ ) {
-                reprs.push( this.repr( val[ i ] ) );
+                reprs.push( _.repr( val[ i ] ) );
             }
             return "[" + reprs.join( ", " ) + "]";
         } else if ( typeof val === "string" ) {
@@ -123,10 +141,10 @@ var _ = {
         return text.replace( indent, "" );
     },
     linearize: function( text ) {
-        return text.replace( /\n/g, "\uffff" );
+        return text.replace( /\n/g, _.ffff );
     },
     unlinearize: function( line ) {
-        return line.replace( /\uffff/g, "\n" );
+        return line.replace( new RegExp( _.ffff, "g" ), "\n" );
     },
     escapeRegExp: function( text ) {
         /**:jDoctest._escapeRegExp( text )
@@ -221,7 +239,7 @@ j.Parser = function( options ) {
         >>> var src = "this is not a docstring.\n" +
         ...     "/*+ this is a docstring +*" + "/\n" +
         ...     "/** this is not a docstring *" + "/\n" +
-        ...     "/** this is not a docstring *" + "/";
+        ...     "/** this is not a docstring also *" + "/";
         >>> var doctests = myParser.getDoctests( src );
         >>> doctests.length;
         1
@@ -229,7 +247,7 @@ j.Parser = function( options ) {
     this.options = $.extend( {}, this.options, options );
 
     this.docStringRegex = new RegExp([
-        "(?:^|\uffff)(\\s*)",
+        "(?:^|" + _.ffff + ")(\\s*)",
         _.escapeRegExp( this.options.docPrefix ),
         "\\s*([^*].*?)",
         _.escapeRegExp( this.options.docSuffix )
@@ -288,7 +306,8 @@ j.Parser.prototype = {
             '213123'
         */
         lineNo = parseInt( lineNo || 1 );
-        var line,
+        var relLineNo,
+            line,
             docLines = docString.split( /\n/ ),
             examples = [],
             example = {
@@ -316,7 +335,6 @@ j.Parser.prototype = {
             } else {
                 want = undefined;
             }
-            relLineNo -= example.source.length + example.want.length;
             examples.push( new j.Example( source, want, lineNo + relLineNo ) );
             is.source = is.want = false;
             example.source = [];
@@ -329,9 +347,10 @@ j.Parser.prototype = {
             if ( match = promptRegex.exec( line ) ) {
                 // Handles a line which starts with ``>>> ``.
                 if ( is.source || is.want ) {
-                    saveExample( i );
+                    saveExample( relLineNo );
                 }
                 is.source = true;
+                relLineNo = i;
                 line = line.replace( promptRegex, "" );
                 indent = match[ 1 ];
                 continuedRegex = new R(
@@ -350,7 +369,7 @@ j.Parser.prototype = {
                     line = match[ 1 ];
                 } else if ( blankRegex.exec( line ) ) {
                     // Handles a blank line.
-                    saveExample( i );
+                    saveExample( relLineNo );
                 }
             }
 
@@ -362,7 +381,7 @@ j.Parser.prototype = {
         }
 
         if ( is.source || is.want ) {
-            saveExample( i );
+            saveExample( relLineNo );
         }
 
         return examples;
@@ -399,7 +418,7 @@ j.Parser.prototype = {
         while ( match = this.docStringRegex.exec( source ) ) {
             docString = $.trim( _.unlinearize( match[ 2 ] ) );
             docString = _.unindent( match[ 1 ], docString );
-            lineNo = source.slice( 0, match.index ).split( "\uffff" ).length;
+            lineNo = source.slice( 0, match.index ).split( _.ffff ).length + 1;
             docStrings[ lineNo ] = docString;
         }
         // Make :class:`jDoctest` instances.
@@ -422,6 +441,8 @@ j.Example = function( source, want, lineNo ) {
     A JavaScript example.
 
         >>> var exam = new jDoctest.Example( "1 + 1;", "2" );
+        >>> exam;
+        <jDoctest.Example>
         >>> exam.source;
         '1 + 1;'
         >>> exam.want;
@@ -481,6 +502,10 @@ j.Example.prototype = {
         } else {
             return [];
         }
+    },
+
+    toString: function() {
+        return "<jDoctest.Example>";
     }
 };
 
@@ -517,18 +542,18 @@ j.OutputChecker = {
             return true;
         }
 
-        var flag, matched;
+        var flag, flagResult;
 
-        for ( var i = 0; i < flags.length; i++ ) {
+        for ( var i = 0; flags && i < flags.length; i++ ) {
             flag = flags[ i ];
             if ( $.isFunction( flag ) ) {
-                matched = flag( want, got );
-                if ( typeof matched === "object" ) {
-                    want = matched.want;
-                    got = matched.got;
-                    matched = matched.matched;
+                flagResult = flag( want, got );
+                if ( typeof flagResult === "object" ) {
+                    want = flagResult.want;
+                    got = flagResult.got;
+                    flagResult = flagResult.matched;
                 }
-                if ( matched === true ) {
+                if ( flagResult === true ) {
                     return true;
                 }
             }
@@ -572,7 +597,7 @@ j.Runner = function( result, options ) {
         >>> result.skips.length;
         1
     */
-    this.result = $.extend( result, {
+    this.result = $.extend( result || {}, {
         tries: [],
         successes: [],
         failures: [],
@@ -580,14 +605,14 @@ j.Runner = function( result, options ) {
     });
     this.options = $.extend( {}, this.options, options );
     this.checker = this.options.checker;
+    this._tasks = [];
+    this._running = {
+        pause: true,
+        timer: null,
+        doctest: null
+    };
 };
 j.Runner.prototype = {
-    flags: [],
-    _tasks: [],
-    _running: {
-        pause: true,
-        timer: null
-    },
     _mergeFlags: $.merge,
 
     options: {
@@ -598,14 +623,17 @@ j.Runner.prototype = {
     },
 
     // Reporting functions
-    reportStart: function( example ) {},
-    reportSuccess: function( example, got ) {},
-    reportFailure: function( example, got ) {
-        console.error( "Failed example: " );
-        console.error( "  want: " + example.want );
-        console.error( "   got: " + got );
+    reportStart: function( exam ) {},
+    reportSuccess: function( exam, got ) {},
+    reportFailure: function( exam, got ) {
+        var msg = "expected " + exam.want + ", not " + got;
+        if ( this._running.doctest ) {
+            var doctest = this._running.doctest;
+            msg += " (" + doctest.fileName + ":" + exam.lineNo + ")";
+        }
+        console.error( msg );
     },
-    reportError: function( example, error ) {},
+    reportError: function( exam, error ) {},
 
     run: function( doctest ) {
         /**:jDoctest.Runner.run( doctest )
@@ -617,6 +645,7 @@ j.Runner.prototype = {
             var doctest = new jDoctest();
             runner.run( doctest );
         */
+        this._tasks.push( doctest );
         for ( var i = 0; i < doctest.examples.length; i++ ) {
             this._tasks.push( doctest.examples[ i ] );
         }
@@ -635,6 +664,10 @@ j.Runner.prototype = {
             runner = this,
             flag,
             check;
+        if ( exam instanceof jDoctest ) {
+            this._running.doctest = exam;
+            return this._run();
+        }
         this._running.pause = false;
 
         for ( var i = 0; i < exam.flags.length; i++ ) {
@@ -667,7 +700,7 @@ j.Runner.prototype = {
                     this.reportFailure( exam, got );
                 }
             } catch ( error ) {
-                if ( error instanceof Pause ) {
+                if ( error instanceof j.errors.Pause ) {
                     this._running.pause = true;
                 } else {
                     this.reportError( exam, error );
@@ -684,6 +717,7 @@ j.Runner.prototype = {
             } else if ( $.isFunction( this.options.onComplete ) ) {
                 this.options.onComplete.call( this, this.result );
             }
+        } else {
         }
     },
 
@@ -712,7 +746,14 @@ j.Runner.prototype = {
             }
             window[ varName ] = replVal;
         }
-        result = window.eval.call( window, source );
+        try {
+            result = window.eval.call( window, source );
+        } catch ( error ) {
+            if ( error instanceof j.errors.Pause ) {
+                throw error;
+            }
+            result = error;
+        }
         for ( varName in origVals ) {
             window[ varName ] = origVals[ varName ];
         }
@@ -721,6 +762,35 @@ j.Runner.prototype = {
 
     context: {
         wait: function( delay ) {
+            /**:jDoctest.Runner.context.wait( delay )
+
+            In an example, it is a global function.
+            
+            ``delay`` is miliseconds or a function. If ``delay`` is
+            miliseconds, the running process will wait for the miliseconds.
+
+                >>> var t = new Date();
+                >>> wait( 10 );
+                >>> (new Date()).getTime() - t.getTime() >= 5;
+                true
+
+            If ``delay`` is a function, the running process will pause while
+            the function returns ``false``.
+
+                >>> var v = false;
+                >>> setTimeout(function() {
+                ...     v = true;
+                ... }, 10 ) && undefined;
+                >>> v;
+                false
+                >>> v;
+                false
+                >>> v;
+                false
+                >>> wait(function() { return v; });
+                >>> v;
+                true
+            */
             var runner = this;
             if ( typeof delay === "number" ) {
                 setTimeout(function() {
@@ -736,15 +806,58 @@ j.Runner.prototype = {
                 };
                 check();
             }
-            throw new Pause();
+            throw new j.errors.Pause();
         },
 
         print: function( output ) {
-            this._output = output;
+            /**:jDoctest.Runner.context.print( output )
+
+                >>> print( "a\nb\nc" );
+                a
+                b
+                c
+                >>> for ( var i = 0; i < 20; i++ ) {
+                ...     print( i + "." );
+                ... }
+                ... "done";
+                0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.
+                'done'
+            */
+            if ( typeof output !== "string" ) {
+                throw new TypeError( "output must be a string." );
+            }
+            this._output = this._output || "";
+            this._output += output;
         }
     }
 };
 j.Runner.extend = function( prototype ) {
+    /**:jDoctest.Runner.extend( prototype )
+
+    Makes a new runner class which extends :class:`jDoctest.Runner`. The new
+    runner's constructor needs an other :class:`jDoctest.Runner` instance. It
+    shares some attributes with the other runner.
+
+        >>> var MyRunner = jDoctest.Runner.extend({
+        ...     reportStart: function() {
+        ...         this.result.foo = "bar";
+        ...         print( "MY RUNNER!" );
+        ...     }
+        ... });
+        >>> var result = {};
+        >>> var runner = new jDoctest.Runner( result );
+        >>> var myRunner = new MyRunner( runner );
+        >>> myRunner instanceof MyRunner;
+        true
+        >>> myRunner instanceof jDoctest.Runner;
+        true
+        >>> myRunner.reportStart();
+        MY RUNNER!
+        >>> myRunner.result.foo;
+        'bar'
+        >>> runner.result.foo;
+        'bar'
+    */
     var newRunner = function( runner ) {
         this.result = runner.result;
         this.checker = runner.checker;
@@ -762,6 +875,27 @@ j.Runner.extend = function( prototype ) {
 ***********************************************************************/
 j.flags = {
     SKIP: j.Runner.extend({
+        /**class:jDoctest.flags.SKIP( runner )
+
+        If an example has it as flag, the main runner passes the example.
+
+        >>> var result = {};
+        >>> var runner = new jDoctest.Runner( result, {
+        ...     onComplete: function() {
+        ...         done = true;
+        ...     }
+        ... });
+        >>> var doctest = new jDoctest([
+        ...     new jDoctest.Example( "1 + 1; //doctest: +SKIP" )
+        ... ]);
+        >>> var done = false;
+        >>> runner.run( doctest );
+        >>> wait(function() { return done; });
+        >>> result.tries.length;
+        1
+        >>> result.skips.length;
+        1
+        */
         checkExample: function( exam ) {
             this.result.skips.push( exam );
             return true;
@@ -771,6 +905,19 @@ j.flags = {
         }
     }),
     NORMALIZE_WHITESPACE: function( want, got ) {
+        /**:jDoctest.flags.NORMALIZE_WHITESPACE( want, got )
+
+            >>> var want = "a  b  \t  c  \n  d";
+            >>> var got = "a b\n\n\n\t\t\t\n\nc                  d";
+            >>> var flag = jDoctest.flags.NORMALIZE_WHITESPACE;
+            >>> var flagResult = flag( want, got );
+            >>> flagResult.want;
+            'a b c d'
+            >>> flagResult.got;
+            'a b c d'
+            >>> flagResult.matched;
+            true
+        */
         want = want.split( /\s+/gm ).join( " " );
         got = got.split( /\s+/gm ).join( " " );
         return {
@@ -780,12 +927,22 @@ j.flags = {
         };
     },
     ELLIPSIS: function( want, got ) {
+        /**:jDoctest.flags.ELLIPSIS( want, got )
+
+            >>> var want = "j...t";
+            >>> jDoctest.flags.ELLIPSIS( want, "jDoctest" );
+            true
+            >>> jDoctest.flags.ELLIPSIS( want, "Jdoctest" );
+            false
+        */
         var e = _.escapeRegExp,
             ellipsis = new RegExp( e( e( "..." ) ), "g" );
             pattern = new RegExp( e( want ).replace( ellipsis, ".*?" ) );
         return !!pattern.exec( got );
     }
 };
+
+// Adds a stringifing method for flags.
 for ( var flagName in j.flags ) {
     j.flags[ flagName ].flagName = flagName;
     j.flags[ flagName ].toString = function() {
@@ -793,4 +950,7 @@ for ( var flagName in j.flags ) {
     };
 }
 
-//})( this );
+// Exports jDoctest.
+return jDoctest;
+
+})( this, window.jQuery );

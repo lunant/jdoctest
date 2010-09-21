@@ -900,8 +900,10 @@ j.flags = {
             this.result.skips.push( exam );
             return true;
         },
-        reportStart: function() {
-            console.log( "skipped" );
+        reportStart: function( exam ) {
+            var doctest = this._running.doctest,
+                msg = "skipped (" + doctest.fileName + ":" + exam.lineNo + ")";
+            console.log( msg );
         }
     }),
     NORMALIZE_WHITESPACE: function( want, got ) {
@@ -938,7 +940,7 @@ j.flags = {
         var e = _.escapeRegExp,
             ellipsis = new RegExp( e( e( "..." ) ), "g" );
             pattern = new RegExp( e( want ).replace( ellipsis, ".*?" ) );
-        return !!pattern.exec( got );
+        return !!pattern.exec( _.linearize( got ) );
     }
 };
 

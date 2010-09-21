@@ -13,9 +13,15 @@ Links
 .. _documentation:
    http://jdoctest.lunant.com/
 .. _development version:
-   http://github.com/sublee/jdoctest/zipball/master#egg=jdoctest-dev
+   http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev
 */
-this.jDoctest = (function( window, $ ) {
+this.jDoctest = (function( window, $ ) { var meta = {
+   NAME: "jDoctest",
+VERSION: "0.0.9",
+AUTHORS: ["Lee Heung-sub <sublee@lunant.com>"],
+    URL: "http://jdoctest.lunant.com/",
+ GITHUB: "http://github.com/lunant/jdoctest"
+};
 
 // Checks dependencies
 if ( !$ ) {
@@ -77,6 +83,8 @@ j.prototype = {
         return "<jDoctest" + from + " (" + examples + ")>";
     }
 };
+// Exports meta data
+$.extend( j, meta );
 
 /***********************************************************************
 * Exceptions
@@ -161,7 +169,7 @@ var _ = {
     },
 };
 
-// Exports utilities.
+// Exports utilities
 for ( var meth in _ ) {
     j[ "_" + meth ] = _[ meth ];
 }
@@ -345,7 +353,7 @@ j.Parser.prototype = {
             line = docLines[ i ];
 
             if ( match = promptRegex.exec( line ) ) {
-                // Handles a line which starts with ``>>> ``.
+                // Handles a line which starts with ``>>> ``
                 if ( is.source || is.want ) {
                     saveExample( relLineNo );
                 }
@@ -359,16 +367,16 @@ j.Parser.prototype = {
                 wantRegex = new R( "^" + e( indent ) + "(.+)$" );
 
             } else if ( is.source && continuedRegex.exec( line ) ) {
-                // Handles a line which starts with ``... ``.
+                // Handles a line which starts with ``... ``
                 line = line.replace( continuedRegex, "" );
             } else if ( is.source || is.want ) {
                 if ( match = wantRegex.exec( line ) ) {
-                    // Handles an output.
+                    // Handles an output
                     is.want = true;
                     is.source = false;
                     line = match[ 1 ];
                 } else if ( blankRegex.exec( line ) ) {
-                    // Handles a blank line.
+                    // Handles a blank line
                     saveExample( relLineNo );
                 }
             }
@@ -413,7 +421,7 @@ j.Parser.prototype = {
             match,
             indent,
             lineNo;
-        // Find docstrings.
+        // Find docstrings
         source = _.linearize( source );
         while ( match = this.docStringRegex.exec( source ) ) {
             docString = $.trim( _.unlinearize( match[ 2 ] ) );
@@ -421,7 +429,7 @@ j.Parser.prototype = {
             lineNo = source.slice( 0, match.index ).split( _.ffff ).length + 1;
             docStrings[ lineNo ] = docString;
         }
-        // Make :class:`jDoctest` instances.
+        // Make :class:`jDoctest` instances
         for ( lineNo in docStrings ) {
             docString = docStrings[ lineNo ];
             examples = this.getExamples( docString, lineNo );
@@ -944,7 +952,7 @@ j.flags = {
     }
 };
 
-// Adds a stringifing method for flags.
+// Adds a stringifing method for flags
 for ( var flagName in j.flags ) {
     j.flags[ flagName ].flagName = flagName;
     j.flags[ flagName ].toString = function() {
@@ -952,7 +960,7 @@ for ( var flagName in j.flags ) {
     };
 }
 
-// Exports jDoctest.
+// Exports jDoctest
 return jDoctest;
 
 })( this, window.jQuery );

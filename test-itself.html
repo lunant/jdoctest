@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>jDoctest</title>
+<link rel="shorcut icon" type="image/icon" href="artwork/favicon.ico" />
+<!--[if lte IE 8]>
+<script src="http://lab.heungsub.net/resources/scripts/html5.js"></script>
+<![endif]--> 
+<script src="http://code.jquery.com/jquery-1.4.2.js"></script>
+<script src="jdoctest.js"></script>
+</head>
+<body style="background: #e6e7db;">
+<img src="http://img.sublee.kr/jDoctest.png" />
+<script>
+  jDoctest.testSource( "jdoctest.js", {
+    onComplete: function( result ) {
+      if ( !result.failures.length ) {
+        alert( "All " + result.tries.length + " examples are succeeded!" );
+      }
+      window.console && console.dir && console.dir( result );
+    }
+  });
+</script>
+</body>
+</html>

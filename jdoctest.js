@@ -96,7 +96,7 @@ j.errors.StopRunning.prototype = new Error();
 * Front-end
 ***********************************************************************/
 j.testSource = function( fileName, onComplete, parserOptions ) {
-    /**:jDoctest.testSource( fileName[, parserOptions ] )
+    /**:jDoctest.testSource( fileName[, onComplete[, parserOptions ] ] )
 
     Tests a JavaScript source file::
 
@@ -108,7 +108,6 @@ j.testSource = function( fileName, onComplete, parserOptions ) {
     .. seealso::
 
        - :meth:`jDoctest.testFile`
-       - :class:`jDoctest.Parser`
     */
     var parser = new j.Parser( parserOptions ),
         result = {},
@@ -122,7 +121,7 @@ j.testSource = function( fileName, onComplete, parserOptions ) {
     return result;
 };
 j.testFile = function( fileName, onComplete, parserOptions ) {
-    /**:jDoctest.testFile( fileName[, parserOptions ] )
+    /**:jDoctest.testFile( fileName[, onComplete[, parserOptions ] ] )
 
     Tests a file::
 
@@ -134,7 +133,6 @@ j.testFile = function( fileName, onComplete, parserOptions ) {
     .. seealso::
 
        - :meth:`jDoctest.testSource`
-       - :class:`jDoctest.Parser`
     */
     var parser = new j.Parser( parserOptions ),
         result = {},

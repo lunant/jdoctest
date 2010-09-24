@@ -28,25 +28,16 @@ if ( !$ ) {
     throw new ReferenceError( "jDoctest needs jQuery framework" );
 }
 
-if ( window.console === undefined ) {
-    // Makes a mock console
-    var empty = function() {},
-        console = {};
-    console.log = console.warn = console.error = empty;
-} else {
-    var console = window.console;
-}
-
 /***********************************************************************
 * jDoctest
 ***********************************************************************/
-var jDoctest = j = function( examples, source, fileName, lineNo ) {
-    /**class: jDoctest( examples[, source[, fileName[, lineNo ] ] ] )
+var jDoctest = j = function( examples, name, source, fileName, lineNo ) {
+    /**class: jDoctest( examples[, name[, source[, fileName[, lineNo ] ] ] )
 
     A collaction of examples.
 
-        >>> new jDoctest([], "", "lykit.js" );
-        <jDoctest from lykit.js:1 (no examples)>
+        >>> new jDoctest([], "lykit", "", "lykit.js" );
+        <jDoctest lykit from lykit.js:1 (no examples)>
         >>> new jDoctest([ new jDoctest.Example( "1;" ) ]);
         <jDoctest (1 example)>
         >>> new jDoctest([
@@ -57,13 +48,14 @@ var jDoctest = j = function( examples, source, fileName, lineNo ) {
         <jDoctest (3 examples)>
     */
     this.examples = examples;
+    this.name = name;
     this.source = source;
     this.fileName = fileName;
     this.lineNo = parseInt( lineNo || 1 );
 };
 j.prototype = {
     toString: function() {
-        var examples, from = "";
+        var examples, name = "", from = "";
         switch ( this.examples.length ) {
             case 0:
                 examples = "no examples";
@@ -74,13 +66,16 @@ j.prototype = {
             default:
                 examples = this.examples.length + " examples";
         }
+        if ( this.name ) {
+            name = " " + this.name;
+        }
         if ( this.fileName ) {
             from = " from " + this.fileName;
             if ( this.lineNo ) {
                 from += ":" + this.lineNo;
             }
         }
-        return "<jDoctest" + from + " (" + examples + ")>";
+        return "<jDoctest" + name + from + " (" + examples + ")>";
     }
 };
 // Exports meta data
@@ -90,11 +85,66 @@ $.extend( j, meta );
 * Exceptions
 ***********************************************************************/
 j.errors = {
-    Pause: function() {
-        this.name = "Pause";
+    StopRunning: function() {
+        this.name = "StopRunning";
+        this.message = "The running process has to stop";
     }
 };
-j.errors.Pause.prototype = new Error( "The running process has to pause" );
+j.errors.StopRunning.prototype = new Error();
+
+/***********************************************************************
+* Front-end
+***********************************************************************/
+j.testSource = function( fileName, onComplete, parserOptions ) {
+    /**:jDoctest.testSource( fileName[, parserOptions ] )
+
+    Tests a JavaScript source file::
+
+        jDoctest.testSource( "source-which-contains-some-docstrings.js" );
+
+    The source file should contain some docstrings. A docstring is a
+    multiline-comment which starts with ``/**`` or a specified doc-prefix.
+
+    .. seealso::
+
+       - :meth:`jDoctest.testFile`
+       - :class:`jDoctest.Parser`
+    */
+    var parser = new j.Parser( parserOptions ),
+        result = {},
+        runner = new j.Runner( result, onComplete );
+    $.get( fileName, function( src ) {
+        var doctests = parser.getDoctests( src, fileName );
+        for ( var i = 0; i < doctests.length; i++ ) {
+            runner.run( doctests[ i ] );
+        }
+    }, "text" );
+    return result;
+};
+j.testFile = function( fileName, onComplete, parserOptions ) {
+    /**:jDoctest.testFile( fileName[, parserOptions ] )
+
+    Tests a file::
+
+        jDoctest.testSource( "a-docstring.txt" );
+
+    The content of the file is a docstring. :class:`jDoctest.Parser` finds
+    only examples(not docstrings).
+
+    .. seealso::
+
+       - :meth:`jDoctest.testSource`
+       - :class:`jDoctest.Parser`
+    */
+    var parser = new j.Parser( parserOptions ),
+        result = {},
+        runner = new j.Runner( result, onComplete );
+    $.get( fileName, function( src ) {
+        var doctest = new jDoctest( parser.getExamples( src ), src, fileName );
+        runner.run( doctest );
+    }, "text" );
+    return result;
+};
 
 /***********************************************************************
 * Utilities
@@ -167,64 +217,46 @@ var _ = {
             r = new RegExp( "(\\" + specials.join( "|\\" ) + ")", "g" );
         return text.replace( r, "\\$1" );
     },
+    mockConsole: {
+        /**:jDoctest._mockConsole
+
+        It has methods named ``log``, ``warn``, ``error``, and ``dir``. All
+        methods do not anything. jDoctest uses it instead of ``window.console``
+        in IE6 or Firefox without FireBug. Because ``window.console`` object
+        is not available in there.
+
+            >>> jDoctest._mockConsole.log === jDoctest._mockConsole.warn;
+            true
+            >>> jDoctest._mockConsole.log === jDoctest._mockConsole.error;
+            true
+            >>> jDoctest._mockConsole.log === jDoctest._mockConsole.dir;
+            true
+            >>> !!/\{\s*\}/.exec( String( jDoctest._mockConsole.log ) );
+            true
+            >>> jDoctest.Runner.prototype.options.console !== undefined;
+            true
+        */
+        toString: function() {
+            return "<jDoctest._mockConsole>";
+        }
+    }
 };
+
+// Use the console locally. If the console is not avaliable, use the mock
+// console.
+var console, empty = function() {};
+_.mockConsole.log = _.mockConsole.warn = empty;
+_.mockConsole.error = _.mockConsole.dir = empty;
+if ( window.console === undefined ) {
+    console = _.mockConsole;
+} else {
+    console = window.console;
+}
 
 // Exports utilities
 for ( var meth in _ ) {
     j[ "_" + meth ] = _[ meth ];
 }
-
-/***********************************************************************
-* Front-end
-***********************************************************************/
-j.testSource = function( fileName, onComplete, parserOptions ) {
-    /**:jDoctest.testSource( fileName[, parserOptions ] )
-
-    Tests a JavaScript source file::
-
-        jDoctest.testSource( "source-which-contains-some-docstrings.js" );
-
-    The source file should contain some docstrings. A docstring is a
-    multiline-comment which starts with ``/**`` or a specified doc-prefix.
-
-    .. seealso::
-       :func:`jDoctest.testFile`
-       :class:`jDoctest.Parser`
-    */
-    var parser = new j.Parser( parserOptions ),
-        result = {},
-        runner = new j.Runner( result, onComplete );
-    $.get( fileName, function( src ) {
-        var doctests = parser.getDoctests( src, fileName );
-        for ( var i = 0; i < doctests.length; i++ ) {
-            runner.run( doctests[ i ] );
-        }
-    }, "text" );
-    return result;
-};
-j.testFile = function( fileName, onComplete, parserOptions ) {
-    /**:jDoctest.testFile( fileName[, parserOptions ] )
-
-    Tests a file::
-
-        jDoctest.testSource( "a-docstring.txt" );
-
-    The content of the file is a docstring. :class:`jDoctest.Parser` finds
-    only examples(not docstrings).
-
-    .. seealso::
-       :func:`jDoctest.testSource`
-       :class:`jDoctest.Parser`
-    */
-    var parser = new j.Parser( parserOptions ),
-        result = {},
-        runner = new j.Runner( result, onComplete );
-    $.get( fileName, function( src ) {
-        var doctest = new jDoctest( parser.getExamples( src ), src, fileName );
-        runner.run( doctest );
-    }, "text" );
-    return result;
-};
 
 /***********************************************************************
 * Parser
@@ -233,9 +265,9 @@ j.Parser = function( options ) {
     /**class:jDoctest.Parser( options )
 
     A parser to catch docstrings and interactive examples.
-    
+
     You could specify doc-prefix or doc-suffix or prompt symbols using
-    ``options``. Follow the example:
+    ``options`` argument:
 
         >>> var myParser = new jDoctest.Parser({
         ...     docPrefix: "/*+",
@@ -255,12 +287,26 @@ j.Parser = function( options ) {
     this.options = $.extend( {}, this.options, options );
 
     this.docStringRegex = new RegExp([
+        /*
+        (?:^|\uffff) # start of a line
+        (\s*) # indent
+        \/\*\* # docPrefix
+        (?:
+            ([^*:]*) # directive
+            \:\s*
+            ([^\uffff]+) # name
+            | [^*]
+        )
+        (.*?)
+        \*\/ # docSuffix
+        */
         "(?:^|" + _.ffff + ")(\\s*)",
         _.escapeRegExp( this.options.docPrefix ),
-        "\\s*([^*].*?)",
+        "(?:([^*:]*)\\:\\s*([^" + _.ffff + "]+)|[^*])(.*?)",
         _.escapeRegExp( this.options.docSuffix )
     ].join( "" ), "gm" );
     this.interactionRegex = new RegExp([
+        //^\s*(>>>.+)(?:\n^\s*(\.\.\..+)$)*
         "^\\s*(",
         _.escapeRegExp( this.options.prompt ),
         ".+)(?:\\n^\\s*(",
@@ -272,13 +318,13 @@ j.Parser.prototype = {
     options: {
         docPrefix: "/**",
         docSuffix: "*/",
-        directivePrefix: ":",
+        directiveSuffix: ":",
         prompt: ">>>",
         continued: "..."
     },
 
     getExamples: function( docString, lineNo ) {
-        /**:jDoctest.Parser.getExamples( docString )
+        /**:jDoctest.Parser.prototype.getExamples( docString )
 
         Returns :class:`jDoctest.Example`s from a docstring.
 
@@ -316,7 +362,7 @@ j.Parser.prototype = {
         lineNo = parseInt( lineNo || 1 );
         var relLineNo,
             line,
-            docLines = docString.split( /\n/ ),
+            docLines = docString.split( "\n" ),
             examples = [],
             example = {
                 source: [],
@@ -336,14 +382,15 @@ j.Parser.prototype = {
             };
 
         function saveExample( relLineNo ) {
-            var source, want;
+            var source, want, exam;
             source = example.source.join( "\n" );
             if ( example.want.length ) {
                 want = example.want.join( "\n" );
             } else {
                 want = undefined;
             }
-            examples.push( new j.Example( source, want, lineNo + relLineNo ) );
+            exam = new j.Example( source, want, lineNo + relLineNo );
+            examples.push( exam );
             is.source = is.want = false;
             example.source = [];
             example.want = [];
@@ -359,12 +406,12 @@ j.Parser.prototype = {
                 }
                 is.source = true;
                 relLineNo = i;
-                line = line.replace( promptRegex, "" );
                 indent = match[ 1 ];
                 continuedRegex = new R(
                     "^" + e( indent + this.options.continued + " " )
                 );
                 wantRegex = new R( "^" + e( indent ) + "(.+)$" );
+                line = line.replace( promptRegex, "" );
 
             } else if ( is.source && continuedRegex.exec( line ) ) {
                 // Handles a line which starts with ``... ``
@@ -396,7 +443,7 @@ j.Parser.prototype = {
     },
 
     getDoctests: function( source, fileName ) {
-        /**:jDoctest.Parser.getDoctests( source )
+        /**:jDoctest.Parser.prototype.getDoctests( source )
 
         Parses a JavaScript source and returns docstring list.
 
@@ -420,20 +467,21 @@ j.Parser.prototype = {
             examples,
             match,
             indent,
-            lineNo;
+            name,
+            l;
         // Find docstrings
         source = _.linearize( source );
         while ( match = this.docStringRegex.exec( source ) ) {
-            docString = $.trim( _.unlinearize( match[ 2 ] ) );
-            docString = _.unindent( match[ 1 ], docString );
-            lineNo = source.slice( 0, match.index ).split( _.ffff ).length + 1;
-            docStrings[ lineNo ] = docString;
+            docString = _.unindent( match[ 1 ], _.unlinearize( match[ 4 ] ) );
+            l = source.slice( 0, match.index ).split( _.ffff ).length + 1;
+            docStrings[ l ] = [ match[ 3 ], docString ];
         }
         // Make :class:`jDoctest` instances
-        for ( lineNo in docStrings ) {
-            docString = docStrings[ lineNo ];
-            examples = this.getExamples( docString, lineNo );
-            doctest = new jDoctest( examples, docString, fileName, lineNo );
+        for ( l in docStrings ) {
+            name = docStrings[ l ][ 0 ];
+            docString = docStrings[ l ][ 1 ];
+            examples = this.getExamples( docString, l );
+            doctest = new jDoctest( examples, name, docString, fileName, l );
             doctests.push( doctest );
         }
         return doctests;
@@ -472,28 +520,18 @@ j.Example.prototype = {
     _OPTION_DIRECTIVE: /\/\/\s*doctest:\s*([^\n\'"]*)$/,
 
     _findFlags: function( source ) {
-        /**:jDoctest.Example._findFlags( source )
+        /**:jDoctest.Example.prototype._findFlags( source )
         
         Returns a list of flags from a source code.
 
-            >>> var contains = function( val, seq ) {
-            ...     if ( seq && seq.length ) {
-            ...         for ( var i = 0; i < seq.length; i++ ) {
-            ...             if ( val === seq[ i ] ) {
-            ...                 return true;
-            ...             }
-            ...         }
-            ...     }
-            ...     return false;
-            ... };
             >>> var src = "1; //doctest: +SKIP +ELLIPSIS";
             >>> var flags = jDoctest.Example.prototype._findFlags( src );
-            >>> contains( jDoctest.flags.SKIP, flags );
+            >>> flags.indexOf( jDoctest.flags.SKIP ) >= 0;
             true
-            >>> contains( jDoctest.flags.ELLIPSIS, flags );
+            >>> flags.indexOf( jDoctest.flags.ELLIPSIS ) >= 0;
             true
-            >>> contains( jDoctest.flags.NORMALIZE_WHITESPACE, flags );
-            false
+            >>> flags.indexOf( jDoctest.flags.NORMALIZE_WHITESPACE ) < 0;
+            true
         */
         var match;
         
@@ -521,7 +559,7 @@ j.Example.prototype = {
 * OutputChecker
 ***********************************************************************/
 j.OutputChecker = {
-    /**data:jDoctest.OutputChecker
+    /**attribute:jDoctest.OutputChecker
 
     The default output checker. Every output checkers must have ``checkOutput``
     method.
@@ -575,17 +613,20 @@ j.OutputChecker = {
 * Runner
 ***********************************************************************/
 j.Runner = function( result, options ) {
-    /*class:jDoctest.Runner( result[, options ] ] ] )
+    /**class:jDoctest.Runner( result[, options ] )
 
     The runner is used to run a doctest.
 
-        >>> var result = {};
+        >>> var result = {}, done = false;
         >>> var doctest = new jDoctest([
         ...     new jDoctest.Example( "1;", "1" ),
         ...     new jDoctest.Example( "0; //doctest: +SKIP", "1" ),
         ...     new jDoctest.Example( "0;", "1" ),
         ... ]);
-        >>> var runner = new jDoctest.Runner( result );
+        >>> var runner = new jDoctest.Runner( result, {
+        ...     onComplete: function() { done = true; },
+        ...     console: jDoctest._mockConsole
+        ... });
 
     It will update ``result`` object which is given. ``result`` is extended to
     have arrays named tries, successes, failures, and skips.
@@ -596,6 +637,7 @@ j.Runner = function( result, options ) {
 
     When all test done ``result``'s arrays is also updated.
 
+        >>> wait(function() { return done; });
         >>> result.tries.length;
         3
         >>> result.successes.length;
@@ -613,9 +655,10 @@ j.Runner = function( result, options ) {
     });
     this.options = $.extend( {}, this.options, options );
     this.checker = this.options.checker;
+    this.console = this.options.console;
     this._tasks = [];
     this._running = {
-        pause: true,
+        stopped: true,
         timer: null,
         doctest: null
     };
@@ -627,24 +670,27 @@ j.Runner.prototype = {
         onComplete: undefined,
         checker: j.OutputChecker,
         verbosity: 0,
-        flags: []
+        flags: [],
+        console: console
     },
 
     // Reporting functions
     reportStart: function( exam ) {},
     reportSuccess: function( exam, got ) {},
     reportFailure: function( exam, got ) {
-        var msg = "expected " + exam.want + ", not " + got;
-        if ( this._running.doctest ) {
-            var doctest = this._running.doctest;
+        var msg = "expected " + exam.want + ", not " + got,
+            doctest = this.getCurrentDoctest();
+        if ( doctest && doctest.fileName ) {
             msg += " (" + doctest.fileName + ":" + exam.lineNo + ")";
+        } else {
+            msg += " (" + exam.source + ")";
         }
-        console.error( msg );
+        this.console.error( msg );
     },
     reportError: function( exam, error ) {},
 
     run: function( doctest ) {
-        /**:jDoctest.Runner.run( doctest )
+        /**:jDoctest.Runner.prototype.run( [ doctest ] )
 
         This method registers a doctest to its task list first. And runs
         tasks::
@@ -652,16 +698,71 @@ j.Runner.prototype = {
             var runner = new jDoctest.Runner({});
             var doctest = new jDoctest();
             runner.run( doctest );
+
+        Or::
+
+            var runner = new jDoctest.Runner({});
+            var doctest = new jDoctest();
+            runner.register( doctest );
+            runner.run();
+        */
+        if ( doctest instanceof jDoctest ) {
+            this.register( doctest );
+        }
+        clearTimeout( this._running.timer );
+        this._running.timer = setTimeout( $.proxy(function() {
+            this._run();
+        }, this ), 0 );
+    },
+
+    register: function( doctest ) {
+        /**:jDoctest.Runner.prototype.register( doctest )
+
+        Register a doctest to the task list.
         */
         this._tasks.push( doctest );
         for ( var i = 0; i < doctest.examples.length; i++ ) {
             this._tasks.push( doctest.examples[ i ] );
         }
+    },
 
-        clearTimeout( this._running.timer );
-        this._running.timer = setTimeout( $.proxy(function() {
-            this._run();
-        }, this ), 0 );
+    checkExample: function( exam, got ) {
+        if ( this.checker.checkOutput( exam.want, got, exam.flags ) ) {
+            this.result.successes.push( exam );
+            return true;
+        } else {
+            this.result.failures.push( exam );
+            return false;
+        }
+    },
+
+    runDoctest: function( doctest ) {
+        // pass...
+    },
+
+    runExample: function( exam, doctest ) {
+        try {
+            var got = this.getOutput( exam.source ),
+                succeeded = this.checkExample( exam, got );
+
+            this.result.tries.push( exam );
+
+            if ( succeeded ) {
+                this.reportSuccess( exam );
+            } else {
+                this.reportFailure( exam, got );
+            }
+        } catch ( error ) {
+            if ( error instanceof j.errors.StopRunning ) {
+                this.stop();
+            } else {
+                this.reportError( exam, error );
+            }
+        }
+    },
+
+    runFinally: function() {
+        // pass...
     },
 
     _run: function() {
@@ -674,9 +775,10 @@ j.Runner.prototype = {
             check;
         if ( exam instanceof jDoctest ) {
             this._running.doctest = exam;
+            this.runDoctest( exam );
             return this._run();
         }
-        this._running.pause = false;
+        this._running.stopped = false;
 
         for ( var i = 0; i < exam.flags.length; i++ ) {
             flag = exam.flags[ i ];
@@ -685,60 +787,48 @@ j.Runner.prototype = {
             }
         }
 
-        function test( exam ) {
-            try {
-                var got = _.repr( this.eval( exam.source ) );
-
-                if ( this._output ) {
-                    if ( got === undefined ) {
-                        got = this._output;
-                    } else {
-                        got = this._output + "\n" + got;
-                    }
-                    delete this._output;
-                }
-
-                var succeeded = this.checkExample( exam, got );
-
-                this.result.tries.push( exam );
-
-                if ( succeeded ) {
-                    this.reportSuccess( exam );
-                } else {
-                    this.reportFailure( exam, got );
-                }
-            } catch ( error ) {
-                if ( error instanceof j.errors.Pause ) {
-                    this._running.pause = true;
-                } else {
-                    this.reportError( exam, error );
-                }
-            }
-            return !this._running.pause;
-        }
-
         runner.reportStart( exam );
+
+        function test( exam ) {
+            this.runExample( exam, this.getCurrentDoctest() );
+            return !this._running.stopped;
+        }
 
         if ( test.call( runner, exam ) ) {
             if ( this._tasks.length ) {
                 this._run();
-            } else if ( $.isFunction( this.options.onComplete ) ) {
-                this.options.onComplete.call( this, this.result );
+            } else {
+                if ( $.isFunction( this.options.onComplete ) ) {
+                    this.options.onComplete.call( this, this.result );
+                }
+                this.runFinally();
             }
-        } else {
         }
     },
 
-    checkExample: function( exam, got ) {
-        if ( this.checker.checkOutput( exam.want, got, exam.flags ) ) {
-            // Handles a success
-            this.result.successes.push( exam );
-            return true;
-        } else {
-            // Handles a failure
-            this.result.failures.push( exam );
-            return false;
+    stop: function() {
+        this._running.stopped = true;
+    },
+
+    start: function() {
+        this._run();
+    },
+
+    getCurrentDoctest: function() {
+        return this._running.doctest;
+    },
+
+    getOutput: function( source ) {
+        var got = _.repr( this.eval( source ) );
+        if ( this._output ) {
+            if ( got === undefined ) {
+                got = this._output;
+            } else {
+                got = this._output + "\n" + got;
+            }
+            delete this._output;
         }
+        return got;
     },
 
     eval: function( source ) {
@@ -757,7 +847,7 @@ j.Runner.prototype = {
         try {
             result = window.eval.call( window, source );
         } catch ( error ) {
-            if ( error instanceof j.errors.Pause ) {
+            if ( error instanceof j.errors.StopRunning ) {
                 throw error;
             }
             result = error;
@@ -770,7 +860,7 @@ j.Runner.prototype = {
 
     context: {
         wait: function( delay ) {
-            /**:jDoctest.Runner.context.wait( delay )
+            /**:jDoctest.Runner.prototype.context.wait( delay )
 
             In an example, it is a global function.
             
@@ -778,7 +868,7 @@ j.Runner.prototype = {
             miliseconds, the running process will wait for the miliseconds.
 
                 >>> var t = new Date();
-                >>> wait( 10 );
+                >>> wait( 1000 );
                 >>> (new Date()).getTime() - t.getTime() >= 5;
                 true
 
@@ -802,23 +892,23 @@ j.Runner.prototype = {
             var runner = this;
             if ( typeof delay === "number" ) {
                 setTimeout(function() {
-                    runner._run();
+                    runner.start();
                 }, delay );
             } else if ( $.isFunction( delay ) ) {
                 var check = function() {
                     if ( delay() ) {
-                        runner._run();
+                        runner.start();
                     } else {
                         setTimeout( check, 10 );
                     }
                 };
                 check();
             }
-            throw new j.errors.Pause();
+            throw new j.errors.StopRunning();
         },
 
         print: function( output ) {
-            /**:jDoctest.Runner.context.print( output )
+            /**:jDoctest.Runner.prototype.context.print( output )
 
                 >>> print( "a\nb\nc" );
                 a
@@ -871,6 +961,7 @@ j.Runner.extend = function( prototype ) {
         this.checker = runner.checker;
         this.verbosity = runner.verbosity;
         this.flags = runner.flags;
+        this.console = runner.console;
         this._running = runner._running;
     };
     newRunner.prototype = new j.Runner();
@@ -887,22 +978,21 @@ j.flags = {
 
         If an example has it as flag, the main runner passes the example.
 
-        >>> var result = {};
-        >>> var runner = new jDoctest.Runner( result, {
-        ...     onComplete: function() {
-        ...         done = true;
-        ...     }
-        ... });
-        >>> var doctest = new jDoctest([
-        ...     new jDoctest.Example( "1 + 1; //doctest: +SKIP" )
-        ... ]);
-        >>> var done = false;
-        >>> runner.run( doctest );
-        >>> wait(function() { return done; });
-        >>> result.tries.length;
-        1
-        >>> result.skips.length;
-        1
+            >>> var result = {};
+            >>> var runner = new jDoctest.Runner( result, {
+            ...     onComplete: function() { done = true; },
+            ...     console: jDoctest._mockConsole
+            ... });
+            >>> var doctest = new jDoctest([
+            ...     new jDoctest.Example( "1 + 1; //doctest: +SKIP" )
+            ... ]);
+            >>> var done = false;
+            >>> runner.run( doctest );
+            >>> wait(function() { return done; });
+            >>> result.tries.length;
+            1
+            >>> result.skips.length;
+            1
         */
         checkExample: function( exam ) {
             this.result.skips.push( exam );
@@ -910,8 +1000,11 @@ j.flags = {
         },
         reportStart: function( exam ) {
             var doctest = this._running.doctest,
-                msg = "skipped (" + doctest.fileName + ":" + exam.lineNo + ")";
-            console.log( msg );
+                msg = "skipped"
+            if ( doctest.fileName ) {
+                msg += " (" + doctest.fileName + ":" + exam.lineNo + ")";
+            }
+            this.console.log( msg );
         }
     }),
     NORMALIZE_WHITESPACE: function( want, got ) {

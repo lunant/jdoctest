@@ -95,8 +95,8 @@ j.errors.StopRunning.prototype = new Error();
 /***********************************************************************
 * Front-end
 ***********************************************************************/
-j.testSource = function( fileName, onComplete, parserOptions ) {
-    /**:jDoctest.testSource( fileName[, onComplete[, parserOptions ] ] )
+j.testSource = function( fileName, options ) {
+    /**:jDoctest.testSource( fileName[, options ] )
 
     Tests a JavaScript source file::
 
@@ -109,19 +109,22 @@ j.testSource = function( fileName, onComplete, parserOptions ) {
 
        - :meth:`jDoctest.testFile`
     */
-    var parser = new j.Parser( parserOptions ),
-        result = {},
-        runner = new j.Runner( result, onComplete );
+    var materials = this.getMaterials( options ),
+        parser = materials.parser,
+        runner = materials.runner;
     $.get( fileName, function( src ) {
         var doctests = parser.getDoctests( src, fileName );
+        if ( !options || !options.alreadyLoaded ) {
+            window.eval.call( window, src );
+        }
         for ( var i = 0; i < doctests.length; i++ ) {
             runner.run( doctests[ i ] );
         }
     }, "text" );
-    return result;
+    return runner.result;
 };
-j.testFile = function( fileName, onComplete, parserOptions ) {
-    /**:jDoctest.testFile( fileName[, onComplete[, parserOptions ] ] )
+j.testFile = function( fileName, options ) {
+    /**:jDoctest.testFile( fileName[, options ] )
 
     Tests a file::
 
@@ -134,14 +137,35 @@ j.testFile = function( fileName, onComplete, parserOptions ) {
 
        - :meth:`jDoctest.testSource`
     */
-    var parser = new j.Parser( parserOptions ),
-        result = {},
-        runner = new j.Runner( result, onComplete );
+    var materials = this.getMaterials( options ),
+        parser = materials.parser,
+        runner = materials.runner;
     $.get( fileName, function( src ) {
         var doctest = new jDoctest( parser.getExamples( src ), src, fileName );
         runner.run( doctest );
     }, "text" );
-    return result;
+    return runner.result;
+};
+j.getMaterials = function( options ) {
+    /**:jDoctest.getMaterials( options )
+
+    Returns a :class:`jDoctest.Parser` and a :class:`jDoctest.Runner` from
+    ``options``. ``options`` is :class:`jDoctest.Runner`'s ``options``
+    parameter.
+    */
+    options = $.extend( true, {
+        verbose: false,
+        symbols: undefined,
+        onComplete: undefined
+    }, options );
+    var result = {},
+        symbols = options.symbols,
+        Runner;
+    delete options[ "symbols" ];
+    return {
+        parser: new j.Parser( options.symbols ),
+        runner: new j.Runner( result, options )
+    };
 };
 
 /***********************************************************************
@@ -149,6 +173,7 @@ j.testFile = function( fileName, onComplete, parserOptions ) {
 ***********************************************************************/
 var _ = {
     ffff: "\uffff",
+    __: "    ",
     repr: function( val ) {
         /**:jDoctest._repr( val )
 
@@ -185,8 +210,20 @@ var _ = {
         /**:jDoctest._indent( indent, text )
 
         Adds an indent to each lines.
+
+            >>> jDoctest._indent( "abc" );
+            '    abc'
+            >>> jDoctest._indent( " ", "abc" );
+            ' abc'
+            >>> print( jDoctest._indent( " ", "abc\ndef" ) );
+             abc
+             def
         */
-        return text.replace( /^/, indent );
+        if ( text === undefined ) {
+            text = indent;
+            indent = _.__;
+        }
+        return text.replace( /^/mg, indent );
     },
     unindent: function( indent, text ) {
         /**:jDoctest._unindent( indent, text )
@@ -259,13 +296,13 @@ for ( var meth in _ ) {
 /***********************************************************************
 * Parser
 ***********************************************************************/
-j.Parser = function( options ) {
-    /**class:jDoctest.Parser( options )
+j.Parser = function( symbols ) {
+    /**class:jDoctest.Parser( symbols )
 
     A parser to catch docstrings and interactive examples.
 
     You could specify doc-prefix or doc-suffix or prompt symbols using
-    ``options`` argument:
+    ``symbols`` argument:
 
         >>> var myParser = new jDoctest.Parser({
         ...     docPrefix: "/*+",
@@ -282,7 +319,7 @@ j.Parser = function( options ) {
         >>> doctests.length;
         1
     */
-    this.options = $.extend( {}, this.options, options );
+    this.symbols = $.extend( {}, this.symbols, symbols );
 
     this.docStringRegex = new RegExp([
         /*
@@ -299,21 +336,21 @@ j.Parser = function( options ) {
         \*\/ # docSuffix
         */
         "(?:^|" + _.ffff + ")(\\s*)",
-        _.escapeRegExp( this.options.docPrefix ),
+        _.escapeRegExp( this.symbols.docPrefix ),
         "(?:([^*:]*)\\:\\s*([^" + _.ffff + "]+)|[^*])(.*?)",
-        _.escapeRegExp( this.options.docSuffix )
+        _.escapeRegExp( this.symbols.docSuffix )
     ].join( "" ), "gm" );
     this.interactionRegex = new RegExp([
         //^\s*(>>>.+)(?:\n^\s*(\.\.\..+)$)*
         "^\\s*(",
-        _.escapeRegExp( this.options.prompt ),
+        _.escapeRegExp( this.symbols.prompt ),
         ".+)(?:\\n^\\s*(",
-        _.escapeRegExp( this.options.continued ),
+        _.escapeRegExp( this.symbols.continued ),
         ".+)$)*"
     ].join( "" ), "gm" );
 };
 j.Parser.prototype = {
-    options: {
+    symbols: {
         docPrefix: "/**",
         docSuffix: "*/",
         directiveSuffix: ":",
@@ -369,7 +406,7 @@ j.Parser.prototype = {
             indent,
             e = _.escapeRegExp,
             R = RegExp,
-            promptRegex = new R( "^(\\s*)" + e( this.options.prompt + " " ) ),
+            promptRegex = new R( "^(\\s*)" + e( this.symbols.prompt + " " ) ),
             continuedRegex,
             wantRegex,
             blankRegex = /^\s*$/,
@@ -406,7 +443,7 @@ j.Parser.prototype = {
                 relLineNo = i;
                 indent = match[ 1 ];
                 continuedRegex = new R(
-                    "^" + e( indent + this.options.continued + " " )
+                    "^" + e( indent + this.symbols.continued + " " )
                 );
                 wantRegex = new R( "^" + e( indent ) + "(.+)$" );
                 line = line.replace( promptRegex, "" );
@@ -637,12 +674,10 @@ j.Runner = function( result, options ) {
 
         >>> wait(function() { return done; });
         >>> result.tries.length;
-        3
+        2
         >>> result.successes.length;
         1
         >>> result.failures.length;
-        1
-        >>> result.skips.length;
         1
     */
     this.result = $.extend( result || {}, {
@@ -667,25 +702,72 @@ j.Runner.prototype = {
     options: {
         onComplete: undefined,
         checker: j.OutputChecker,
-        verbosity: 0,
+        verbose: false,
         flags: [],
         console: console
     },
 
     // Reporting functions
-    reportStart: function( exam ) {},
-    reportSuccess: function( exam, got ) {},
-    reportFailure: function( exam, got ) {
-        var msg = "expected " + exam.want + ", not " + got,
-            doctest = this.getCurrentDoctest();
-        if ( doctest && doctest.fileName ) {
-            msg += " (" + doctest.fileName + ":" + exam.lineNo + ")";
-        } else {
-            msg += " (" + exam.source + ")";
+    reportStart: function( exam ) {
+        if ( this.options.verbose ) {
+            var msg = [
+                "Trying:",
+                _.indent( exam.source ),
+            ];
+            if ( exam.want === undefined ) {
+                msg.push( "Expecting nothing" );
+            } else {
+                msg.push( "Expecting:" );
+                msg.push( _.indent( exam.want ) );
+            }
+            this.console.log( msg.join( "\n" ) );
         }
+    },
+    reportSuccess: function( exam, got ) {
+        if ( this.options.verbose ) {
+            this.console.log( "ok" );
+        }
+    },
+    reportFailure: function( exam, got ) {
+        var doctest = this.getCurrentDoctest(),
+            msg = [
+                "File " + doctest.fileName + ", line " + exam.lineNo,
+                "Failed example:",
+                _.indent( exam.source )
+            ];
+        if ( exam.want === undefined ) {
+            msg.push( "Expected nothing" );
+        } else {
+            msg.push( "Expected:" );
+            msg.push( _.indent( exam.want ) );
+        }
+        if ( got === undefined ) {
+            msg.push( "Got nothing" );
+        } else {
+            msg.push( "Got:" );
+            msg.push( _.indent( got ) );
+        }
+        msg = msg.join( "\n" );
         this.console.error( msg );
     },
     reportError: function( exam, error ) {},
+    reportFinally: function() {
+        var msg = "";
+        if ( this.options.verbose ) {
+            msg += this.result.successes.length + " passed";
+        }
+        if ( this.result.failures.length ) {
+            if ( this.options.verbose ) {
+                msg += " and " + this.result.failures.length + " failed.\n";
+            }
+            msg += "***Test Failed*** " + this.result.failures.length;
+            msg += " failures.";
+            console.warn( msg );
+        } else if ( msg ) {
+            msg += ".";
+            console.log( msg );
+        }
+    },
 
     run: function( doctest ) {
         /**:jDoctest.Runner.prototype.run( [ doctest ] )
@@ -725,6 +807,7 @@ j.Runner.prototype = {
     },
 
     checkExample: function( exam, got ) {
+        this.result.tries.push( exam );
         if ( this.checker.checkOutput( exam.want, got, exam.flags ) ) {
             this.result.successes.push( exam );
             return true;
@@ -742,9 +825,6 @@ j.Runner.prototype = {
         try {
             var got = this.getOutput( exam.source ),
                 succeeded = this.checkExample( exam, got );
-
-            this.result.tries.push( exam );
-
             if ( succeeded ) {
                 this.reportSuccess( exam );
             } else {
@@ -752,6 +832,7 @@ j.Runner.prototype = {
             }
         } catch ( error ) {
             if ( error instanceof j.errors.StopRunning ) {
+                this.reportSuccess( exam );
                 this.stop();
             } else {
                 this.reportError( exam, error );
@@ -760,7 +841,7 @@ j.Runner.prototype = {
     },
 
     runFinally: function() {
-        // pass...
+        this.reportFinally();
     },
 
     _run: function() {
@@ -857,11 +938,14 @@ j.Runner.prototype = {
     },
 
     context: {
+        /**:jDoctest.Runner.prototype.context
+
+        The object that has special functions. They are helpers for examples.
+        Its functions are exist when only examples running.
+        */
         wait: function( delay ) {
             /**:jDoctest.Runner.prototype.context.wait( delay )
 
-            In an example, it is a global function.
-            
             ``delay`` is miliseconds or a function. If ``delay`` is
             miliseconds, the running process will wait for the miliseconds.
 
@@ -908,10 +992,16 @@ j.Runner.prototype = {
         print: function( output ) {
             /**:jDoctest.Runner.prototype.context.print( output )
 
+            Prints a string. The output does not contain quotaions(``'``) or
+            escaped characters(``\n``).
+
                 >>> print( "a\nb\nc" );
                 a
                 b
                 c
+
+            The output is before of the returned value.
+
                 >>> for ( var i = 0; i < 20; i++ ) {
                 ...     print( i + "." );
                 ... }
@@ -957,7 +1047,7 @@ j.Runner.extend = function( prototype ) {
     var newRunner = function( runner ) {
         this.result = runner.result;
         this.checker = runner.checker;
-        this.verbosity = runner.verbosity;
+        this.verbose = runner.verbose;
         this.flags = runner.flags;
         this.console = runner.console;
         this._running = runner._running;
@@ -988,21 +1078,16 @@ j.flags = {
             >>> runner.run( doctest );
             >>> wait(function() { return done; });
             >>> result.tries.length;
-            1
-            >>> result.skips.length;
-            1
+            0
+            >>> result.failures.length;
+            0
         */
-        checkExample: function( exam ) {
-            this.result.skips.push( exam );
+        checkExample: function() {
+            // skip...
             return true;
         },
-        reportStart: function( exam ) {
-            var doctest = this._running.doctest,
-                msg = "skipped"
-            if ( doctest.fileName ) {
-                msg += " (" + doctest.fileName + ":" + exam.lineNo + ")";
-            }
-            this.console.log( msg );
+        reportStart: function() {
+            // skip...
         }
     }),
     NORMALIZE_WHITESPACE: function( want, got ) {

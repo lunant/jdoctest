@@ -2,8 +2,8 @@
 
 var j = jDoctest;
 
-j.testWithQUnit = function( fileName, onComplete, parserOptions ) {
-    /**:jDoctest.testWithQUnit( fileName[, onComplete[, parserOptions ] ] )
+j.testWithQUnit = function( fileName, options ) {
+    /**:jDoctest.testWithQUnit( fileName[, options ] )
 
     `QUnit`_ is a powerful, easy-to-use, JavaScript test suite that used by
     the jQuery project. Our doctests could be runned within QUnit frame::
@@ -16,11 +16,14 @@ j.testWithQUnit = function( fileName, onComplete, parserOptions ) {
 
     .. _QUnit: http://docs.jquery.com/Qunit
     */
-    var parser = new j.Parser( parserOptions ),
-        result = {},
-        runner = new j.QUnitRunner( new j.Runner( result, onComplete ) );
+    var materials = this.getMaterials( options ),
+        parser = materials.parser,
+        runner = new this.QUnitRunner( materials.runner );
     $.get( fileName, function( src ) {
         var doctests = parser.getDoctests( src, fileName );
+        if ( !options || !options.alreadyLoaded ) {
+            window.eval.call( window, src );
+        }
         for ( var i = 0; i < doctests.length; i++ ) {
             runner.run( doctests[ i ] );
         }
@@ -36,18 +39,24 @@ j.QUnitRunner = j.Runner.extend({
     },
     runExample: function( exam, doctest ) {
         var testFunc = $.proxy(function() {
-            try {
-                var output = this.getOutput( exam.source );
-                equals( output, exam.want, exam.source );
-            } catch ( error ) {
-                if ( error instanceof j.errors.StopRunning ) {
-                    stop();
-                } else {
-                    throw error;
+                try {
+                    var output = this.getOutput( exam.source );
+                    equals( output, exam.want, exam.source );
+                } catch ( error ) {
+                    if ( error instanceof j.errors.StopRunning ) {
+                        stop();
+                    } else {
+                        throw error;
+                    }
                 }
-            }
-        }, this );
-        test( "line " + exam.lineNo, testFunc );
+            }, this ),
+            source = exam.source.split( "\n" );
+        if ( source.length === 1 ) {
+            source = source[ 0 ];
+        } else {
+            source = source[ 0 ] + "...";
+        }
+        test( source + " (line " + exam.lineNo + ")", testFunc );
     },
     runFinally: function() {
         start();

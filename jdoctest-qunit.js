@@ -40,8 +40,12 @@ j.QUnitRunner = j.Runner.extend({
     runExample: function( exam, doctest ) {
         var testFunc = $.proxy(function() {
                 try {
-                    var output = this.getOutput( exam.source );
-                    equals( output, exam.want, exam.source );
+                    var got = this.getOutput( exam.source );
+                    if ( this.checkExample( exam, got ) ) {
+                        ok( true, exam.source );
+                    } else {
+                        equals( got, exam.want, exam.source );
+                    }
                 } catch ( error ) {
                     if ( error instanceof j.errors.StopRunning ) {
                         stop();

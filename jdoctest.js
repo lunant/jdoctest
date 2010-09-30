@@ -1,4 +1,4 @@
-/*
+/**
 jDoctest
 ~~~~~~~~
 
@@ -19,7 +19,7 @@ this.jDoctest = (function( window, $ ) { var meta = {
    NAME: "jDoctest",
 VERSION: "0.0.9",
 AUTHORS: ["Lee Heung-sub <sublee@lunant.com>"],
-    URL: "http://jdoctest.lunant.com/",
+    URL: "http://lunant.github.com/jdoctest",
  GITHUB: "http://github.com/lunant/jdoctest"
 };
 
@@ -167,6 +167,38 @@ j.getMaterials = function( options ) {
         runner: new j.Runner( result, options )
     };
 };
+j.repr = function( val ) {
+    /**:jDoctest.repr( val )
+
+    Represents a value.
+
+        >>> jDoctest.repr( undefined );
+        >>> jDoctest.repr( [] );
+        '[]'
+        >>> jDoctest.repr( [1, 2, 3] );
+        '[1, 2, 3]'
+        >>> jDoctest.repr( "Hello, world!" );
+        '\'Hello, world!\''
+        >>> jDoctest.repr( "It's my world!" );
+        '\'It\\\'s my world!\''
+        >>> jDoctest.repr( ["It's my world!"] );
+        '[\'It\\\'s my world!\']'
+        >>> jDoctest.repr( jDoctest.flags.SKIP );
+        '<jDoctest.flags.SKIP>'
+    */
+    if ( val === undefined ) {
+        return val;
+    } else if ( $.isArray( val ) ) {
+        var reprs = [];
+        for ( var i = 0; i < val.length; i++ ) {
+            reprs.push( j.repr( val[ i ] ) );
+        }
+        return "[" + reprs.join( ", " ) + "]";
+    } else if ( typeof val === "string" ) {
+        return "'" + val.replace( /('|\\)/g, "\\$1" ) + "'";
+    }
+    return String( val );
+};
 
 /***********************************************************************
 * Utilities
@@ -174,38 +206,6 @@ j.getMaterials = function( options ) {
 var _ = {
     ffff: "\uffff",
     __: "    ",
-    repr: function( val ) {
-        /**:jDoctest._repr( val )
-
-        Represents a value.
-
-            >>> jDoctest._repr( undefined );
-            >>> jDoctest._repr( [] );
-            '[]'
-            >>> jDoctest._repr( [1, 2, 3] );
-            '[1, 2, 3]'
-            >>> jDoctest._repr( "Hello, world!" );
-            '\'Hello, world!\''
-            >>> jDoctest._repr( "It's my world!" );
-            '\'It\\\'s my world!\''
-            >>> jDoctest._repr( ["It's my world!"] );
-            '[\'It\\\'s my world!\']'
-            >>> jDoctest._repr( jDoctest.flags.SKIP );
-            '<jDoctest.flags.SKIP>'
-        */
-        if ( val === undefined ) {
-            return val;
-        } else if ( $.isArray( val ) ) {
-            var reprs = [];
-            for ( var i = 0; i < val.length; i++ ) {
-                reprs.push( _.repr( val[ i ] ) );
-            }
-            return "[" + reprs.join( ", " ) + "]";
-        } else if ( typeof val === "string" ) {
-            return "'" + val.replace( /('|\\)/g, "\\$1" ) + "'";
-        }
-        return String( val );
-    },
     indent: function( indent, text ) {
         /**:jDoctest._indent( indent, text )
 
@@ -225,8 +225,8 @@ var _ = {
         }
         return text.replace( /^/mg, indent );
     },
-    unindent: function( indent, text ) {
-        /**:jDoctest._unindent( indent, text )
+    outdent: function( indent, text ) {
+        /**:jDoctest._outindent( indent, text )
         
         Removes an indent from each lines.
         */
@@ -507,7 +507,7 @@ j.Parser.prototype = {
         // Find docstrings
         source = _.linearize( source );
         while ( match = this.docStringRegex.exec( source ) ) {
-            docString = _.unindent( match[ 1 ], _.unlinearize( match[ 4 ] ) );
+            docString = _.outdent( match[ 1 ], _.unlinearize( match[ 4 ] ) );
             l = source.slice( 0, match.index ).split( _.ffff ).length + 1;
             docStrings[ l ] = [ match[ 3 ], docString ];
         }
@@ -689,6 +689,7 @@ j.Runner = function( result, options ) {
     this.options = $.extend( {}, this.options, options );
     this.checker = this.options.checker;
     this.console = this.options.console;
+    this.context = $.extend( {}, this.context );
     this._tasks = [];
     this._running = {
         stopped: true,
@@ -898,7 +899,7 @@ j.Runner.prototype = {
     },
 
     getOutput: function( source ) {
-        var got = _.repr( this.eval( source ) );
+        var got = j.repr( this.eval( source ) );
         if ( this._output ) {
             if ( got === undefined ) {
                 got = this._output;
@@ -915,6 +916,7 @@ j.Runner.prototype = {
             varName,
             replVal,
             result;
+
         for ( varName in this.context ) {
             origVals[ varName ] = window[ varName ];
             replVal = this.context[ varName ];
@@ -1064,7 +1066,8 @@ j.flags = {
     SKIP: j.Runner.extend({
         /**class:jDoctest.flags.SKIP( runner )
 
-        If an example has it as flag, the main runner passes the example.
+        When specified, the example is skipped and not runned also. If your
+        example never pass yet, use this flag and remove after implement.
 
             >>> var result = {};
             >>> var runner = new jDoctest.Runner( result, {
@@ -1081,6 +1084,13 @@ j.flags = {
             0
             >>> result.failures.length;
             0
+
+        Here is an example in the real world:
+
+            >>> 1000000000000000 * 1000000000000000; //doctest: +SKIP
+            0
+            >>> memcache.get( "ork" ); //doctest: +SKIP
+            'wow!'
         */
         checkExample: function() {
             // skip...
@@ -1093,6 +1103,9 @@ j.flags = {
     NORMALIZE_WHITESPACE: function( want, got ) {
         /**:jDoctest.flags.NORMALIZE_WHITESPACE( want, got )
 
+        When specified, all whitespaces in the expected output and the actual
+        output is treated as one space. It makes your example more simple.
+
             >>> var want = "a  b  \t  c  \n  d";
             >>> var got = "a b\n\n\n\t\t\t\n\nc                  d";
             >>> var flag = jDoctest.flags.NORMALIZE_WHITESPACE;
@@ -1103,6 +1116,16 @@ j.flags = {
             'a b c d'
             >>> flagResult.matched;
             true
+
+        Here is an example in the real world:
+
+            >>> print( "a\nb\nc" ); //doctest: +NORMALIZE_WHITESPACE
+            a b c
+            >>> print( "function() {\n\treturn 132;\n}");
+            ... //doctest: +NORMALIZE_WHITESPACE
+            function() {
+              return 132;
+            }
         */
         want = want.split( /\s+/gm ).join( " " );
         got = got.split( /\s+/gm ).join( " " );
@@ -1115,16 +1138,64 @@ j.flags = {
     ELLIPSIS: function( want, got ) {
         /**:jDoctest.flags.ELLIPSIS( want, got )
 
+        When specified, an ellipsis marker(``...``) in the expected output can
+        match any substring in the actual output.
+
             >>> var want = "j...t";
             >>> jDoctest.flags.ELLIPSIS( want, "jDoctest" );
             true
-            >>> jDoctest.flags.ELLIPSIS( want, "Jdoctest" );
+            >>> jDoctest.flags.ELLIPSIS( want, "jDoctest Team" );
             false
+
+        Here is an example in the real world:
+
+            >>> "foobar"; //doctest: +ELLIPSIS
+            'foo...'
+            >>> "foobar"; //doctest: +ELLIPSIS
+            'foobar...'
+            >>> new TypeError( "foo" ); //doctest: +ELLIPSIS
+            TypeError: ...
         */
         var e = _.escapeRegExp,
             ellipsis = new RegExp( e( e( "..." ) ), "g" );
-            pattern = new RegExp( e( want ).replace( ellipsis, ".*?" ) );
-        return !!pattern.exec( _.linearize( got ) );
+            pattern = "^" + e( want ).replace( ellipsis, ".*?" ) + "$";
+        return !!( new RegExp( pattern ) ).exec( _.linearize( got ) );
+    },
+    IGNORE_ERROR_MESSAGE: function( want, got ) {
+        /**:jDoctest.flags.IGNORE_ERROR_MESSAGE( want, got )
+
+        When specified, the error message does not match. It is useful to
+        cross-browser because some error message is different in various
+        browsers.
+
+            >>> var want = "ReferenceError: TEST is not defined";
+            >>> var got = "ReferenceError: Can't find variable: TEST";
+            >>> var got2 = "TypeError: TEST is not defined";
+            >>> jDoctest.flags.IGNORE_ERROR_MESSAGE( want, got );
+            true
+            >>> jDoctest.flags.IGNORE_ERROR_MESSAGE( want, got2 );
+            false
+
+        Here is an example in the real world:
+
+            >>> LUNANT; //doctest: +IGNORE_ERROR_MESSAGE
+            ReferenceError: LUNANT is not defined
+        */
+        var errorName = /^([a-zA-Z_$][a-zA-Z0-9_$]+)\:/,
+            isError = function( errorName ) {
+                var error = window[ errorName ];
+                return error === Error || error.prototype instanceof Error;
+            },
+            matchWant = errorName.exec( want ),
+            matchGot = errorName.exec( got ),
+            wantedError, gotError;
+        if ( matchWant && matchGot ) {
+            wantedError = matchWant[ 1 ];
+            gotError = matchGot[ 1 ];
+            if ( isError( wantedError ) && isError( gotError ) ) {
+                return wantedError === gotError;
+            }
+        }
     }
 };
 

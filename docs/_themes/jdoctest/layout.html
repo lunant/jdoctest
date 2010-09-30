@@ -1,0 +1,21 @@
+{% extends "basic/layout.html" %}
+{% block header %}
+  <div class="wrap">
+    {{ super() }}
+{% endblock %}
+{% block footer %}
+    {{ super() }}
+  </div>
+{% endblock %}
+{# do not display relbars #}
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}
+  {% if theme_github_fork %}
+  <a href="http://github.com/{{ theme_github_fork }}"><img
+    style="position: absolute; top: 0; right: 0; border: 0;"
+    src="{{ pathto("_static/fork_jdoctest.png", 1) }}"
+    alt="Fork me on GitHub" /></a>
+  {% endif %}
+{% endblock %}
+{% block sidebar1 %}{% endblock %}
+{% block sidebar2 %}{% endblock %}

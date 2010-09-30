@@ -1,0 +1,82 @@
+@import url("basic.css");
+
+body {
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  background: #fefefa url('bg.gif') no-repeat center top;
+  color: #554;
+}
+
+h1 {
+  text-indent: -9999px;
+  background: url({{ theme_index_logo }}) no-repeat center center;
+  height: {{ theme_index_logo_height }};
+}
+
+h2 {
+  padding-top: 15px;
+  border-bottom: 1px solid #e6e7db;
+  color: #332;
+  font-family: NeoSans, 'Trebuchet MS', sans-serif;
+  line-height: 1.5;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+em {
+  font-family: 'Times New Roman', Times, serif;
+}
+
+a:link, a:visited {
+  text-decoration: none;
+}
+a:link {
+  color: #369;
+}
+a:visited {
+  color: #669;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.highlight {
+  margin: 0 -15px;
+  border: 1px solid;
+  border-color: #ccc #ddd #eee;
+  border-radius: 5px;
+}
+
+dd .highlight {
+  margin-bottom: 1em;
+}
+
+.highlight pre, .pre {
+  font-family: 'Lucida Console', Monaco, monospace;
+  color: #567;
+}
+
+.highlight pre {
+  margin: 9px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.pre {
+  background: #f4f4f4;
+}
+
+.wrap {
+  margin: 0 auto;
+  width: 600px;
+}
+
+.footer {
+  margin-top: 30px;
+  padding-top: 10px;
+  border-top: 1px solid #e6e7db;
+  font-size: 11px;
+  text-align: center;
+}
+

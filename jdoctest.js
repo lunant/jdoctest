@@ -1205,6 +1205,10 @@ for ( var flagName in j.flags ) {
     j.flags[ flagName ].toString = function() {
         return "<jDoctest.flags." + this.flagName + ">";
     };
+    if ( j.flags[ flagName ].prototype instanceof j.Runner ) {
+        j.flags[ flagName ].prototype.flagName = flagName;
+        j.flags[ flagName ].prototype.toString = j.flags[ flagName ].toString;
+    }
 }
 
 // Exports jDoctest

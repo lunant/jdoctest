@@ -15,6 +15,7 @@
 <script>
   jDoctest.testSource( "jdoctest.js", {
     verbose: true,
+    alreadyLoaded: true,
     onComplete: function( result ) {
       if ( !result.failures.length ) {
         alert( "All " + result.tries.length + " examples are succeeded!" );

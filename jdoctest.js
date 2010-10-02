@@ -199,6 +199,7 @@ j.repr = function( val ) {
     }
     return String( val );
 };
+j.blankLineMarker = "<BLANKLINE>";
 
 /***********************************************************************
 * Utilities
@@ -547,25 +548,29 @@ j.Example = function( source, want, lineNo ) {
     */
     this.source = source;
     this.want = want;
-    this.flags = this._findFlags( source );
     this.lineNo = lineNo;
+
+    var fluct = this._getFlagFluctuation( source );
+    this.flags = fluct.flags;
+    this.inverseFlags = fluct.inverseFlags;
 };
 j.Example.prototype = {
 
     _OPTION_DIRECTIVE: /\/\/\s*doctest:\s*([^\n\'"]*)$/,
 
-    _findFlags: function( source ) {
-        /**:jDoctest.Example.prototype._findFlags( source )
-        
-        Returns a list of flags from a source code.
+    _getFlagFluctuation: function( source ) {
+        /**:jDoctest.Example.prototype._getFlagFluctuation( source )
+
+        Returns a flag fluctuation from the source code.
 
             >>> var src = "1; //doctest: +SKIP +ELLIPSIS";
-            >>> var flags = jDoctest.Example.prototype._findFlags( src );
-            >>> flags.indexOf( jDoctest.flags.SKIP ) >= 0;
+            >>> var exam = jDoctest.Example.prototype;
+            >>> var fluct = exam._getFlagFluctuation( src );
+            >>> fluct.flags.indexOf( jDoctest.flags.SKIP ) >= 0;
             true
-            >>> flags.indexOf( jDoctest.flags.ELLIPSIS ) >= 0;
+            >>> fluct.flags.indexOf( jDoctest.flags.ELLIPSIS ) >= 0;
             true
-            >>> flags.indexOf( jDoctest.flags.NORMALIZE_WHITESPACE ) < 0;
+            >>> fluct.flags.indexOf( jDoctest.flags.NORMALIZE_WHITESPACE ) < 0;
             true
         */
         var match;
@@ -573,15 +578,18 @@ j.Example.prototype = {
         if ( match = this._OPTION_DIRECTIVE.exec( source ) ) {
             var directive = match[ 1 ].split( /\s+/ ),
                 flags = [],
+                inverseFlags = [],
                 flagName;
             for ( var flagName in j.flags ) {
                 if ( directive.indexOf( "+" + flagName ) !== -1 ) {
                     flags.push( j.flags[ flagName ] );
+                } else if ( directive.indexOf( "-" + flagName ) !== -1 ) {
+                    inverseFlags.push( j.flags[ flagName ] );
                 }
             }
-            return flags;
+            return { flags: flags, inverseFlags: inverseFlags };
         } else {
-            return [];
+            return { flags: [], inverseFlags: [] };
         }
     },
 
@@ -630,8 +638,12 @@ j.OutputChecker = {
             if ( $.isFunction( flag ) ) {
                 flagResult = flag( want, got );
                 if ( typeof flagResult === "object" ) {
-                    want = flagResult.want;
-                    got = flagResult.got;
+                    if ( "want" in flagResult ) {
+                        want = flagResult.want;
+                    }
+                    if ( "got" in flagResult ) {
+                        got = flagResult.got;
+                    }
                     flagResult = flagResult.matched;
                 }
                 if ( flagResult === true ) {
@@ -698,13 +710,11 @@ j.Runner = function( result, options ) {
     };
 };
 j.Runner.prototype = {
-    _mergeFlags: $.merge,
-
     options: {
         onComplete: undefined,
         checker: j.OutputChecker,
         verbose: false,
-        flags: [],
+        flags: undefined, // It will be filled later
         console: console
     },
 
@@ -763,10 +773,10 @@ j.Runner.prototype = {
             }
             msg += "***Test Failed*** " + this.result.failures.length;
             msg += " failures.";
-            console.warn( msg );
+            this.console.warn( msg );
         } else if ( msg ) {
             msg += ".";
-            console.log( msg );
+            this.console.log( msg );
         }
     },
 
@@ -808,8 +818,9 @@ j.Runner.prototype = {
     },
 
     checkExample: function( exam, got ) {
+        var flags = this.adjustFlags( exam.flags );
         this.result.tries.push( exam );
-        if ( this.checker.checkOutput( exam.want, got, exam.flags ) ) {
+        if ( this.checker.checkOutput( exam.want, got, flags ) ) {
             this.result.successes.push( exam );
             return true;
         } else {
@@ -851,6 +862,7 @@ j.Runner.prototype = {
         }
         var exam = this._tasks.shift(),
             runner = this,
+            flags = this.adjustFlags( exam.flags ),
             flag,
             check;
         if ( exam instanceof jDoctest ) {
@@ -860,8 +872,8 @@ j.Runner.prototype = {
         }
         this._running.stopped = false;
 
-        for ( var i = 0; i < exam.flags.length; i++ ) {
-            flag = exam.flags[ i ];
+        for ( var i = 0; i < flags.length; i++ ) {
+            flag = flags[ i ];
             if ( flag.prototype instanceof j.Runner ) {
                 runner = new flag( this );
             }
@@ -937,6 +949,41 @@ j.Runner.prototype = {
             window[ varName ] = origVals[ varName ];
         }
         return result;
+    },
+
+    adjustFlags: function( flags, inverseFlags ) {
+        /**:jDoctest.Runner.prototype.adjustFlags( flags, inverseFlags )
+
+        Returns a flag list that is adjusted with the runner's flags.
+
+            >>> var runner = new jDoctest.Runner( {}, {
+            ...     flags: [jDoctest.flags.SKIP, jDoctest.flags.ELLIPSIS]
+            ... });
+            >>> runner.adjustFlags([
+            ...     jDoctest.flags.IGNORE_ERROR_MESSAGE
+            ... ], [
+            ...     jDoctest.flags.SKIP
+            ... ]);
+            [<jDoctest.flags.IGNORE_ERROR_MESSAGE>, <jDoctest.flags.ELLIPSIS>]
+        */
+        try {
+            flags = flags.slice();
+        } catch ( error ) {
+            if ( error instanceof TypeError ) {
+                flags = [];
+            } else {
+                throw error;
+            }
+        }
+
+        for ( var flag, i = 0; i < this.options.flags.length; i++ ) {
+            flag = this.options.flags[ i ];
+            if ( !inverseFlags || inverseFlags.indexOf( flag ) === -1 ) {
+                flags.push( flag );
+            }
+        }
+
+        return flags;
     },
 
     context: {
@@ -1100,6 +1147,24 @@ j.flags = {
             // skip...
         }
     }),
+    ACCEPT_BLANKLINE: function( want, got ) {
+        /**:jDoctest.flags.ACCEPT_BLANKLINE( want, got )
+
+        Default flag.
+
+            >>> print( "a\n\nb" );
+            a
+            <BLANKLINE>
+            b
+            >>> print( "<BLANKLINE>" ); //doctest: -ACCEPT_BLANKLINE
+            <BLANKLINE>
+        */
+        got = got.replace( /^$/gm, j.blankLineMarker );
+        return {
+            got: got,
+            matched: want === got
+        };
+    },
     NORMALIZE_WHITESPACE: function( want, got ) {
         /**:jDoctest.flags.NORMALIZE_WHITESPACE( want, got )
 
@@ -1210,6 +1275,14 @@ for ( var flagName in j.flags ) {
         j.flags[ flagName ].prototype.toString = j.flags[ flagName ].toString;
     }
 }
+
+j.Runner.prototype.options.flags = [
+    /**
+    >>> (new jDoctest.Runner( {} )).options.flags;
+    [<jDoctest.flags.ACCEPT_BLANKLINE>]
+    */
+    j.flags.ACCEPT_BLANKLINE
+];
 
 // Exports jDoctest
 return jDoctest;

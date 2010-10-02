@@ -14,11 +14,14 @@ h1 {
   height: {{ theme_index_logo_height }};
 }
 
+h2, h3, h4, h5, h6 {
+  font-family: NeoSans, 'Trebuchet MS', sans-serif;
+}
+
 h2 {
   padding-top: 15px;
   border-bottom: 1px solid #e6e7db;
   color: #332;
-  font-family: NeoSans, 'Trebuchet MS', sans-serif;
   line-height: 1.5;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -42,7 +45,6 @@ a:hover {
 }
 
 .highlight {
-  margin: 0 -15px;
   border: 1px solid;
   border-color: #ccc #ddd #eee;
   border-radius: 5px;

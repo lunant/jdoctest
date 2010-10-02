@@ -550,47 +550,44 @@ j.Example = function( source, want, lineNo ) {
     this.want = want;
     this.lineNo = lineNo;
 
-    var fluct = this._getFlagFluctuation( source );
-    this.flags = fluct.flags;
-    this.inverseFlags = fluct.inverseFlags;
+    var flags = this._findFlags( source );
+    this.flags = flags.positive;
+    this.negetiveFlags = flags.negative;
 };
 j.Example.prototype = {
-
     _OPTION_DIRECTIVE: /\/\/\s*doctest:\s*([^\n\'"]*)$/,
 
-    _getFlagFluctuation: function( source ) {
-        /**:jDoctest.Example.prototype._getFlagFluctuation( source )
+    _findFlags: function( source ) {
+        /**:jDoctest.Example.prototype._findFlags( source )
 
-        Returns a flag fluctuation from the source code.
+        Returns a flag list from the source code.
 
             >>> var src = "1; //doctest: +SKIP +ELLIPSIS";
             >>> var exam = jDoctest.Example.prototype;
-            >>> var fluct = exam._getFlagFluctuation( src );
-            >>> fluct.flags.indexOf( jDoctest.flags.SKIP ) >= 0;
+            >>> var flags = exam._findFlags( src );
+            >>> flags.positive.indexOf( jDoctest.flags.SKIP ) >= 0;
             true
-            >>> fluct.flags.indexOf( jDoctest.flags.ELLIPSIS ) >= 0;
+            >>> flags.positive.indexOf( jDoctest.flags.ELLIPSIS ) >= 0;
             true
-            >>> fluct.flags.indexOf( jDoctest.flags.NORMALIZE_WHITESPACE ) < 0;
+            >>> flags.positive.indexOf( jDoctest.flags.ACCEPT_BLANKLINE ) < 0;
             true
         */
-        var match;
-        
+        var match, flags = {
+            positive: [],
+            negative: []
+        };
         if ( match = this._OPTION_DIRECTIVE.exec( source ) ) {
             var directive = match[ 1 ].split( /\s+/ ),
-                flags = [],
-                inverseFlags = [],
                 flagName;
             for ( var flagName in j.flags ) {
                 if ( directive.indexOf( "+" + flagName ) !== -1 ) {
-                    flags.push( j.flags[ flagName ] );
+                    flags.positive.push( j.flags[ flagName ] );
                 } else if ( directive.indexOf( "-" + flagName ) !== -1 ) {
-                    inverseFlags.push( j.flags[ flagName ] );
+                    flags.negative.push( j.flags[ flagName ] );
                 }
             }
-            return { flags: flags, inverseFlags: inverseFlags };
-        } else {
-            return { flags: [], inverseFlags: [] };
         }
+        return flags;
     },
 
     toString: function() {
@@ -818,7 +815,7 @@ j.Runner.prototype = {
     },
 
     checkExample: function( exam, got ) {
-        var flags = this.adjustFlags( exam.flags );
+        var flags = this.adjustFlags( exam.flags, exam.negetiveFlags );
         this.result.tries.push( exam );
         if ( this.checker.checkOutput( exam.want, got, flags ) ) {
             this.result.successes.push( exam );
@@ -860,16 +857,17 @@ j.Runner.prototype = {
         if ( !this._tasks.length ) {
             return;
         }
-        var exam = this._tasks.shift(),
-            runner = this,
-            flags = this.adjustFlags( exam.flags ),
-            flag,
-            check;
+        var exam = this._tasks.shift();
         if ( exam instanceof jDoctest ) {
             this._running.doctest = exam;
             this.runDoctest( exam );
             return this._run();
         }
+
+        var runner = this,
+            flags = this.adjustFlags( exam.flags, exam.negativeFlags ),
+            flag,
+            check;
         this._running.stopped = false;
 
         for ( var i = 0; i < flags.length; i++ ) {
@@ -951,8 +949,8 @@ j.Runner.prototype = {
         return result;
     },
 
-    adjustFlags: function( flags, inverseFlags ) {
-        /**:jDoctest.Runner.prototype.adjustFlags( flags, inverseFlags )
+    adjustFlags: function( flags, negativeFlags ) {
+        /**:jDoctest.Runner.prototype.adjustFlags( flags, negativeFlags )
 
         Returns a flag list that is adjusted with the runner's flags.
 
@@ -966,24 +964,33 @@ j.Runner.prototype = {
             ... ]);
             [<jDoctest.flags.IGNORE_ERROR_MESSAGE>, <jDoctest.flags.ELLIPSIS>]
         */
+        var adjustedFlags = [], flag;
+
         try {
-            flags = flags.slice();
+            negativeFlags = negativeFlags.slice();
         } catch ( error ) {
             if ( error instanceof TypeError ) {
-                flags = [];
+                negativeFlags = [];
+            }
+        }
+
+        for ( var i = 0; i < flags.length; i++ ) {
+            flag = flags[ i ];
+            if ( flag.remove !== undefined ) {
+                negativeFlags.push( flag.remove );
             } else {
-                throw error;
+                adjustedFlags.push( flag );
             }
         }
 
-        for ( var flag, i = 0; i < this.options.flags.length; i++ ) {
+        for ( var i = 0; i < this.options.flags.length; i++ ) {
             flag = this.options.flags[ i ];
-            if ( !inverseFlags || inverseFlags.indexOf( flag ) === -1 ) {
-                flags.push( flag );
+            if ( negativeFlags.indexOf( flag ) === -1 ) {
+                adjustedFlags.push( flag );
             }
         }
 
-        return flags;
+        return adjustedFlags;
     },
 
     context: {
@@ -1097,8 +1104,8 @@ j.Runner.extend = function( prototype ) {
         this.result = runner.result;
         this.checker = runner.checker;
         this.verbose = runner.verbose;
-        this.flags = runner.flags;
         this.console = runner.console;
+        this.options = runner.options;
         this._running = runner._running;
     };
     newRunner.prototype = new j.Runner();
@@ -1109,6 +1116,9 @@ j.Runner.extend = function( prototype ) {
 /***********************************************************************
 * Flags
 ***********************************************************************/
+j.makeNegativeFlag = function( flag ) {
+    return { remove: flag };
+};
 j.flags = {
     SKIP: j.Runner.extend({
         /**class:jDoctest.flags.SKIP( runner )
@@ -1263,6 +1273,14 @@ j.flags = {
         }
     }
 };
+/**:jDoctest.flags.DONT_ACCEPT_BLANKLINE
+
+It is a negetive flag for :func:`jDoctest.flags.ACCEPT_BLANKLINE`.
+
+    >>> print( "<BLANKLINE>" ); //doctest: +DONT_ACCEPT_BLANKLINE
+    <BLANKLINE>
+*/
+j.flags.DONT_ACCEPT_BLANKLINE = j.makeNegativeFlag( j.flags.ACCEPT_BLANKLINE );
 
 // Adds a stringifing method for flags
 for ( var flagName in j.flags ) {

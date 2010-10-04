@@ -2,6 +2,9 @@
 
 .. include:: ../README
 
+.. figure:: _static/overview.png
+   :alt: The overview illustration
+
 Browser Supporting
 ==================
 
@@ -372,20 +375,6 @@ API
    :exclude-members: jDoctest.Runner.prototype.context, jDoctest.flags
    :member-order: groupwise
 
-More Informations
-=================
-
-You can propose an issue to the `issues`_ page and ask some question to the
-mailing list. To subscribe the mailing list, send a mail to
-`jdoctest@librelist.com`_.
-
-And there is `doctest.js`_ which is good alternative JavaScript implementation
-of doctest from a different angle.
-
-.. _issues: http://github.com/lunant/jdoctest/issues
-.. _jdoctest@librelist.com: mailto:jdoctest@librelist.com
-.. _doctest.js: http://ianb.github.com/doctestjs
-
 License
 =======
 
@@ -400,4 +389,18 @@ Authors
 -------
 
 .. include:: ../AUTHORS
+
+More Informations
+=================
+
+You can propose an issue to the `issues`_ page and ask some question to the
+mailing list. To subscribe the mailing list, send a mail to
+`jdoctest@librelist.com`_.
+
+And there is `doctest.js`_ which is good alternative JavaScript implementation
+of doctest from a different angle.
+
+.. _issues: http://github.com/lunant/jdoctest/issues
+.. _jdoctest@librelist.com: mailto:jdoctest@librelist.com
+.. _doctest.js: http://ianb.github.com/doctestjs
 

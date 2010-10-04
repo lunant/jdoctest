@@ -3,22 +3,26 @@
 <head>
 <meta charset="utf-8" />
 <title>jDoctest</title>
-<link rel="shorcut icon" type="image/icon" href="artwork/favicon.ico" />
-<!--[if lte IE 8]>
-<script src="http://lab.heungsub.net/resources/scripts/html5.js"></script>
-<![endif]--> 
+<link rel="shorcut icon" type="image/icon" href="../artwork/favicon.ico" />
 <script src="http://code.jquery.com/jquery-1.4.2.js"></script>
-<script src="jdoctest.js"></script>
+<script src="../jdoctest.js"></script>
 </head>
-<body style="background: #e6e7db;">
-<img src="http://img.sublee.kr/jDoctest.png" />
+<body style="background: #e6e7db; text-align: center; margin: 50px;">
+<img src="../artwork/jdoctest.png" />
 <script>
-  jDoctest.testSource( "jdoctest.js", {
-    verbose: true,
+  jDoctest.testSource( "../jdoctest.js", {
     alreadyLoaded: true,
     onComplete: function( result ) {
       if ( !result.failures.length ) {
-        alert( "All " + result.tries.length + " examples are succeeded!" );
+        alert( "All " + result.tries.length + " examples are succeeded." );
+      } else {
+        $( document.body ).css( "background", "#ebddd5" );
+        var msg = "There are " + result.failures.length + " FAILED example";
+        if ( result.failures.length !== 1 ) {
+          msg += "s";
+        }
+        msg += ".\nCheck the console outputs!";
+        alert( msg );
       }
       window.console && console.dir && console.dir( result );
     }

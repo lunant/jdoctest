@@ -24,7 +24,7 @@ These common browsers are been supporting.
 - Firefox
 - Opera
 
-Sorry, InternetExplorer is not supported yet. Because it implements the
+Sorry, Internet Explorer is not supported yet. Because it implements the
 ``eval`` function differently to the supported browsers.
 
 Simple Tutorial

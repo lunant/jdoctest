@@ -379,8 +379,12 @@ You can propose an issue to the `issues`_ page and ask some question to the
 mailing list. To subscribe the mailing list, send a mail to
 `jdoctest@librelist.com`_.
 
+And there is `doctest.js`_ which is good alternative JavaScript implementation
+of doctest from a different angle.
+
 .. _issues: http://github.com/lunant/jdoctest/issues
 .. _jdoctest@librelist.com: mailto:jdoctest@librelist.com
+.. _doctest.js: http://ianb.github.com/doctestjs
 
 License
 =======

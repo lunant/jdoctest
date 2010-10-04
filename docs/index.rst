@@ -1,18 +1,6 @@
-jDoctest
-~~~~~~~~
-
 .. default-domain:: js
 
-jDoctest is an useful test library for JavaScript that inspired from
-`Python`_'s `doctest`_ module. It finds docstrings and test examples from your
-JavaScript file and checks if each examples are succeeded.
-
-No more you need separated test files or documentation files. You need *only
-one file* which contains an executable source code, documentations for
-reference, and test examples.
-
-.. _Python: http://python.org/
-.. _doctest: http://docs.python.org/library/doctest.html
+.. include:: ../README
 
 Browser Supporting
 ==================

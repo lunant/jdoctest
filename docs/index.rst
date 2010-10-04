@@ -15,8 +15,23 @@ These common browsers are been supporting.
 Sorry, Internet Explorer is not supported yet. Because it implements the
 ``eval`` function differently to the supported browsers.
 
+Getting jDoctest
+================
+
+The `repository`_ for jDoctest is hosted at GitHub. You can download the source
+code with the following command.
+
+.. sourcecode:: console
+
+    $ git clone git://github.com/lunant/jdoctest.git jdoctest
+
+.. _repository: http://github.com/lunant/jdoctest
+
+How To Use?
+===========
+
 Simple Tutorial
-===============
+---------------
 
 Here is a small sample code. jDoctest suggests to you're JavaScript source code
 to follow this structure:
@@ -153,7 +168,7 @@ The failure has the file name and the line number. We could debug with this
 informations.
 
 With QUnit
-==========
+----------
 
 `QUnit`_ is a powerful test suite that used by jQuery's official projects.
 

@@ -18,14 +18,18 @@ Sorry, Internet Explorer is not supported yet. Because it implements the
 Getting jDoctest
 ================
 
-The `repository`_ for jDoctest is hosted at GitHub. You can download the source
+The `repository`_ for jDoctest is hosted at GitHub. You can checkout the source
 code with the following command.
 
 .. sourcecode:: console
 
     $ git clone git://github.com/lunant/jdoctest.git jdoctest
 
+Or download the `compressed file`_.
+
 .. _repository: http://github.com/lunant/jdoctest
+.. _compressed file:
+    http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev
 
 How To Use?
 ===========

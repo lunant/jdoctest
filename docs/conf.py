@@ -98,6 +98,7 @@ html_theme = 'jdoctest'
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {'index_logo': 'jdoctest.png',
+                      'index_logo_alt': project,
                       'github_fork': 'lunant/jdoctest'}
 
 # Add any paths that contain custom themes here, relative to this directory.

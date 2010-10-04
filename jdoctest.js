@@ -1157,6 +1157,26 @@ j.flags = {
             // skip...
         }
     }),
+    ACCEPT_TRUE_FOR_1 : function( want, got ) {
+        /**:jDoctest.flags.ACCEPT_TRUE_FOR_1( want, got )
+
+        Default flag.
+
+            >>> 1 === 1;
+            1
+            >>> 1 === 1;
+            true
+            >>> 1 === 2;
+            0
+            >>> 1 === 2;
+            false
+        */
+        var T = got === j.repr( true ) && want === j.repr( 1 ),
+            F = got === j.repr( false ) && want === j.repr( 0 );
+        if ( T || F ) {
+            return true;
+        }
+    },
     ACCEPT_BLANKLINE: function( want, got ) {
         /**:jDoctest.flags.ACCEPT_BLANKLINE( want, got )
 
@@ -1273,14 +1293,27 @@ j.flags = {
         }
     }
 };
-/**:jDoctest.flags.DONT_ACCEPT_BLANKLINE
 
-It is a negetive flag for :func:`jDoctest.flags.ACCEPT_BLANKLINE`.
+(function( j ) {
+    // Negative flags
+    var f = j.flags,
+        negative = j.makeNegativeFlag;
 
-    >>> print( "<BLANKLINE>" ); //doctest: +DONT_ACCEPT_BLANKLINE
-    <BLANKLINE>
-*/
-j.flags.DONT_ACCEPT_BLANKLINE = j.makeNegativeFlag( j.flags.ACCEPT_BLANKLINE );
+    /**:jDoctest.flags.DONT_ACCEPT_TRUE_FOR_1
+
+    A negetive flag for :func:`jDoctest.flags.ACCEPT_TRUE_FOR_1`.
+    */
+    f.DONT_ACCEPT_TRUE_FOR_1 = negative.call( j, f.ACCEPT_TRUE_FOR_1 );
+
+    /**:jDoctest.flags.DONT_ACCEPT_BLANKLINE
+
+    A negetive flag for :func:`jDoctest.flags.ACCEPT_BLANKLINE`.
+
+        >>> print( "<BLANKLINE>" ); //doctest: +DONT_ACCEPT_BLANKLINE
+        <BLANKLINE>
+    */
+    f.DONT_ACCEPT_BLANKLINE = negative.call( j, f.ACCEPT_BLANKLINE );
+})( jDoctest );
 
 // Adds a stringifing method for flags
 for ( var flagName in j.flags ) {
@@ -1296,9 +1329,12 @@ for ( var flagName in j.flags ) {
 
 j.Runner.prototype.options.flags = [
     /**
-    >>> (new jDoctest.Runner( {} )).options.flags;
-    [<jDoctest.flags.ACCEPT_BLANKLINE>]
+    The default flags.
+
+        >>> (new jDoctest.Runner( {} )).options.flags;
+        [<jDoctest.flags.ACCEPT_TRUE_FOR_1>, <jDoctest.flags.ACCEPT_BLANKLINE>]
     */
+    j.flags.ACCEPT_TRUE_FOR_1,
     j.flags.ACCEPT_BLANKLINE
 ];
 

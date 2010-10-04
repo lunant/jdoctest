@@ -5,18 +5,18 @@
 .. figure:: _static/overview.png
    :alt: The overview illustration
 
-Browser Supporting
-==================
+Browser Support
+===============
 
-These common browsers are been supporting.
+jDoctest supports these common browsers.
 
 - Google Chrome
 - Safari
 - Firefox
 - Opera
 
-Sorry, Internet Explorer is not supported yet. Because it implements the
-``eval`` function differently to the supported browsers.
+jDoctest doesn't support Internet Explorer yetm because IE's implementation of
+the ``eval`` function is different from other supported browsers.
 
 Getting jDoctest
 ================
@@ -34,8 +34,8 @@ Or download the `compressed file`_.
 .. _compressed file:
     http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev
 
-How To Use?
-===========
+How To Use
+==========
 
 Simple Tutorial
 ---------------
@@ -60,8 +60,9 @@ to follow this structure:
         fetchData: function() {
             /**:ImageFile.prototype.fetchData()
 
-            Request to the server to get data of this image file. When the
-            request done we can get ``size`` or ``modified`` attribute.
+            Requests the server for the image file. When the request is
+            complete, it also sets the ``size`` and ``modified`` attributes of
+            the object.
 
                 >>> img.fetchData();
                 >>> wait(function() { return img.data; });
@@ -80,9 +81,12 @@ to follow this structure:
 
 .. **
 
-Now we can execute this source, or test examples of this source. We'll skip the
-excution because it is very common. Then how we can test this source? Before
-test, we should save this source to a file named ``imagefile.js``. And test it:
+Now you'll notice that the sample code we've just written contains example
+codes that describe the behaviours of ``ImageFile``. We should run the examples
+to make sure that our implementation of ``ImageFile`` behaves as expected.
+
+Before testing, we should save this code to a file named ``imagefile.js``. To
+run the test, all we need to do is:
 
 .. sourcecode:: html
 
@@ -94,8 +98,9 @@ test, we should save this source to a file named ``imagefile.js``. And test it:
 
 By default, jDoctest reports using ``console.log``, ``console.warn``, and
 ``console.error``. Watch the console output of the your browser! Is there no
-any outputs? Don't worry. It means the test is succeeded. jDoctest reports only
-failures by default. We can get all reporting using ``verbose`` option:
+output? Don't worry. It means the test ran successfully. jDoctest reports only
+failures by default. We can also see the progress of the test with the
+``verbose`` option:
 
 .. sourcecode:: js
 
@@ -103,7 +108,7 @@ failures by default. We can get all reporting using ``verbose`` option:
         verbose: true
     });
 
-Then jDoctest reports:
+jDoctest should report back:
 
 .. sourcecode:: text
 
@@ -141,15 +146,16 @@ Then jDoctest reports:
     ---------------------------------------------
     4 passed.
 
-Let's make a failed example. Already our tests have a failed example but it is
-just skipped:
+Let's make an example that fails. Our previous code already had a failing
+example but right now it is being ignored:
 
 .. sourcecode:: jscon
 
     >>> img.modified; //doctest: +SKIP
 
-This example has the :meth:`jDoctest.flags.SKIP` flag(``//doctest: +SKIP``) to
-the example be skipped. If the flag is removed, we can get a failure:
+We've used :meth:`jDoctest.flags.SKIP` flag(``//doctest: +SKIP``) to ignore
+this example. We'll talk more about the flags later on, but for now, we can
+remove this flag to get a failing example:
 
 .. sourcecode:: text
 
@@ -171,23 +177,23 @@ the example be skipped. If the flag is removed, we can get a failure:
     4 passed and 1 failed.
     ***Test Failed*** 1 failures.
 
-The failure has the file name and the line number. We could debug with this
-informations.
+jDoctest returns the file name and the line number for each failed example. We
+could use this information to debug more efficiently.
 
 With QUnit
 ----------
 
-`QUnit`_ is a powerful test suite that used by jQuery's official projects.
+`QUnit`_ is a powerful test suite used by jQuery's official projects.
 
-jDoctest provides an extension for testing with QUnit. The extension is very
-easy to use. Just load ``jdoctest-qunit.js`` and run
-:meth:`jDoctest.testWithQUnit` on the QUnit template:
+jDoctest provides an extension for testing with QUnit. To use this extension,
+load ``jdoctest-qunit.js``, setup QUnit template, and run
+:meth:`jDoctest.testWithQUnit`:
 
 .. sourcecode:: html
 
     <html>
     <head>
-      <title>jDoctest testing with QUnit</title>
+      <title>jDoctest with QUnit Test Suite</title>
       <link rel="stylesheet" type="text/css" href="qunit.css" />
       <script src="qunit.js"></script>
       <script src="jquery.js"></script>
@@ -206,27 +212,27 @@ easy to use. Just load ``jdoctest-qunit.js`` and run
     </body>
     </html>
 
-This page works like:
+The result will look like:
 
 .. figure:: _static/qunit-example.png
    :alt: The screenshot of jDoctest with QUnit test suite
 
-The result is so beatiful and readable than default ``console`` outputs. We can
-test using jDoctest-QUnit instead of vanilla jDoctest.
+Isn't it much more beautiful and readable than default ``console`` outputs? We
+can now test using jDoctest-QUnit instead of vanilla jDoctest.
 
 .. _QUnit: http://docs.jquery.com/qunit
 
-How it works?
-=============
+How it works
+============
 
-jDoctest examines testing examples from docstrings in your source code. To
-test the source code, you need to write them into the source code.
+jDoctest examines docstrings in your source code to find testable examples.
+You'll need to write your tests within the source code.
 
-What's Docstring?
------------------
+What's a Docstring?
+-------------------
 
-A docstring is a multiline comment but it starts with ``/**``. The below
-JavaScript comment is a docstring. You can write the description or the
+A docstring is a multiline comment that starts with ``/**``. The JavaScript
+comment below is a docstring. You can write the description or the
 detailed documentation of some function or class or anything in the docstring:
 
 .. sourcecode:: js
@@ -238,23 +244,23 @@ detailed documentation of some function or class or anything in the docstring:
 .. **
 
 Optionally, a docstring could have a subject that is started with ``:`` and
-positioned behind ``/**``. A subject could accept any string. But the function
-or class' signature is better to the subject:
+positioned behind ``/**``. A subject could accept any string, but you should
+really use the function or the class' signature:
 
 .. sourcecode:: js
 
     /**:Number.prototype.limit( [ min, ] max )
 
-    If the number is out of ``min`` and ``max``, returns ``min`` or
-    ``max``. Otherwise it returns the number.
+    If the number supplied is outside the range of ``min`` and ``max``, returns
+    ``min`` or ``max``. Otherwise it returns the number.
     */
 
 .. /**
 
-What's Testing Example?
------------------------
+What's a Testable Example?
+--------------------------
 
-A testing example looks like an interactive JavaScript session:
+A testable example looks like an interactive JavaScript session:
 
 .. sourcecode:: jscon
 
@@ -265,13 +271,13 @@ A testing example looks like an interactive JavaScript session:
     ... }
     54321
 
-These should be wrote in some docstring:
+It should be written in a docstring:
 
 .. sourcecode:: js
 
     /**:The subject of the docstring
 
-    It is a docstring. Here are testing examples:
+    Hello, You. I am a docstring. Here are some testable examples:
 
         >>> String( 12345 );
         '12345'
@@ -283,18 +289,17 @@ These should be wrote in some docstring:
 
 .. /**
 
-A testing example has a source code and an expected output. An output is a
-result of :func:`jDoctest.repr`. If the expected value is ``undefined``, the
+A testable example has an executable code and an expected output. An output is
+a result of :func:`jDoctest.repr`. If the expected value is ``undefined``, the
 output section is not needed. jDoctest will check if the expected output equals
-to the actual output and reports the result.
+the actual output and report the result.
 
-Testing of a Blank Line
------------------------
+Testing with a Blank Line
+-------------------------
 
-A testing example could not contain a blank line. It could be a problem when
-you expect that the output contains a blank line. But there is not a problem.
-jDoctest understands ``<BLANKLINE>`` as a blank line. If you want to include
-a blank line in the expected output, use ``<BLANKLINE>`` instead of:
+A testable example doesn't contain a blank line, but what if your expected
+output contains one? If you want to include a blank line in the expected
+output, use ``<BLANKLINE>`` instead:
 
 .. sourcecode:: jscon
 
@@ -303,16 +308,15 @@ a blank line in the expected output, use ``<BLANKLINE>`` instead of:
     <BLANKLINE>
     world!
 
-Testing Option Flags
---------------------
+Testing with Option Flags
+-------------------------
 
-Sometimes you would not want to check exactly. The testing option flags are
-suitable for this situation.
+Sometimes you want to alter the default behaviour of your tests. The testing
+option flags are suitable for this situation.
 
-Some single line comment is a doctest directive that starts with
-``//doctest:``. When jDoctest processes an example, it finds option flags from
-the doctest directive. To add an option flag, add a doctest directive which
-contains the flag modulations to the example code:
+A single line comment that starts with ``//doctest:`` is a doctest directive.
+To add an option flag, add a doctest directive and list the flags you wish to
+use on the example code:
 
 .. sourcecode:: jscon
 
@@ -329,12 +333,11 @@ contains the flag modulations to the example code:
    :exclude-sig:
    :members:
 
-Functions that Help an Example
-------------------------------
+Helper Functions
+----------------
 
-You might see ``wait`` and ``print`` function. When each examples are running
-these functions are global functions. The functions help you to write more
-powerful examples.
+You might want to try using ``wait`` and ``print``. These global functions can
+help you to write more powerful examples.
 
 .. autojs:: ../jdoctest.js
    :exclude-desc:

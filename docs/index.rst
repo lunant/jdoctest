@@ -331,6 +331,31 @@ powerful examples.
    :members: jDoctest.Runner.prototype.context.print,
              jDoctest.Runner.prototype.context.wait
 
+Customization
+-------------
+
+jDoctest allows customization of the every symbols such as the
+docstring-prefix(``/**``), the docstring-suffix(``*/``), and the
+prompt-markers(``>>>``, ``...``).
+
+Let's assume what you want to use different symbols that ``/*DOCSTRING*`` as
+the docstring-prefix, ``*DOCSTRING*/`` as the docstring-suffix, ``$`` and ``>``
+as the prompt-markers. Then follow this example:
+
+.. sourcecode:: js
+
+    jDoctest.testSource( "source-which-contains-some-docstrings.js", {
+        symbols: {
+            docPrefix: "/*DOCSTRING*",
+            docSuffix: "*DOCSTRING*/",
+            prompt: "$",
+            continued: ">"
+        }
+    });
+
+If you want to customize more freely or make an extension for jDoctest, see the
+API chapter that is next.
+
 API
 ===
 
@@ -339,4 +364,29 @@ API
    :members:
    :exclude-members: jDoctest.Runner.prototype.context, jDoctest.flags
    :member-order: groupwise
+
+More Informations
+=================
+
+You can propose an issue to the `issues`_ page and ask some question to the
+mailing list. To subscribe the mailing list, send a mail to
+`jdoctest@librelist.com`_.
+
+.. _issues: http://github.com/lunant/jdoctest/issues
+.. _jdoctest@librelist.com: mailto:jdoctest@librelist.com
+
+License
+=======
+
+jDoctest is licensed with `MIT`_ + `GPL2`_, so feel free to use and manipulate
+as long as you respect these licenses. To get the details, see
+:file:`MIT-LICENSE.txt` and :file:`GPL-LICENSE.txt`.
+
+.. _MIT: http://en.wikipedia.org/wiki/MIT_License
+.. _GPL2: http://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2
+
+Authors
+-------
+
+.. include:: ../AUTHORS
 

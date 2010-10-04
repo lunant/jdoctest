@@ -100,7 +100,7 @@ j.testSource = function( fileName, options ) {
 
     Tests a JavaScript source file::
 
-        jDoctest.testSource( "source-which-contains-some-docstrings.js" );
+        jDoctest.testSource( "source-which-contains-docstrings.js" );
 
     The source file should contain some docstrings. A docstring is a
     multiline-comment which starts with ``/**`` or a specified doc-prefix.
@@ -128,7 +128,7 @@ j.testFile = function( fileName, options ) {
 
     Tests a file::
 
-        jDoctest.testSource( "a-docstring.txt" );
+        jDoctest.testFile( "a-docstring.txt" );
 
     The content of the file is a docstring. :class:`jDoctest.Parser` finds
     only examples(not docstrings).
@@ -150,8 +150,27 @@ j.getMaterials = function( options ) {
     /**:jDoctest.getMaterials( options )
 
     Returns a :class:`jDoctest.Parser` and a :class:`jDoctest.Runner` from
-    ``options``. ``options`` is :class:`jDoctest.Runner`'s ``options``
+    ``options``.
+    
+    ``options`` is :class:`jDoctest.Runner`'s ``options`` parameter. But it
+    also contains ``symbols`` key for :class:`jDoctest.Parser`'s ``symbols``
     parameter.
+
+        >>> var pr = jDoctest.getMaterials({
+        ...     verbose: true,
+        ...     symbols: {
+        ...         prompt: "$",
+        ...         continued: ">"
+        ...     }
+        ... });
+        >>> var parser = pr.parser;
+        >>> var runner = pr.runner;
+        >>> parser.symbols.prompt;
+        '$'
+        >>> parser.symbols.continued;
+        '>'
+        >>> runner.options.verbose;
+        true
     */
     options = $.extend( true, {
         verbose: false,
@@ -163,7 +182,7 @@ j.getMaterials = function( options ) {
         Runner;
     delete options[ "symbols" ];
     return {
-        parser: new j.Parser( options.symbols ),
+        parser: new j.Parser( symbols ),
         runner: new j.Runner( result, options )
     };
 };
@@ -1328,7 +1347,8 @@ for ( var flagName in j.flags ) {
 }
 
 j.Runner.prototype.options.flags = [
-    /**
+    /**:jDoctest.Runner.prototype.options.flags
+
     The default flags.
 
         >>> (new jDoctest.Runner( {} )).options.flags;

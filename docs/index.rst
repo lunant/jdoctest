@@ -242,8 +242,8 @@ or class' signature is better to the subject:
 
     /**:Number.prototype.limit( [ min, ] max )
 
-    If the number is out of ``min`` and ``max``, returns ``min`` or ``max``.
-    Otherwise it returns the number.
+    If the number is out of ``min`` and ``max``, returns ``min`` or
+    ``max``. Otherwise it returns the number.
     */
 
 .. /**

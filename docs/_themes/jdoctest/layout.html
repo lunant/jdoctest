@@ -10,11 +10,11 @@
         var toc = $( ".toc" );
         $( ".showtoc span" ).click(function() {
           $( this ).parent().hide().next().show();
-          toc.show();
+          toc.slideDown( "fast" );
         });
         $( ".hidetoc span" ).click(function() {
           $( this ).parent().hide().prev().show();
-          toc.hide();
+          toc.slideUp( "fast" );
         });
       </script>
     </div>

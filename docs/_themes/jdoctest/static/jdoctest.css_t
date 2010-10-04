@@ -31,6 +31,10 @@ h2 {
   text-transform: uppercase;
 }
 
+h3 {
+  padding-top: 10px;
+}
+
 em {
   font-family: 'Times New Roman', Times, serif;
 }
@@ -122,11 +126,22 @@ dd .highlight {
   background-position: 5px -1766px;
 }
 
+.toc > ul > li > a {
+  background: url(favicon.ico) no-repeat 4px;
+  padding-left: 22px;
+  font-weight: bolder;
+  color: #554;
+}
+
 .showtoc, .hidetoc {
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
-  color: #999;
+  color: #ccc;
+}
+
+.showtoc span, .hidetoc span {
   cursor: pointer;
+  color: #999;
 }
 
 .hidetoc {

@@ -1,0 +1,15 @@
+jDoctest is written by `Lunant`_'s jDoctest team.
+
+`Lee Heung-sub`_:
+    - Propose the project.
+    - Development the project.
+    - Make the logo.
+    - Design the Sphinx theme.
+    - Write the documentation and the docstrings.
+
+`Kijun Seo`_:
+    - Inspect the documentation and the docstrings.
+
+.. _Lunant: http://lunant.com/
+.. _Lee Heung-sub: sublee@lunant.com
+.. _Kijun Seo: kijun@lunant.com

@@ -8,17 +8,24 @@ body {
   color: #554;
 }
 
-h1 {
+.logo {
   text-indent: -9999px;
   background: url(jdoctest.png) no-repeat center center;
   height: 120px;
+}
+
+h1 {
+  display: none;
+}
+
+h2, h3, h4, h5, h6 {
+  font-family: NeoSans, 'Trebuchet MS', sans-serif;
 }
 
 h2 {
   padding-top: 15px;
   border-bottom: 1px solid #e6e7db;
   color: #332;
-  font-family: NeoSans, 'Trebuchet MS', sans-serif;
   line-height: 1.5;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -42,7 +49,6 @@ a:hover {
 }
 
 .highlight {
-  margin: 0 -15px;
   border: 1px solid;
   border-color: #ccc #ddd #eee;
   border-radius: 5px;
@@ -78,4 +84,51 @@ dd .highlight {
   border-top: 1px solid #e6e7db;
   font-size: 11px;
   text-align: center;
+}
+
+.tocwrapper {
+  padding: 0;
+  font-size: 12px;
+}
+
+.toc {
+  display: none;
+  margin-top: 15px;
+  padding: 10px;
+  border: solid #e6e7db;
+  border-width: 1px 0;
+}
+
+.toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc li {
+  margin: 0;
+  padding: 0;
+}
+
+.toc ul ul li {
+  background: url(tree.gif) no-repeat 5px 0;
+  line-height: 20px;
+  margin-left: 6px;
+  padding-left: 16px;
+}
+
+.toc ul ul li:last-child {
+  background-repeat: no-repeat;
+  background-position: 5px -1766px;
+}
+
+.showtoc, .hidetoc {
+  font-size: 12px;
+  text-align: center;
+  color: #999;
+  cursor: pointer;
+}
+
+.hidetoc {
+  display: none;
 }

@@ -32,6 +32,23 @@
   </head>
   <body>
   <div class="wrap">
+    <div class="logo">jDoctest</div>
+    <div class="tocwrapper">
+      <div class="showtoc">(<span>Show Table Of Contents</span>)</div>
+      <div class="hidetoc">(<span>Hide Table Of Contents</span>)</div>
+      <div class="toc"></div>
+      <script>
+        var toc = $( ".toc" );
+        $( ".showtoc span" ).click(function() {
+          $( this ).parent().hide().next().show();
+          toc.show();
+        });
+        $( ".hidetoc span" ).click(function() {
+          $( this ).parent().hide().prev().show();
+          toc.hide();
+        });
+      </script>
+    </div>
     
 
 

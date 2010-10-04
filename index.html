@@ -26,6 +26,50 @@
   </head>
   <body>
   <div class="wrap">
+    <div class="logo">jDoctest</div>
+    <div class="tocwrapper">
+      <div class="showtoc">(<span>Show Table Of Contents</span>)</div>
+      <div class="hidetoc">(<span>Hide Table Of Contents</span>)</div>
+      <div class="toc"><ul>
+<li><a class="reference internal" href="#">jDoctest</a><ul>
+<li><a class="reference internal" href="#browser-supporting">Browser Supporting</a></li>
+<li><a class="reference internal" href="#getting-jdoctest">Getting jDoctest</a></li>
+<li><a class="reference internal" href="#how-to-use">How To Use?</a><ul>
+<li><a class="reference internal" href="#simple-tutorial">Simple Tutorial</a></li>
+<li><a class="reference internal" href="#with-qunit">With QUnit</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-it-works">How it works?</a><ul>
+<li><a class="reference internal" href="#what-s-docstring">What&#8217;s Docstring?</a></li>
+<li><a class="reference internal" href="#what-s-testing-example">What&#8217;s Testing Example?</a></li>
+<li><a class="reference internal" href="#testing-of-a-blank-line">Testing of a Blank Line</a></li>
+<li><a class="reference internal" href="#testing-option-flags">Testing Option Flags</a></li>
+<li><a class="reference internal" href="#functions-that-help-an-example">Functions that Help an Example</a></li>
+<li><a class="reference internal" href="#customization">Customization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api">API</a></li>
+<li><a class="reference internal" href="#more-informations">More Informations</a></li>
+<li><a class="reference internal" href="#license">License</a><ul>
+<li><a class="reference internal" href="#authors">Authors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+      <script>
+        var toc = $( ".toc" );
+        $( ".showtoc span" ).click(function() {
+          $( this ).parent().hide().next().show();
+          toc.show();
+        });
+        $( ".hidetoc span" ).click(function() {
+          $( this ).parent().hide().prev().show();
+          toc.hide();
+        });
+      </script>
+    </div>
     
 
 
@@ -36,25 +80,37 @@
             
   <div class="section" id="jdoctest">
 <h1>jDoctest<a class="headerlink" href="#jdoctest" title="Permalink to this headline">¶</a></h1>
-<p>jDoctest is an useful test library that inspired from <a class="reference external" href="http://python.org/">Python</a>&#8216;s <a class="reference external" href="http://docs.python.org/library/doctest.html">doctest</a>
-module for JavaScript. No more you need separated testing or documentation
-files. You need <em>only one file</em> which contains an executable source code,
-documentations for reference, and testing examples.</p>
-<div class="section" id="simple-tutorial">
-<h2>Simple Tutorial<a class="headerlink" href="#simple-tutorial" title="Permalink to this headline">¶</a></h2>
-<p>jDoctest examines testing examples from docstrings in your source code. A
-docstring is a multiline comment but it starts with <tt class="docutils literal"><span class="pre">/**</span></tt>. A testing example
-looks like an interactive JavaScript session:</p>
-<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nb">parseInt</span><span class="p">(</span> <span class="s2">&quot;12345&quot;</span> <span class="p">);</span>
-<span class="go">12345</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nb">String</span><span class="p">(</span> <span class="mi">12345</span> <span class="p">);</span>
-<span class="go">&#39;12345&#39;</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span> <span class="p">)</span> <span class="p">{</span>
-<span class="gp">...</span>     <span class="nx">print</span><span class="p">(</span> <span class="nx">i</span> <span class="p">);</span>
-<span class="gp">...</span> <span class="p">}</span>
-<span class="go">54321</span>
+<p>jDoctest is an useful test library for JavaScript that inspired from
+<a class="reference external" href="http://python.org/">Python</a>&#8216;s <a class="reference external" href="http://docs.python.org/library/doctest.html">doctest</a> module. It finds docstrings and test examples from your
+JavaScript file and checks if each examples are succeeded.</p>
+<p>No more you need separated test files or documentation files. You need <em>only
+one file</em> which contains an executable source code, documentations for
+reference, and test examples.</p>
+<div class="section" id="browser-supporting">
+<h2>Browser Supporting<a class="headerlink" href="#browser-supporting" title="Permalink to this headline">¶</a></h2>
+<p>These common browsers are been supporting.</p>
+<ul class="simple">
+<li>Google Chrome</li>
+<li>Safari</li>
+<li>Firefox</li>
+<li>Opera</li>
+</ul>
+<p>Sorry, Internet Explorer is not supported yet. Because it implements the
+<tt class="docutils literal"><span class="pre">eval</span></tt> function differently to the supported browsers.</p>
+</div>
+<div class="section" id="getting-jdoctest">
+<h2>Getting jDoctest<a class="headerlink" href="#getting-jdoctest" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="http://github.com/lunant/jdoctest">repository</a> for jDoctest is hosted at GitHub. You can checkout the source
+code with the following command.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> git clone git://github.com/lunant/jdoctest.git jdoctest
 </pre></div>
 </div>
+<p>Or download the <a class="reference external" href="http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev">compressed file</a>.</p>
+</div>
+<div class="section" id="how-to-use">
+<h2>How To Use?<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simple-tutorial">
+<h3>Simple Tutorial<a class="headerlink" href="#simple-tutorial" title="Permalink to this headline">¶</a></h3>
 <p>Here is a small sample code. jDoctest suggests to you&#8217;re JavaScript source code
 to follow this structure:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">ImageFile</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">url</span> <span class="p">)</span> <span class="p">{</span>
@@ -102,8 +158,8 @@ test, we should save this source to a file named <tt class="docutils literal"><s
 </pre></div>
 </div>
 <p>By default, jDoctest reports using <tt class="docutils literal"><span class="pre">console.log</span></tt>, <tt class="docutils literal"><span class="pre">console.warn</span></tt>, and
-<tt class="docutils literal"><span class="pre">console.error</span></tt>. Watch the console output of your browser! Is there no any
-outputs? Don&#8217;t worry. It means the test is succeeded. jDoctest reports only
+<tt class="docutils literal"><span class="pre">console.error</span></tt>. Watch the console output of the your browser! Is there no
+any outputs? Don&#8217;t worry. It means the test is succeeded. jDoctest reports only
 failures by default. We can get all reporting using <tt class="docutils literal"><span class="pre">verbose</span></tt> option:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;imagefile.js&quot;</span><span class="p">,</span> <span class="p">{</span>
     <span class="nx">verbose</span><span class="o">:</span> <span class="kc">true</span>
@@ -139,7 +195,7 @@ ok
 Trying:
     img.size;
 Expecting:
-    21618
+    30295
 ---------------------------------------------
 ok
 ---------------------------------------------
@@ -176,10 +232,10 @@ Got:
 informations.</p>
 </div>
 <div class="section" id="with-qunit">
-<h2>With QUnit<a class="headerlink" href="#with-qunit" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="http://docs.jquery.com/qunit">QUnit</a> is a powerful test suite that used by jQuery&#8217;s official projects.
-jDoctest provides an extension for testing with QUnit.</p>
-<p>The extension is very easy to use. Just load <tt class="docutils literal"><span class="pre">jdoctest-qunit.js</span></tt> and run
+<h3>With QUnit<a class="headerlink" href="#with-qunit" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://docs.jquery.com/qunit">QUnit</a> is a powerful test suite that used by jQuery&#8217;s official projects.</p>
+<p>jDoctest provides an extension for testing with QUnit. The extension is very
+easy to use. Just load <tt class="docutils literal"><span class="pre">jdoctest-qunit.js</span></tt> and run
 <tt class="xref js js-meth docutils literal"><span class="pre">jDoctest.testWithQUnit()</span></tt> on the QUnit template:</p>
 <div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;html&gt;</span>
 <span class="nt">&lt;head&gt;</span>
@@ -210,74 +266,135 @@ jDoctest provides an extension for testing with QUnit.</p>
 <p>The result is so beatiful and readable than default <tt class="docutils literal"><span class="pre">console</span></tt> outputs. We can
 test using jDoctest-QUnit instead of vanilla jDoctest.</p>
 </div>
-<div class="section" id="functions-that-help-an-example">
-<h2>Functions that help an Example<a class="headerlink" href="#functions-that-help-an-example" title="Permalink to this headline">¶</a></h2>
-<p>You might see <tt class="docutils literal"><span class="pre">wait</span></tt> and <tt class="docutils literal"><span class="pre">print</span></tt> function. When each examples are running
-these functions are global functions. The functions help you to write more
-powerful examples.</p>
-<dl class="data">
-<dt id="jDoctest.Runner.prototype.context">
-<tt class="descclassname">jDoctest.Runner.prototype.</tt><tt class="descname">context</tt><a class="headerlink" href="#jDoctest.Runner.prototype.context" title="Permalink to this definition">¶</a></dt>
-<dd><p>The object that has special functions. They are helpers for examples.
-Its functions are exist when only examples running.</p>
-<dl class="method">
-<dt id="print">
-<tt class="descname">print</tt><big>(</big><em>output</em><big>)</big><a class="headerlink" href="#print" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints a string. The output does not contain quotaions(<tt class="docutils literal"><span class="pre">'</span></tt>) or
-escaped characters(<tt class="docutils literal"><span class="pre">\n</span></tt>).</p>
-<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;a\nb\nc&quot;</span> <span class="p">);</span>
-<span class="go">a</span>
-<span class="go">b</span>
-<span class="go">c</span>
+</div>
+<div class="section" id="how-it-works">
+<h2>How it works?<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
+<p>jDoctest examines testing examples from docstrings in your source code. To
+test the source code, you need to write them into the source code.</p>
+<div class="section" id="what-s-docstring">
+<h3>What&#8217;s Docstring?<a class="headerlink" href="#what-s-docstring" title="Permalink to this headline">¶</a></h3>
+<p>A docstring is a multiline comment but it starts with <tt class="docutils literal"><span class="pre">/**</span></tt>. The below
+JavaScript comment is a docstring. You can write the description or the
+detailed documentation of some function or class or anything in the docstring:</p>
+<div class="highlight-js"><div class="highlight"><pre><span class="cm">/**</span>
+<span class="cm">It is a docstring.</span>
+<span class="cm">*/</span>
 </pre></div>
 </div>
-<p>The output is before of the returned value.</p>
-<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">)</span> <span class="p">{</span>
-<span class="gp">...</span>     <span class="nx">print</span><span class="p">(</span> <span class="nx">i</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="p">);</span>
+<p>Optionally, a docstring could have a subject that is started with <tt class="docutils literal"><span class="pre">:</span></tt> and
+positioned behind <tt class="docutils literal"><span class="pre">/**</span></tt>. A subject could accept any string. But the function
+or class&#8217; signature is better to the subject:</p>
+<div class="highlight-js"><div class="highlight"><pre><span class="cm">/**:Number.prototype.limit( [ min, ] max )</span>
+
+<span class="cm">If the number is out of ``min`` and ``max``, returns ``min`` or ``max``.</span>
+<span class="cm">Otherwise it returns the number.</span>
+<span class="cm">*/</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="what-s-testing-example">
+<h3>What&#8217;s Testing Example?<a class="headerlink" href="#what-s-testing-example" title="Permalink to this headline">¶</a></h3>
+<p>A testing example looks like an interactive JavaScript session:</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nb">String</span><span class="p">(</span> <span class="mi">12345</span> <span class="p">);</span>
+<span class="go">&#39;12345&#39;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span> <span class="p">)</span> <span class="p">{</span>
+<span class="gp">...</span>     <span class="nx">print</span><span class="p">(</span> <span class="nx">i</span> <span class="p">);</span>
 <span class="gp">...</span> <span class="p">}</span>
-<span class="gp">...</span> <span class="s2">&quot;done&quot;</span><span class="p">;</span>
-<span class="go">0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.</span>
-<span class="go">&#39;done&#39;</span>
+<span class="go">54321</span>
+</pre></div>
+</div>
+<p>These should be wrote in some docstring:</p>
+<div class="highlight-js"><div class="highlight"><pre><span class="cm">/**:The subject of the docstring</span>
+
+<span class="cm">It is a docstring. Here are testing examples:</span>
+
+<span class="cm">    &gt;&gt;&gt; String( 12345 );</span>
+<span class="cm">    &#39;12345&#39;</span>
+<span class="cm">    &gt;&gt;&gt; for ( var i = 5; i &gt;= 1; i-- ) {</span>
+<span class="cm">    ...     print( i );</span>
+<span class="cm">    ... }</span>
+<span class="cm">    54321</span>
+<span class="cm">*/</span>
+</pre></div>
+</div>
+<p>A testing example has a source code and an expected output. An output is a
+result of <a class="reference internal" href="#jDoctest.repr" title="jDoctest.repr"><tt class="xref js js-func docutils literal"><span class="pre">jDoctest.repr()</span></tt></a>. If the expected value is <tt class="docutils literal"><span class="pre">undefined</span></tt>, the
+output section is not needed. jDoctest will check if the expected output equals
+to the actual output and reports the result.</p>
+</div>
+<div class="section" id="testing-of-a-blank-line">
+<h3>Testing of a Blank Line<a class="headerlink" href="#testing-of-a-blank-line" title="Permalink to this headline">¶</a></h3>
+<p>A testing example could not contain a blank line. It could be a problem when
+you expect that the output contains a blank line. But there is not a problem.
+jDoctest understands <tt class="docutils literal"><span class="pre">&lt;BLANKLINE&gt;</span></tt> as a blank line. If you want to include
+a blank line in the expected output, use <tt class="docutils literal"><span class="pre">&lt;BLANKLINE&gt;</span></tt> instead of:</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;Hello,\n\nWorld!&quot;</span> <span class="p">);</span>
+<span class="go">Hello,</span>
+<span class="go">&lt;BLANKLINE&gt;</span>
+<span class="go">world!</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="testing-option-flags">
+<h3>Testing Option Flags<a class="headerlink" href="#testing-option-flags" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes you would not want to check exactly. The testing option flags are
+suitable for this situation.</p>
+<p>Some single line comment is a doctest directive that starts with
+<tt class="docutils literal"><span class="pre">//doctest:</span></tt>. When jDoctest processes an example, it finds option flags from
+the doctest directive. To add an option flag, add a doctest directive which
+contains the flag modulations to the example code:</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">//doctest: +SKIP</span>
+<span class="gp">...</span> <span class="c1">// This example will be skipped because of the ``SKIP`` flag.</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kc">undefined</span><span class="p">.</span><span class="nx">property</span><span class="p">;</span> <span class="c1">//doctest: +IGNORE_ERROR_MESSAGE</span>
+<span class="go">TypeError: Cannot read property &#39;property&#39; of undefined</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="jDoctest.flags.ACCEPT_BLANKLINE">
+<tt class="descclassname">jDoctest.flags.</tt><tt class="descname">ACCEPT_BLANKLINE</tt><big>(</big><em>want</em>, <em>got</em><big>)</big><a class="headerlink" href="#jDoctest.flags.ACCEPT_BLANKLINE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default flag.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;a\n\nb&quot;</span> <span class="p">);</span>
+<span class="go">a</span>
+<span class="go">&lt;BLANKLINE&gt;</span>
+<span class="go">b</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;&lt;BLANKLINE&gt;&quot;</span> <span class="p">);</span> <span class="c1">//doctest: -ACCEPT_BLANKLINE</span>
+<span class="go">&lt;BLANKLINE&gt;</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="wait">
-<tt class="descname">wait</tt><big>(</big><em>delay</em><big>)</big><a class="headerlink" href="#wait" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">delay</span></tt> is miliseconds or a function. If <tt class="docutils literal"><span class="pre">delay</span></tt> is
-miliseconds, the running process will wait for the miliseconds.</p>
-<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">wait</span><span class="p">(</span> <span class="mi">1000</span> <span class="p">);</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()).</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">-</span> <span class="nx">t</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">;</span>
+<dl class="function">
+<dt id="jDoctest.flags.ACCEPT_TRUE_FOR_1">
+<tt class="descclassname">jDoctest.flags.</tt><tt class="descname">ACCEPT_TRUE_FOR_1</tt><big>(</big><em>want</em>, <em>got</em><big>)</big><a class="headerlink" href="#jDoctest.flags.ACCEPT_TRUE_FOR_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default flag.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="mi">1</span> <span class="o">===</span> <span class="mi">1</span><span class="p">;</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="mi">1</span> <span class="o">===</span> <span class="mi">1</span><span class="p">;</span>
 <span class="go">true</span>
-</pre></div>
-</div>
-<p>If <tt class="docutils literal"><span class="pre">delay</span></tt> is a function, the running process will pause while
-the function returns <tt class="docutils literal"><span class="pre">false</span></tt>.</p>
-<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">v</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-<span class="gp">...</span>     <span class="nx">v</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-<span class="gp">...</span> <span class="p">},</span> <span class="mi">10</span> <span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="kc">undefined</span><span class="p">;</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="mi">1</span> <span class="o">===</span> <span class="mi">2</span><span class="p">;</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="mi">1</span> <span class="o">===</span> <span class="mi">2</span><span class="p">;</span>
 <span class="go">false</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
-<span class="go">false</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
-<span class="go">false</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">wait</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">v</span><span class="p">;</span> <span class="p">});</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
-<span class="go">true</span>
 </pre></div>
 </div>
 </dd></dl>
 
+<dl class="data">
+<dt id="jDoctest.flags.DONT_ACCEPT_BLANKLINE">
+<tt class="descclassname">jDoctest.flags.</tt><tt class="descname">DONT_ACCEPT_BLANKLINE</tt><a class="headerlink" href="#jDoctest.flags.DONT_ACCEPT_BLANKLINE" title="Permalink to this definition">¶</a></dt>
+<dd><p>A negetive flag for <a class="reference internal" href="#jDoctest.flags.ACCEPT_BLANKLINE" title="jDoctest.flags.ACCEPT_BLANKLINE"><tt class="xref js js-func docutils literal"><span class="pre">jDoctest.flags.ACCEPT_BLANKLINE()</span></tt></a>.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;&lt;BLANKLINE&gt;&quot;</span> <span class="p">);</span> <span class="c1">//doctest: +DONT_ACCEPT_BLANKLINE</span>
+<span class="go">&lt;BLANKLINE&gt;</span>
+</pre></div>
+</div>
 </dd></dl>
 
-</div>
-<div class="section" id="flags">
-<h2>Flags<a class="headerlink" href="#flags" title="Permalink to this headline">¶</a></h2>
-<p>There are some useful flags such as <tt class="docutils literal"><span class="pre">SKIP</span></tt>.</p>
+<dl class="data">
+<dt id="jDoctest.flags.DONT_ACCEPT_TRUE_FOR_1">
+<tt class="descclassname">jDoctest.flags.</tt><tt class="descname">DONT_ACCEPT_TRUE_FOR_1</tt><a class="headerlink" href="#jDoctest.flags.DONT_ACCEPT_TRUE_FOR_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>A negetive flag for <a class="reference internal" href="#jDoctest.flags.ACCEPT_TRUE_FOR_1" title="jDoctest.flags.ACCEPT_TRUE_FOR_1"><tt class="xref js js-func docutils literal"><span class="pre">jDoctest.flags.ACCEPT_TRUE_FOR_1()</span></tt></a>.</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="jDoctest.flags.ELLIPSIS">
 <tt class="descclassname">jDoctest.flags.</tt><tt class="descname">ELLIPSIS</tt><big>(</big><em>want</em>, <em>got</em><big>)</big><a class="headerlink" href="#jDoctest.flags.ELLIPSIS" title="Permalink to this definition">¶</a></dt>
@@ -384,6 +501,86 @@ example never pass yet, use this flag and remove after implement.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="functions-that-help-an-example">
+<h3>Functions that Help an Example<a class="headerlink" href="#functions-that-help-an-example" title="Permalink to this headline">¶</a></h3>
+<p>You might see <tt class="docutils literal"><span class="pre">wait</span></tt> and <tt class="docutils literal"><span class="pre">print</span></tt> function. When each examples are running
+these functions are global functions. The functions help you to write more
+powerful examples.</p>
+<dl class="function">
+<dt id="jDoctest.Runner.prototype.context.print">
+<tt class="descclassname">jDoctest.Runner.prototype.context.</tt><tt class="descname">print</tt><big>(</big><em>output</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.context.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a string. The output does not contain quotaions(<tt class="docutils literal"><span class="pre">'</span></tt>) or
+escaped characters(<tt class="docutils literal"><span class="pre">\n</span></tt>).</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;a\nb\nc&quot;</span> <span class="p">);</span>
+<span class="go">a</span>
+<span class="go">b</span>
+<span class="go">c</span>
+</pre></div>
+</div>
+<p>The output is before of the returned value.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">)</span> <span class="p">{</span>
+<span class="gp">...</span>     <span class="nx">print</span><span class="p">(</span> <span class="nx">i</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="p">);</span>
+<span class="gp">...</span> <span class="p">}</span>
+<span class="gp">...</span> <span class="s2">&quot;done&quot;</span><span class="p">;</span>
+<span class="go">0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.</span>
+<span class="go">&#39;done&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jDoctest.Runner.prototype.context.wait">
+<tt class="descclassname">jDoctest.Runner.prototype.context.</tt><tt class="descname">wait</tt><big>(</big><em>delay</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.context.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">delay</span></tt> is miliseconds or a function. If <tt class="docutils literal"><span class="pre">delay</span></tt> is
+miliseconds, the running process will wait for the miliseconds.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">wait</span><span class="p">(</span> <span class="mi">1000</span> <span class="p">);</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()).</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">-</span> <span class="nx">t</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="go">true</span>
+</pre></div>
+</div>
+<p>If <tt class="docutils literal"><span class="pre">delay</span></tt> is a function, the running process will pause while
+the function returns <tt class="docutils literal"><span class="pre">false</span></tt>.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">v</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="gp">...</span>     <span class="nx">v</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="gp">...</span> <span class="p">},</span> <span class="mi">10</span> <span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="kc">undefined</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
+<span class="go">false</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
+<span class="go">false</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
+<span class="go">false</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">wait</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">v</span><span class="p">;</span> <span class="p">});</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">v</span><span class="p">;</span>
+<span class="go">true</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="customization">
+<h3>Customization<a class="headerlink" href="#customization" title="Permalink to this headline">¶</a></h3>
+<p>jDoctest allows customization of the every symbols such as the
+docstring-prefix(<tt class="docutils literal"><span class="pre">/**</span></tt>), the docstring-suffix(<tt class="docutils literal"><span class="pre">*/</span></tt>), and the
+prompt-markers(<tt class="docutils literal"><span class="pre">&gt;&gt;&gt;</span></tt>, <tt class="docutils literal"><span class="pre">...</span></tt>).</p>
+<p>Let&#8217;s assume what you want to use different symbols that <tt class="docutils literal"><span class="pre">/*DOCSTRING*</span></tt> as
+the docstring-prefix, <tt class="docutils literal"><span class="pre">*DOCSTRING*/</span></tt> as the docstring-suffix, <tt class="docutils literal"><span class="pre">$</span></tt> and <tt class="docutils literal"><span class="pre">&gt;</span></tt>
+as the prompt-markers. Then follow this example:</p>
+<div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;source-which-contains-some-docstrings.js&quot;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">symbols</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">docPrefix</span><span class="o">:</span> <span class="s2">&quot;/*DOCSTRING*&quot;</span><span class="p">,</span>
+        <span class="nx">docSuffix</span><span class="o">:</span> <span class="s2">&quot;*DOCSTRING*/&quot;</span><span class="p">,</span>
+        <span class="nx">prompt</span><span class="o">:</span> <span class="s2">&quot;$&quot;</span><span class="p">,</span>
+        <span class="nx">continued</span><span class="o">:</span> <span class="s2">&quot;&gt;&quot;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>If you want to customize more freely or make an extension for jDoctest, see the
+API chapter that is next.</p>
+</div>
+</div>
 <div class="section" id="api">
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -486,8 +683,27 @@ is not available in there.</p>
 <dt id="jDoctest.getMaterials">
 <em class="property">static </em><tt class="descname">getMaterials</tt><big>(</big><em>options</em><big>)</big><a class="headerlink" href="#jDoctest.getMaterials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <a class="reference internal" href="#jDoctest.Parser" title="jDoctest.Parser"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Parser()</span></tt></a> and a <a class="reference internal" href="#jDoctest.Runner" title="jDoctest.Runner"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Runner()</span></tt></a> from
-<tt class="docutils literal"><span class="pre">options</span></tt>. <tt class="docutils literal"><span class="pre">options</span></tt> is <a class="reference internal" href="#jDoctest.Runner" title="jDoctest.Runner"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Runner()</span></tt></a>&#8216;s <tt class="docutils literal"><span class="pre">options</span></tt>
+<tt class="docutils literal"><span class="pre">options</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">options</span></tt> is <a class="reference internal" href="#jDoctest.Runner" title="jDoctest.Runner"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Runner()</span></tt></a>&#8216;s <tt class="docutils literal"><span class="pre">options</span></tt> parameter. But it
+also contains <tt class="docutils literal"><span class="pre">symbols</span></tt> key for <a class="reference internal" href="#jDoctest.Parser" title="jDoctest.Parser"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Parser()</span></tt></a>&#8216;s <tt class="docutils literal"><span class="pre">symbols</span></tt>
 parameter.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">pr</span> <span class="o">=</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">getMaterials</span><span class="p">({</span>
+<span class="gp">...</span>     <span class="nx">verbose</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+<span class="gp">...</span>     <span class="nx">symbols</span><span class="o">:</span> <span class="p">{</span>
+<span class="gp">...</span>         <span class="nx">prompt</span><span class="o">:</span> <span class="s2">&quot;$&quot;</span><span class="p">,</span>
+<span class="gp">...</span>         <span class="nx">continued</span><span class="o">:</span> <span class="s2">&quot;&gt;&quot;</span>
+<span class="gp">...</span>     <span class="p">}</span>
+<span class="gp">...</span> <span class="p">});</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">parser</span> <span class="o">=</span> <span class="nx">pr</span><span class="p">.</span><span class="nx">parser</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="nx">pr</span><span class="p">.</span><span class="nx">runner</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">parser</span><span class="p">.</span><span class="nx">symbols</span><span class="p">.</span><span class="nx">prompt</span><span class="p">;</span>
+<span class="go">&#39;$&#39;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">parser</span><span class="p">.</span><span class="nx">symbols</span><span class="p">.</span><span class="nx">continued</span><span class="p">;</span>
+<span class="go">&#39;&gt;&#39;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">verbose</span><span class="p">;</span>
+<span class="go">true</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -515,7 +731,7 @@ parameter.</p>
 <dt id="jDoctest.testFile">
 <em class="property">static </em><tt class="descname">testFile</tt><big>(</big><em>fileName</em><span class="optional">[</span>, <em>options</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#jDoctest.testFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests a file</p>
-<div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;a-docstring.txt&quot;</span> <span class="p">);</span>
+<div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testFile</span><span class="p">(</span> <span class="s2">&quot;a-docstring.txt&quot;</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>The content of the file is a docstring. <a class="reference internal" href="#jDoctest.Parser" title="jDoctest.Parser"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Parser()</span></tt></a> finds
@@ -528,7 +744,7 @@ only examples(not docstrings).</p>
 <dt id="jDoctest.testSource">
 <em class="property">static </em><tt class="descname">testSource</tt><big>(</big><em>fileName</em><span class="optional">[</span>, <em>options</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#jDoctest.testSource" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests a JavaScript source file</p>
-<div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;source-which-contains-some-docstrings.js&quot;</span> <span class="p">);</span>
+<div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;source-which-contains-docstrings.js&quot;</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>The source file should contain some docstrings. A docstring is a
@@ -561,14 +777,15 @@ multiline-comment which starts with <tt class="docutils literal"><span class="pr
 <dl class="method">
 <dt id="jDoctest.Example.prototype._findFlags">
 <tt class="descname">_findFlags</tt><big>(</big><em>source</em><big>)</big><a class="headerlink" href="#jDoctest.Example.prototype._findFlags" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of flags from a source code.</p>
+<dd><p>Returns a flag list from the source code.</p>
 <div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">src</span> <span class="o">=</span> <span class="s2">&quot;1; //doctest: +SKIP +ELLIPSIS&quot;</span><span class="p">;</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">flags</span> <span class="o">=</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">_findFlags</span><span class="p">(</span> <span class="nx">src</span> <span class="p">);</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">SKIP</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">exam</span> <span class="o">=</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">.</span><span class="nx">prototype</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">flags</span> <span class="o">=</span> <span class="nx">exam</span><span class="p">.</span><span class="nx">_findFlags</span><span class="p">(</span> <span class="nx">src</span> <span class="p">);</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">positive</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">SKIP</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
 <span class="go">true</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ELLIPSIS</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">positive</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ELLIPSIS</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
 <span class="go">true</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">NORMALIZE_WHITESPACE</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">positive</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ACCEPT_BLANKLINE</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span>
 <span class="go">true</span>
 </pre></div>
 </div>
@@ -691,6 +908,23 @@ have arrays named tries, successes, failures, and skips.</p>
 </pre></div>
 </div>
 <dl class="method">
+<dt id="jDoctest.Runner.prototype.adjustFlags">
+<tt class="descname">adjustFlags</tt><big>(</big><em>flags</em>, <em>negativeFlags</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.adjustFlags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a flag list that is adjusted with the runner&#8217;s flags.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">(</span> <span class="p">{},</span> <span class="p">{</span>
+<span class="gp">...</span>     <span class="nx">flags</span><span class="o">:</span> <span class="p">[</span><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">SKIP</span><span class="p">,</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ELLIPSIS</span><span class="p">]</span>
+<span class="gp">...</span> <span class="p">});</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">adjustFlags</span><span class="p">([</span>
+<span class="gp">...</span>     <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">IGNORE_ERROR_MESSAGE</span>
+<span class="gp">...</span> <span class="p">],</span> <span class="p">[</span>
+<span class="gp">...</span>     <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">SKIP</span>
+<span class="gp">...</span> <span class="p">]);</span>
+<span class="go">[&lt;jDoctest.flags.IGNORE_ERROR_MESSAGE&gt;, &lt;jDoctest.flags.ELLIPSIS&gt;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="jDoctest.Runner.prototype.register">
 <tt class="descname">register</tt><big>(</big><em>doctest</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.register" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a doctest to the task list.</p>
@@ -746,6 +980,50 @@ shares some attributes with the other runner.</p>
 
 </dd></dl>
 
+<dl class="data">
+<dt id="jDoctest.Runner.prototype.options.flags">
+<tt class="descclassname">jDoctest.Runner.prototype.options.</tt><tt class="descname">flags</tt><a class="headerlink" href="#jDoctest.Runner.prototype.options.flags" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default flags.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="p">(</span><span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">(</span> <span class="p">{}</span> <span class="p">)).</span><span class="nx">options</span><span class="p">.</span><span class="nx">flags</span><span class="p">;</span>
+<span class="go">[&lt;jDoctest.flags.ACCEPT_TRUE_FOR_1&gt;, &lt;jDoctest.flags.ACCEPT_BLANKLINE&gt;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="more-informations">
+<h2>More Informations<a class="headerlink" href="#more-informations" title="Permalink to this headline">¶</a></h2>
+<p>You can propose an issue to the <a class="reference external" href="http://github.com/lunant/jdoctest/issues">issues</a> page and ask some question to the
+mailing list. To subscribe the mailing list, send a mail to
+<a class="reference external" href="mailto:jdoctest&#37;&#52;&#48;librelist&#46;com">jdoctest<span>&#64;</span>librelist<span>&#46;</span>com</a>.</p>
+<p>And there is <a class="reference external" href="http://ianb.github.com/doctestjs">doctest.js</a> which is good alternative JavaScript implementation
+of doctest from a different angle.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>jDoctest is licensed with <a class="reference external" href="http://en.wikipedia.org/wiki/MIT_License">MIT</a> + <a class="reference external" href="http://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2">GPL2</a>, so feel free to use and manipulate
+as long as you respect these licenses. To get the details, see
+<tt class="file docutils literal"><span class="pre">MIT-LICENSE.txt</span></tt> and <tt class="file docutils literal"><span class="pre">GPL-LICENSE.txt</span></tt>.</p>
+<div class="section" id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h3>
+<p>jDoctest is written by <a class="reference external" href="http://lunant.com/">Lunant</a>&#8216;s jDoctest team.</p>
+<dl class="docutils">
+<dt><a class="reference external" href="mailto:sublee&#37;&#52;&#48;lunant&#46;com">Lee Heung-sub</a>:</dt>
+<dd><ul class="first last simple">
+<li>Propose the project.</li>
+<li>Development the project.</li>
+<li>Make the logo.</li>
+<li>Design the Sphinx theme.</li>
+<li>Write the documentation and the docstrings.</li>
+</ul>
+</dd>
+<dt><a class="reference external" href="mailto:kijun&#37;&#52;&#48;lunant&#46;com">Kijun Seo</a>:</dt>
+<dd><ul class="first last simple">
+<li>Inspect the documentation and the docstrings.</li>
+</ul>
+</dd>
+</dl>
+</div>
 </div>
 </div>
 

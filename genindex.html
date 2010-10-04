@@ -26,6 +26,23 @@
   </head>
   <body>
   <div class="wrap">
+    <div class="logo">jDoctest</div>
+    <div class="tocwrapper">
+      <div class="showtoc">(<span>Show Table Of Contents</span>)</div>
+      <div class="hidetoc">(<span>Hide Table Of Contents</span>)</div>
+      <div class="toc"></div>
+      <script>
+        var toc = $( ".toc" );
+        $( ".showtoc span" ).click(function() {
+          $( this ).parent().hide().next().show();
+          toc.show();
+        });
+        $( ".hidetoc span" ).click(function() {
+          $( this ).parent().hide().prev().show();
+          toc.hide();
+        });
+      </script>
+    </div>
     
 
 
@@ -46,16 +63,22 @@
     <dt><a href="index.html#jDoctest">jDoctest() (class)</a></dt>
     <dt><a href="index.html#jDoctest._mockConsole">jDoctest._mockConsole (None attribute)</a></dt>
     <dt><a href="index.html#jDoctest.Example">jDoctest.Example() (class)</a></dt>
+    <dt><a href="index.html#jDoctest.flags.ACCEPT_BLANKLINE">jDoctest.flags.ACCEPT_BLANKLINE() (jDoctest.flags method)</a></dt>
+    <dt><a href="index.html#jDoctest.flags.ACCEPT_TRUE_FOR_1">jDoctest.flags.ACCEPT_TRUE_FOR_1() (jDoctest.flags method)</a></dt>
+    <dt><a href="index.html#jDoctest.flags.DONT_ACCEPT_BLANKLINE">jDoctest.flags.DONT_ACCEPT_BLANKLINE (global variable or constant)</a></dt>
+    <dt><a href="index.html#jDoctest.flags.DONT_ACCEPT_TRUE_FOR_1">jDoctest.flags.DONT_ACCEPT_TRUE_FOR_1 (global variable or constant)</a></dt>
     <dt><a href="index.html#jDoctest.flags.ELLIPSIS">jDoctest.flags.ELLIPSIS() (jDoctest.flags method)</a></dt>
     <dt><a href="index.html#jDoctest.flags.IGNORE_ERROR_MESSAGE">jDoctest.flags.IGNORE_ERROR_MESSAGE() (jDoctest.flags method)</a></dt>
-    <dt><a href="index.html#jDoctest.flags.NORMALIZE_WHITESPACE">jDoctest.flags.NORMALIZE_WHITESPACE() (jDoctest.flags method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
+    <dt><a href="index.html#jDoctest.flags.NORMALIZE_WHITESPACE">jDoctest.flags.NORMALIZE_WHITESPACE() (jDoctest.flags method)</a></dt>
     <dt><a href="index.html#jDoctest.flags.SKIP">jDoctest.flags.SKIP() (class)</a></dt>
     <dt><a href="index.html#jDoctest.OutputChecker">jDoctest.OutputChecker (None attribute)</a></dt>
     <dt><a href="index.html#jDoctest.Parser">jDoctest.Parser() (class)</a></dt>
     <dt><a href="index.html#jDoctest.Runner">jDoctest.Runner() (class)</a></dt>
-    <dt><a href="index.html#jDoctest.Runner.prototype.context">jDoctest.Runner.prototype.context (global variable or constant)</a></dt>
+    <dt><a href="index.html#jDoctest.Runner.prototype.context.print">jDoctest.Runner.prototype.context.print() (jDoctest.Runner.prototype.context method)</a></dt>
+    <dt><a href="index.html#jDoctest.Runner.prototype.context.wait">jDoctest.Runner.prototype.context.wait() (jDoctest.Runner.prototype.context method)</a></dt>
+    <dt><a href="index.html#jDoctest.Runner.prototype.options.flags">jDoctest.Runner.prototype.options.flags (global variable or constant)</a></dt>
 </dl></td>
 </tr></table>
 

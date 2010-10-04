@@ -77,6 +77,10 @@ dd .highlight {
   background: #f4f4f4;
 }
 
+.figure {
+  text-align: center;
+}
+
 .wrap {
   margin: 0 auto;
   width: 600px;

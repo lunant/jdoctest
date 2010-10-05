@@ -32,19 +32,19 @@
       <div class="hidetoc">(<span>Hide Table Of Contents</span>)</div>
       <div class="toc"><ul>
 <li><a class="reference internal" href="#">jDoctest</a><ul>
-<li><a class="reference internal" href="#browser-supporting">Browser Supporting</a></li>
+<li><a class="reference internal" href="#browser-support">Browser Support</a></li>
 <li><a class="reference internal" href="#getting-jdoctest">Getting jDoctest</a></li>
-<li><a class="reference internal" href="#how-to-use">How To Use?</a><ul>
+<li><a class="reference internal" href="#how-to-use">How To Use</a><ul>
 <li><a class="reference internal" href="#simple-tutorial">Simple Tutorial</a></li>
 <li><a class="reference internal" href="#with-qunit">With QUnit</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#how-it-works">How it works?</a><ul>
-<li><a class="reference internal" href="#what-s-docstring">What&#8217;s Docstring?</a></li>
-<li><a class="reference internal" href="#what-s-testing-example">What&#8217;s Testing Example?</a></li>
-<li><a class="reference internal" href="#testing-of-a-blank-line">Testing of a Blank Line</a></li>
-<li><a class="reference internal" href="#testing-option-flags">Testing Option Flags</a></li>
-<li><a class="reference internal" href="#functions-that-help-an-example">Functions that Help an Example</a></li>
+<li><a class="reference internal" href="#how-it-works">How It Works</a><ul>
+<li><a class="reference internal" href="#what-s-a-docstring">What&#8217;s a Docstring?</a></li>
+<li><a class="reference internal" href="#what-s-a-testable-example">What&#8217;s a Testable Example?</a></li>
+<li><a class="reference internal" href="#using-blankline-token">Using <tt class="docutils literal"><span class="pre">BLANKLINE</span></tt> Token</a></li>
+<li><a class="reference internal" href="#testing-with-option-flags">Testing with Option Flags</a></li>
+<li><a class="reference internal" href="#helper-functions">Helper Functions</a></li>
 <li><a class="reference internal" href="#customization">Customization</a></li>
 </ul>
 </li>
@@ -80,26 +80,26 @@
             
   <div class="section" id="jdoctest">
 <h1>jDoctest<a class="headerlink" href="#jdoctest" title="Permalink to this headline">¶</a></h1>
-<p>jDoctest is an useful test library for JavaScript that inspired from
-<a class="reference external" href="http://python.org/">Python</a>&#8216;s <a class="reference external" href="http://docs.python.org/library/doctest.html">doctest</a> module. It finds docstrings and test examples from your
-JavaScript file and checks if each examples are succeeded.</p>
-<p>No more you need separated test files or documentation files. You need <em>only
-one file</em> which contains an executable source code, documentations for
-reference, and test examples.</p>
+<p>jDoctest is an useful test library for JavaScript that was inspired by
+<a class="reference external" href="http://python.org/">Python</a>&#8216;s <a class="reference external" href="http://docs.python.org/library/doctest.html">doctest</a> module. It finds testable examples within your
+JavaScript files and checks if each example runs successfully.</p>
+<p>No more you need separated test files or documentation files. You only need <em>a
+single file</em> which contains an executable source code, documentations, and
+testable examples.</p>
 <div class="figure">
 <img alt="The overview illustration" src="_images/overview.png" />
 </div>
-<div class="section" id="browser-supporting">
-<h2>Browser Supporting<a class="headerlink" href="#browser-supporting" title="Permalink to this headline">¶</a></h2>
-<p>These common browsers are been supporting.</p>
+<div class="section" id="browser-support">
+<h2>Browser Support<a class="headerlink" href="#browser-support" title="Permalink to this headline">¶</a></h2>
+<p>jDoctest supports these common browsers.</p>
 <ul class="simple">
 <li>Google Chrome</li>
 <li>Safari</li>
 <li>Firefox</li>
 <li>Opera</li>
 </ul>
-<p>Sorry, Internet Explorer is not supported yet. Because it implements the
-<tt class="docutils literal"><span class="pre">eval</span></tt> function differently to the supported browsers.</p>
+<p>jDoctest doesn&#8217;t support Internet Explorer yet, because IE&#8217;s implementation of
+the <tt class="docutils literal"><span class="pre">eval</span></tt> function is different from other supported browsers.</p>
 </div>
 <div class="section" id="getting-jdoctest">
 <h2>Getting jDoctest<a class="headerlink" href="#getting-jdoctest" title="Permalink to this headline">¶</a></h2>
@@ -111,11 +111,10 @@ code with the following command.</p>
 <p>Or download the <a class="reference external" href="http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev">compressed file</a>.</p>
 </div>
 <div class="section" id="how-to-use">
-<h2>How To Use?<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<h2>How To Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="simple-tutorial">
 <h3>Simple Tutorial<a class="headerlink" href="#simple-tutorial" title="Permalink to this headline">¶</a></h3>
-<p>Here is a small sample code. jDoctest suggests to you&#8217;re JavaScript source code
-to follow this structure:</p>
+<p>Here is a small sample code:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">ImageFile</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">url</span> <span class="p">)</span> <span class="p">{</span>
     <span class="cm">/**class:ImageFile( url )</span>
 
@@ -131,8 +130,9 @@ to follow this structure:</p>
     <span class="nx">fetchData</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="cm">/**:ImageFile.prototype.fetchData()</span>
 
-<span class="cm">        Request to the server to get data of this image file. When the</span>
-<span class="cm">        request done we can get ``size`` or ``modified`` attribute.</span>
+<span class="cm">        Requests the server for the image file. When the request is</span>
+<span class="cm">        complete, it also sets the ``size`` and ``modified`` attributes</span>
+<span class="cm">        of the object.</span>
 
 <span class="cm">            &gt;&gt;&gt; img.fetchData();</span>
 <span class="cm">            &gt;&gt;&gt; wait(function() { return img.data; });</span>
@@ -150,9 +150,11 @@ to follow this structure:</p>
 <span class="p">};</span>
 </pre></div>
 </div>
-<p>Now we can execute this source, or test examples of this source. We&#8217;ll skip the
-excution because it is very common. Then how we can test this source? Before
-test, we should save this source to a file named <tt class="docutils literal"><span class="pre">imagefile.js</span></tt>. And test it:</p>
+<p>Now you&#8217;ll notice that the sample code we&#8217;ve just written contains example
+codes that describe the behaviours of <tt class="docutils literal"><span class="pre">ImageFile</span></tt>. We should run the examples
+to make sure that our implementation of <tt class="docutils literal"><span class="pre">ImageFile</span></tt> behaves as expected.</p>
+<p>Before testing, we should save this code to a file named <tt class="docutils literal"><span class="pre">imagefile.js</span></tt>. To
+run the test, all we need to do is:</p>
 <div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;jquery.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;jdoctest.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;script&gt;</span>
@@ -162,14 +164,15 @@ test, we should save this source to a file named <tt class="docutils literal"><s
 </div>
 <p>By default, jDoctest reports using <tt class="docutils literal"><span class="pre">console.log</span></tt>, <tt class="docutils literal"><span class="pre">console.warn</span></tt>, and
 <tt class="docutils literal"><span class="pre">console.error</span></tt>. Watch the console output of the your browser! Is there no
-any outputs? Don&#8217;t worry. It means the test is succeeded. jDoctest reports only
-failures by default. We can get all reporting using <tt class="docutils literal"><span class="pre">verbose</span></tt> option:</p>
+output? Don&#8217;t worry. It means the test ran successfully. jDoctest reports only
+failures by default. We can also see the progress of the test with the
+<tt class="docutils literal"><span class="pre">verbose</span></tt> option:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;imagefile.js&quot;</span><span class="p">,</span> <span class="p">{</span>
     <span class="nx">verbose</span><span class="o">:</span> <span class="kc">true</span>
 <span class="p">});</span>
 </pre></div>
 </div>
-<p>Then jDoctest reports:</p>
+<p>jDoctest should report back:</p>
 <div class="highlight-text"><div class="highlight"><pre>Trying:
     var img = new ImageFile( &quot;_static/jdoctest.png&quot; );
 Expecting nothing
@@ -205,13 +208,14 @@ ok
 4 passed.
 </pre></div>
 </div>
-<p>Let&#8217;s make a failed example. Already our tests have a failed example but it is
-just skipped:</p>
+<p>Let&#8217;s make an example that fails. Our previous code already had a failing
+example but right now it is being ignored:</p>
 <div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">img</span><span class="p">.</span><span class="nx">modified</span><span class="p">;</span> <span class="c1">//doctest: +SKIP</span>
 </pre></div>
 </div>
-<p>This example has the <a class="reference internal" href="#jDoctest.flags.SKIP" title="jDoctest.flags.SKIP"><tt class="xref js js-meth docutils literal"><span class="pre">jDoctest.flags.SKIP()</span></tt></a> flag(<tt class="docutils literal"><span class="pre">//doctest:</span> <span class="pre">+SKIP</span></tt>) to
-the example be skipped. If the flag is removed, we can get a failure:</p>
+<p>We&#8217;ve used <a class="reference internal" href="#jDoctest.flags.SKIP" title="jDoctest.flags.SKIP"><tt class="xref js js-meth docutils literal"><span class="pre">jDoctest.flags.SKIP()</span></tt></a> flag(<tt class="docutils literal"><span class="pre">//doctest:</span> <span class="pre">+SKIP</span></tt>) to ignore
+this example. We&#8217;ll talk more about the flags later on, but for now, we can
+remove this flag to get a failing example:</p>
 <div class="highlight-text"><div class="highlight"><pre>...
 ---------------------------------------------
 Trying:
@@ -231,18 +235,18 @@ Got:
 ***Test Failed*** 1 failures.
 </pre></div>
 </div>
-<p>The failure has the file name and the line number. We could debug with this
-informations.</p>
+<p>jDoctest returns the file name and the line number for each failed example. We
+could use this information to debug more efficiently.</p>
 </div>
 <div class="section" id="with-qunit">
 <h3>With QUnit<a class="headerlink" href="#with-qunit" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference external" href="http://docs.jquery.com/qunit">QUnit</a> is a powerful test suite that used by jQuery&#8217;s official projects.</p>
-<p>jDoctest provides an extension for testing with QUnit. The extension is very
-easy to use. Just load <tt class="docutils literal"><span class="pre">jdoctest-qunit.js</span></tt> and run
-<tt class="xref js js-meth docutils literal"><span class="pre">jDoctest.testWithQUnit()</span></tt> on the QUnit template:</p>
+<p><a class="reference external" href="http://docs.jquery.com/qunit">QUnit</a> is a powerful test suite used by jQuery&#8217;s official projects.</p>
+<p>jDoctest provides an extension for testing with QUnit. To use this extension,
+load <tt class="docutils literal"><span class="pre">jdoctest-qunit.js</span></tt>, setup QUnit template, and run
+<tt class="xref js js-meth docutils literal"><span class="pre">jDoctest.testWithQUnit()</span></tt>:</p>
 <div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;html&gt;</span>
 <span class="nt">&lt;head&gt;</span>
-  <span class="nt">&lt;title&gt;</span>jDoctest testing with QUnit<span class="nt">&lt;/title&gt;</span>
+  <span class="nt">&lt;title&gt;</span>jDoctest with QUnit Test Suite<span class="nt">&lt;/title&gt;</span>
   <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">type=</span><span class="s">&quot;text/css&quot;</span> <span class="na">href=</span><span class="s">&quot;qunit.css&quot;</span> <span class="nt">/&gt;</span>
   <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;qunit.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
   <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;jquery.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
@@ -262,22 +266,22 @@ easy to use. Just load <tt class="docutils literal"><span class="pre">jdoctest-q
 <span class="nt">&lt;/html&gt;</span>
 </pre></div>
 </div>
-<p>This page works like:</p>
+<p>The result will look like:</p>
 <div class="figure">
 <img alt="The screenshot of jDoctest with QUnit test suite" src="_images/qunit-example.png" />
 </div>
-<p>The result is so beatiful and readable than default <tt class="docutils literal"><span class="pre">console</span></tt> outputs. We can
-test using jDoctest-QUnit instead of vanilla jDoctest.</p>
+<p>Isn&#8217;t it much more beautiful and readable than default <tt class="docutils literal"><span class="pre">console</span></tt> outputs? We
+can now test using jDoctest-QUnit instead of vanilla jDoctest.</p>
 </div>
 </div>
 <div class="section" id="how-it-works">
-<h2>How it works?<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
-<p>jDoctest examines testing examples from docstrings in your source code. To
-test the source code, you need to write them into the source code.</p>
-<div class="section" id="what-s-docstring">
-<h3>What&#8217;s Docstring?<a class="headerlink" href="#what-s-docstring" title="Permalink to this headline">¶</a></h3>
-<p>A docstring is a multiline comment but it starts with <tt class="docutils literal"><span class="pre">/**</span></tt>. The below
-JavaScript comment is a docstring. You can write the description or the
+<h2>How It Works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
+<p>jDoctest examines docstrings in your source code to find testable examples.
+You&#8217;ll need to write your tests within the source code.</p>
+<div class="section" id="what-s-a-docstring">
+<h3>What&#8217;s a Docstring?<a class="headerlink" href="#what-s-a-docstring" title="Permalink to this headline">¶</a></h3>
+<p>A docstring is a multiline comment that starts with <tt class="docutils literal"><span class="pre">/**</span></tt>. The JavaScript
+comment below is a docstring. You can write the description or the
 detailed documentation of some function or class or anything in the docstring:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="cm">/**</span>
 <span class="cm">It is a docstring.</span>
@@ -285,19 +289,19 @@ detailed documentation of some function or class or anything in the docstring:</
 </pre></div>
 </div>
 <p>Optionally, a docstring could have a subject that is started with <tt class="docutils literal"><span class="pre">:</span></tt> and
-positioned behind <tt class="docutils literal"><span class="pre">/**</span></tt>. A subject could accept any string. But the function
-or class&#8217; signature is better to the subject:</p>
+positioned behind <tt class="docutils literal"><span class="pre">/**</span></tt>. A subject could accept any string, but you should
+really use the function or the class&#8217; signature:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="cm">/**:Number.prototype.limit( [ min, ] max )</span>
 
-<span class="cm">If the number is out of ``min`` and ``max``, returns ``min`` or</span>
-<span class="cm">``max``. Otherwise it returns the number.</span>
+<span class="cm">If the number supplied is outside the range of ``min`` and ``max``, returns</span>
+<span class="cm">``min`` or ``max``. Otherwise it returns the number.</span>
 <span class="cm">*/</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="what-s-testing-example">
-<h3>What&#8217;s Testing Example?<a class="headerlink" href="#what-s-testing-example" title="Permalink to this headline">¶</a></h3>
-<p>A testing example looks like an interactive JavaScript session:</p>
+<div class="section" id="what-s-a-testable-example">
+<h3>What&#8217;s a Testable Example?<a class="headerlink" href="#what-s-a-testable-example" title="Permalink to this headline">¶</a></h3>
+<p>A testable example looks like an interactive JavaScript session:</p>
 <div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nb">String</span><span class="p">(</span> <span class="mi">12345</span> <span class="p">);</span>
 <span class="go">&#39;12345&#39;</span>
 <span class="gp">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span> <span class="p">)</span> <span class="p">{</span>
@@ -306,10 +310,10 @@ or class&#8217; signature is better to the subject:</p>
 <span class="go">54321</span>
 </pre></div>
 </div>
-<p>These should be wrote in some docstring:</p>
+<p>It should be written in a docstring:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="cm">/**:The subject of the docstring</span>
 
-<span class="cm">It is a docstring. Here are testing examples:</span>
+<span class="cm">Hello, You. I am a docstring. Here are some testable examples:</span>
 
 <span class="cm">    &gt;&gt;&gt; String( 12345 );</span>
 <span class="cm">    &#39;12345&#39;</span>
@@ -320,17 +324,16 @@ or class&#8217; signature is better to the subject:</p>
 <span class="cm">*/</span>
 </pre></div>
 </div>
-<p>A testing example has a source code and an expected output. An output is a
-result of <a class="reference internal" href="#jDoctest.repr" title="jDoctest.repr"><tt class="xref js js-func docutils literal"><span class="pre">jDoctest.repr()</span></tt></a>. If the expected value is <tt class="docutils literal"><span class="pre">undefined</span></tt>, the
+<p>A testable example has an executable code and an expected output. An output is
+a result of <a class="reference internal" href="#jDoctest.repr" title="jDoctest.repr"><tt class="xref js js-func docutils literal"><span class="pre">jDoctest.repr()</span></tt></a>. If the expected value is <tt class="docutils literal"><span class="pre">undefined</span></tt>, the
 output section is not needed. jDoctest will check if the expected output equals
-to the actual output and reports the result.</p>
+the actual output and report the result.</p>
 </div>
-<div class="section" id="testing-of-a-blank-line">
-<h3>Testing of a Blank Line<a class="headerlink" href="#testing-of-a-blank-line" title="Permalink to this headline">¶</a></h3>
-<p>A testing example could not contain a blank line. It could be a problem when
-you expect that the output contains a blank line. But there is not a problem.
-jDoctest understands <tt class="docutils literal"><span class="pre">&lt;BLANKLINE&gt;</span></tt> as a blank line. If you want to include
-a blank line in the expected output, use <tt class="docutils literal"><span class="pre">&lt;BLANKLINE&gt;</span></tt> instead of:</p>
+<div class="section" id="using-blankline-token">
+<h3>Using <tt class="docutils literal"><span class="pre">BLANKLINE</span></tt> Token<a class="headerlink" href="#using-blankline-token" title="Permalink to this headline">¶</a></h3>
+<p>A testable example doesn&#8217;t contain a blank line, but what if your expected
+output contains one? If you want to include a blank line in the expected
+output, use <tt class="docutils literal"><span class="pre">&lt;BLANKLINE&gt;</span></tt> instead:</p>
 <div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;Hello,\n\nWorld!&quot;</span> <span class="p">);</span>
 <span class="go">Hello,</span>
 <span class="go">&lt;BLANKLINE&gt;</span>
@@ -338,14 +341,13 @@ a blank line in the expected output, use <tt class="docutils literal"><span clas
 </pre></div>
 </div>
 </div>
-<div class="section" id="testing-option-flags">
-<h3>Testing Option Flags<a class="headerlink" href="#testing-option-flags" title="Permalink to this headline">¶</a></h3>
-<p>Sometimes you would not want to check exactly. The testing option flags are
-suitable for this situation.</p>
-<p>Some single line comment is a doctest directive that starts with
-<tt class="docutils literal"><span class="pre">//doctest:</span></tt>. When jDoctest processes an example, it finds option flags from
-the doctest directive. To add an option flag, add a doctest directive which
-contains the flag modulations to the example code:</p>
+<div class="section" id="testing-with-option-flags">
+<h3>Testing with Option Flags<a class="headerlink" href="#testing-with-option-flags" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes you want to alter the default behaviour of your tests. The testing
+option flags are suitable for this situation.</p>
+<p>A single line comment that starts with <tt class="docutils literal"><span class="pre">//doctest:</span></tt> is a doctest directive.
+To add an option flag, add a doctest directive and list the flags you wish to
+use on the example code:</p>
 <div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">//doctest: +SKIP</span>
 <span class="gp">...</span> <span class="c1">// This example will be skipped because of the ``SKIP`` flag.</span>
 <span class="gp">&gt;&gt;&gt;</span> <span class="kc">undefined</span><span class="p">.</span><span class="nx">property</span><span class="p">;</span> <span class="c1">//doctest: +IGNORE_ERROR_MESSAGE</span>
@@ -504,11 +506,10 @@ example never pass yet, use this flag and remove after implement.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="functions-that-help-an-example">
-<h3>Functions that Help an Example<a class="headerlink" href="#functions-that-help-an-example" title="Permalink to this headline">¶</a></h3>
-<p>You might see <tt class="docutils literal"><span class="pre">wait</span></tt> and <tt class="docutils literal"><span class="pre">print</span></tt> function. When each examples are running
-these functions are global functions. The functions help you to write more
-powerful examples.</p>
+<div class="section" id="helper-functions">
+<h3>Helper Functions<a class="headerlink" href="#helper-functions" title="Permalink to this headline">¶</a></h3>
+<p>You might want to try using <tt class="docutils literal"><span class="pre">wait</span></tt> and <tt class="docutils literal"><span class="pre">print</span></tt>. These global functions can
+help you to write more powerful examples.</p>
 <dl class="function">
 <dt id="jDoctest.Runner.prototype.context.print">
 <tt class="descclassname">jDoctest.Runner.prototype.context.</tt><tt class="descname">print</tt><big>(</big><em>output</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.context.print" title="Permalink to this definition">¶</a></dt>

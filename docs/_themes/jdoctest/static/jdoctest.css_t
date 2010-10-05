@@ -77,6 +77,10 @@ dd .highlight {
   background: #f4f4f4;
 }
 
+dt:target, .highlighted {
+  background: #efb;
+}
+
 .figure {
   text-align: center;
 }
@@ -135,6 +139,10 @@ dd .highlight {
   padding-left: 22px;
   font-weight: bolder;
   color: #554;
+}
+
+.toc a tt {
+  font-weight: normal;
 }
 
 .showtoc, .hidetoc {

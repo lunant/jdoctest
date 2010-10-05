@@ -293,8 +293,8 @@ a result of :func:`jDoctest.repr`. If the expected value is ``undefined``, the
 output section is not needed. jDoctest will check if the expected output equals
 the actual output and report the result.
 
-Using ``BLANKLINE`` Token
--------------------------
+Using ``<BLANKLINE>`` Token
+---------------------------
 
 A testable example doesn't contain a blank line, but what if your expected
 output contains one? If you want to include a blank line in the expected

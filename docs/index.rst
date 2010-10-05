@@ -15,7 +15,7 @@ jDoctest supports these common browsers.
 - Firefox
 - Opera
 
-jDoctest doesn't support Internet Explorer yetm because IE's implementation of
+jDoctest doesn't support Internet Explorer yet, because IE's implementation of
 the ``eval`` function is different from other supported browsers.
 
 Getting jDoctest
@@ -40,8 +40,7 @@ How To Use
 Simple Tutorial
 ---------------
 
-Here is a small sample code. jDoctest suggests to you're JavaScript source code
-to follow this structure:
+Here is a small sample code:
 
 .. sourcecode:: js
 
@@ -61,8 +60,8 @@ to follow this structure:
             /**:ImageFile.prototype.fetchData()
 
             Requests the server for the image file. When the request is
-            complete, it also sets the ``size`` and ``modified`` attributes of
-            the object.
+            complete, it also sets the ``size`` and ``modified`` attributes
+            of the object.
 
                 >>> img.fetchData();
                 >>> wait(function() { return img.data; });
@@ -222,7 +221,7 @@ can now test using jDoctest-QUnit instead of vanilla jDoctest.
 
 .. _QUnit: http://docs.jquery.com/qunit
 
-How it works
+How It Works
 ============
 
 jDoctest examines docstrings in your source code to find testable examples.
@@ -294,7 +293,7 @@ a result of :func:`jDoctest.repr`. If the expected value is ``undefined``, the
 output section is not needed. jDoctest will check if the expected output equals
 the actual output and report the result.
 
-Testing with a Blank Line
+Using ``BLANKLINE`` Token
 -------------------------
 
 A testable example doesn't contain a blank line, but what if your expected

@@ -4,14 +4,25 @@
 <meta charset="utf-8" />
 <title>jDoctest</title>
 <link rel="shorcut icon" type="image/icon" href="../artwork/favicon.ico" />
-<script src="http://code.jquery.com/jquery-1.4.2.js"></script>
+<script src="http://js.sublee.kr/jquery-1.4.2.js"></script>
 <script src="../jdoctest.js"></script>
 </head>
 <body style="background: #e6e7db; text-align: center; margin: 50px;">
 <img src="../artwork/jdoctest.png" />
+<pre style="text-align: left;"><code class="console"></code></pre>
 <script>
-  jDoctest.testSource( "../jdoctest.js", {
-    alreadyLoaded: true,
+  jDoctest.testSource( "example.js", {
+    //alreadyLoaded: true,
+    //verbose: true,
+    console: {
+      log: function() {},
+      warn: function() {},
+      error: function( msg ) {
+        var con = $( ".console" );
+        msg = $( "<span style='color: red;'></span>" ).text( msg );
+        con.append( "<br />" ).append( msg );
+      }
+    },
     onComplete: function( result ) {
       if ( !result.failures.length ) {
         alert( "All " + result.tries.length + " examples are succeeded." );

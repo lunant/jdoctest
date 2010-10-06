@@ -218,6 +218,8 @@ j.repr = function( val ) {
     }
     return String( val );
 };
+j.eval = function( source ) {
+};
 j.blankLineMarker = "<BLANKLINE>";
 
 /***********************************************************************
@@ -347,7 +349,7 @@ j.Parser = function( symbols ) {
         (\s*) # indent
         \/\*\* # docPrefix
         (?:
-            ([^*:]*) # directive
+            ([^\uffff*:]*) # directive
             \:\s*
             ([^\uffff]+) # name
             | [^*]
@@ -357,7 +359,7 @@ j.Parser = function( symbols ) {
         */
         "(?:^|" + _.ffff + ")(\\s*)",
         _.escapeRegExp( this.symbols.docPrefix ),
-        "(?:([^*:]*)\\:\\s*([^" + _.ffff + "]+)|[^*])(.*?)",
+        "(?:([^" + _.ffff + "*:]*)\\:\\s*([^" + _.ffff + "]+)|[^*])(.*?)",
         _.escapeRegExp( this.symbols.docSuffix )
     ].join( "" ), "gm" );
     this.interactionRegex = new RegExp([
@@ -583,12 +585,12 @@ j.Example.prototype = {
 
             >>> var src = "1; //doctest: +SKIP +ELLIPSIS";
             >>> var exam = jDoctest.Example.prototype;
-            >>> var flags = exam._findFlags( src );
-            >>> flags.positive.indexOf( jDoctest.flags.SKIP ) >= 0;
+            >>> var flags = exam._findFlags( src ).positive;
+            >>> $.inArray( jDoctest.flags.SKIP, flags ) >= 0;
             true
-            >>> flags.positive.indexOf( jDoctest.flags.ELLIPSIS ) >= 0;
+            >>> $.inArray( jDoctest.flags.ELLIPSIS, flags ) >= 0;
             true
-            >>> flags.positive.indexOf( jDoctest.flags.ACCEPT_BLANKLINE ) < 0;
+            >>> $.inArray( jDoctest.flags.ACCEPT_BLANKLINE, flags ) < 0;
             true
         */
         var match, flags = {
@@ -599,9 +601,9 @@ j.Example.prototype = {
             var directive = match[ 1 ].split( /\s+/ ),
                 flagName;
             for ( var flagName in j.flags ) {
-                if ( directive.indexOf( "+" + flagName ) !== -1 ) {
+                if ( $.inArray( "+" + flagName, directive ) !== -1 ) {
                     flags.positive.push( j.flags[ flagName ] );
-                } else if ( directive.indexOf( "-" + flagName ) !== -1 ) {
+                } else if ( $.inArray( "-" + flagName, directive ) !== -1 ) {
                     flags.negative.push( j.flags[ flagName ] );
                 }
             }
@@ -948,12 +950,28 @@ j.Runner.prototype = {
 
         for ( varName in this.context ) {
             origVals[ varName ] = window[ varName ];
+        }
+
+        // Fix IE
+        if ( $.browser.msie ) {
+            for ( varName in this.context ) {
+                if ( $.isFunction( this.context[ varName ] ) ) {
+                    window[ varName ] = empty;
+                }
+            }
+            var cls = "jdoctest-eval",
+                scr = "<script class='" + cls + "'>" + source + "</script>";
+            $( scr ).appendTo( document.body ).remove();
+        }
+
+        for ( varName in this.context ) {
             replVal = this.context[ varName ];
             if ( $.isFunction( replVal ) ) {
                 replVal = $.proxy( replVal, this );
             }
             window[ varName ] = replVal;
         }
+
         try {
             result = window.eval.call( window, source );
         } catch ( error ) {
@@ -1004,7 +1022,7 @@ j.Runner.prototype = {
 
         for ( var i = 0; i < this.options.flags.length; i++ ) {
             flag = this.options.flags[ i ];
-            if ( negativeFlags.indexOf( flag ) === -1 ) {
+            if ( $.inArray( flag, negativeFlags ) === -1 ) {
                 adjustedFlags.push( flag );
             }
         }

@@ -11,12 +11,12 @@
 <img src="../artwork/jdoctest.png" />
 <pre style="text-align: left;"><code class="console"></code></pre>
 <script>
-  jDoctest.testSource( "example.js", {
-    //alreadyLoaded: true,
+  jDoctest.testSource( "../jdoctest.js", {
+    alreadyLoaded: true,
     //verbose: true,
     console: {
-      log: function() {},
-      warn: function() {},
+      log: function( msg ) { window.console && window.console.log( msg ); },
+      warn: function( msg ) { window.console && window.console.warn( msg ); },
       error: function( msg ) {
         var con = $( ".console" );
         msg = $( "<span style='color: red;'></span>" ).text( msg );

@@ -28,14 +28,14 @@ code with the following command.
 
     $ git clone git://github.com/lunant/jdoctest.git jdoctest
 
-Or download the `compressed file`_.
+Or you can download the `compressed file`_.
 
 .. _repository: http://github.com/lunant/jdoctest
 .. _compressed file:
     http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev
 
-How To Use
-==========
+Using jDoctest
+==============
 
 Simple Tutorial
 ---------------
@@ -346,13 +346,13 @@ help you to write more powerful examples.
 Customization
 -------------
 
-jDoctest allows customization of the every symbols such as the
+jDoctest allows customization of the every symbol such as the
 docstring-prefix(``/**``), the docstring-suffix(``*/``), and the
 prompt-markers(``>>>``, ``...``).
 
-Let's assume what you want to use different symbols that ``/*DOCSTRING*`` as
-the docstring-prefix, ``*DOCSTRING*/`` as the docstring-suffix, ``$`` and ``>``
-as the prompt-markers. Then follow this example:
+Let's assume you want to use ``/*DOCSTRING*`` as the docstring-prefix,
+``*DOCSTRING*/`` as the docstring-suffix, ``$`` and ``>`` as the
+prompt-markers. Then follow this example:
 
 .. sourcecode:: js
 
@@ -366,7 +366,7 @@ as the prompt-markers. Then follow this example:
     });
 
 If you want to customize more freely or make an extension for jDoctest, see the
-API chapter that is next.
+API chapter.
 
 API
 ===
@@ -381,26 +381,25 @@ License
 =======
 
 jDoctest is licensed with `MIT`_ + `GPL2`_, so feel free to use and manipulate
-as long as you respect these licenses. To get the details, see
-:file:`MIT-LICENSE.txt` and :file:`GPL-LICENSE.txt`.
+as long as you respect these licenses. See :file:`MIT-LICENSE.txt` and
+:file:`GPL-LICENSE.txt` for the details.
 
 .. _MIT: http://en.wikipedia.org/wiki/MIT_License
 .. _GPL2: http://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2
 
-Authors
--------
+Author
+------
 
 .. include:: ../AUTHORS
 
-More Informations
-=================
+More Information
+================
 
-You can propose an issue to the `issues`_ page and ask some question to the
-mailing list. To subscribe the mailing list, send a mail to
-`jdoctest@librelist.com`_.
-
-And there is `doctest.js`_ which is good alternative JavaScript implementation
-of doctest from a different angle.
+- You can report any issues at the `issues`_ page.
+- If you have any questions, join the mailing list by sending a mail to
+  `jdoctest@librelist.com`_.
+- `doctest.js`_ is another JavaScript implementation of doctest from a
+  different angle.
 
 .. _issues: http://github.com/lunant/jdoctest/issues
 .. _jdoctest@librelist.com: mailto:jdoctest@librelist.com

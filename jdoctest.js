@@ -11,16 +11,25 @@ Links
 * `development version`_
 
 .. _documentation:
-   http://jdoctest.lunant.com/
+   http://lunant.github.com/jdoctest
 .. _development version:
    http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev
 */
 this.jDoctest = (function( window, $ ) { var meta = {
    NAME: "jDoctest",
 VERSION: "0.0.9",
-AUTHORS: ["Lee Heung-sub <sublee@lunant.com>"],
+ AUTHOR: "Heungsub Lee <sublee@lunant.com>",
     URL: "http://lunant.github.com/jdoctest",
  GITHUB: "http://github.com/lunant/jdoctest"
+/** jDoctest has to have meta data.
+
+    >>> jDoctest.NAME;
+    'jDoctest'
+    >>> jDoctest.VERSION !== undefined;
+    true
+    >>> $.isArray( jDoctest.AUTHORS );
+    true
+*/
 };
 
 // Checks dependencies
@@ -32,20 +41,29 @@ if ( !$ ) {
 * jDoctest
 ***********************************************************************/
 var jDoctest = j = function( examples, name, source, fileName, lineNo ) {
-    /**class: jDoctest( examples[, name[, source[, fileName[, lineNo ] ] ] )
+    /**class:jDoctest( examples[, name[, source[, fileName[, lineNo ] ] ] )
 
     A collaction of examples.
 
-        >>> new jDoctest([], "lykit", "", "lykit.js" );
-        <jDoctest lykit from lykit.js:1 (no examples)>
-        >>> new jDoctest([ new jDoctest.Example( "1;" ) ]);
-        <jDoctest (1 example)>
         >>> new jDoctest([
         ...     new jDoctest.Example( "1;" ),
         ...     new jDoctest.Example( "1;" ),
         ...     new jDoctest.Example( "2;", "2" )
         ... ]);
         <jDoctest (3 examples)>
+        >>> new jDoctest([ new jDoctest.Example( "1;" ) ]);
+        <jDoctest (1 example)>
+
+    It could have the identity. An identity is useful for debugging.
+
+        >>> new jDoctest([], "lykit", "", "lykit.js" );
+        <jDoctest lykit from lykit.js:1 (no examples)>
+
+    :param examples: the array of :class:`jDoctest.Example`
+    :param name: the name of the doctest
+    :param source: the source code of the doctest
+    :param fileName: the file name which contains the doctest
+    :param lineNo: the starting line number of the docstest
     */
     this.examples = examples;
     this.name = name;
@@ -86,6 +104,10 @@ $.extend( j, meta );
 ***********************************************************************/
 j.errors = {
     StopRunning: function() {
+        /**class:jDoctest.errors.StopRunning()
+
+        This exception will stop the jDoctest running process.
+        */
         this.name = "StopRunning";
         this.message = "The running process has to stop";
     }
@@ -105,9 +127,8 @@ j.testSource = function( fileName, options ) {
     The source file should contain some docstrings. A docstring is a
     multiline-comment which starts with ``/**`` or a specified doc-prefix.
 
-    .. seealso::
-
-       - :meth:`jDoctest.testFile`
+    :param fileName: the file name
+    :param options: the same as :class:`jDoctest.getMaterials`'s
     */
     var materials = this.getMaterials( options ),
         parser = materials.parser,
@@ -126,16 +147,15 @@ j.testSource = function( fileName, options ) {
 j.testFile = function( fileName, options ) {
     /**:jDoctest.testFile( fileName[, options ] )
 
-    Tests a file::
+    Load a file and tests its content as a docstring::
 
         jDoctest.testFile( "a-docstring.txt" );
 
     The content of the file is a docstring. :class:`jDoctest.Parser` finds
     only examples(not docstrings).
 
-    .. seealso::
-
-       - :meth:`jDoctest.testSource`
+    :param fileName: the file name
+    :param options: the same as :class:`jDoctest.getMaterials`'s
     */
     var materials = this.getMaterials( options ),
         parser = materials.parser,
@@ -151,10 +171,6 @@ j.getMaterials = function( options ) {
 
     Returns a :class:`jDoctest.Parser` and a :class:`jDoctest.Runner` from
     ``options``.
-    
-    ``options`` is :class:`jDoctest.Runner`'s ``options`` parameter. But it
-    also contains ``symbols`` key for :class:`jDoctest.Parser`'s ``symbols``
-    parameter.
 
         >>> var pr = jDoctest.getMaterials({
         ...     verbose: true,
@@ -171,6 +187,10 @@ j.getMaterials = function( options ) {
         '>'
         >>> runner.options.verbose;
         true
+    
+    :param options: :class:`jDoctest.Runner`'s ``options`` parameter. But it
+                    also contains ``symbols`` key for
+                    :class:`jDoctest.Parser`'s ``symbols`` parameter.
     */
     options = $.extend( true, {
         verbose: false,
@@ -204,6 +224,8 @@ j.repr = function( val ) {
         '[\'It\\\'s my world!\']'
         >>> jDoctest.repr( jDoctest.flags.SKIP );
         '<jDoctest.flags.SKIP>'
+
+    :param val: the value
     */
     if ( val === undefined ) {
         return val;
@@ -217,8 +239,6 @@ j.repr = function( val ) {
         return "'" + val.replace( /('|\\)/g, "\\$1" ) + "'";
     }
     return String( val );
-};
-j.eval = function( source ) {
 };
 j.blankLineMarker = "<BLANKLINE>";
 
@@ -240,6 +260,9 @@ var _ = {
             >>> print( jDoctest._indent( " ", "abc\ndef" ) );
              abc
              def
+
+        :param indent: a indentation string
+        :param text: a text which is been indented
         */
         if ( text === undefined ) {
             text = indent;
@@ -251,21 +274,48 @@ var _ = {
         /**:jDoctest._outindent( indent, text )
         
         Removes an indent from each lines.
+
+        :param indent: a removing indentation string
+        :param text: a text which is been outdented
         */
         indent = new RegExp( "^" + indent, "mg" );
         return text.replace( indent, "" );
     },
     linearize: function( text ) {
+        /**:jDoctest._linearize( text )
+
+        Makes a multiline text to the linear text.
+
+            >>> /\n/.exec( jDoctest._linearize( "ab\ncd" ) );
+            null
+
+        :param text: a text
+        */
         return text.replace( /\n/g, _.ffff );
     },
     unlinearize: function( line ) {
+        /**:jDoctest._unlinearize( text )
+
+        The inverse function of :func:`jDoctest._linearize`.
+
+            >>> /\n/.exec( jDoctest._unlinearize(
+            ...     jDoctest._linearize( "ab\ncd" )
+            ... ) ) !== null;
+            true
+
+        :param text: a text
+        */
         return line.replace( new RegExp( _.ffff, "g" ), "\n" );
     },
     escapeRegExp: function( text ) {
         /**:jDoctest._escapeRegExp( text )
 
+        Escapes for the regular expression.
+
             >>> print( jDoctest._escapeRegExp( "/.*+?|" ) );
             \/\.\*\+\?\|
+
+        :param text: a text
         */
         var specials = [
                 "/", ".", "*", "+", "?", "|", "$",
@@ -340,6 +390,8 @@ j.Parser = function( symbols ) {
         >>> var doctests = myParser.getDoctests( src );
         >>> doctests.length;
         1
+
+    :param symbols: the parsing symbols
     */
     this.symbols = $.extend( {}, this.symbols, symbols );
 

@@ -160,3 +160,13 @@ dt:target, .highlighted {
   display: none;
 }
 
+.field-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.field-list .field-name {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: normal;
+}
+

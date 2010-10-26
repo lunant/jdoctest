@@ -17,8 +17,9 @@ Links
 */
 this.jDoctest = (function( window, $ ) { var meta = {
    NAME: "jDoctest",
-VERSION: "0.0.9",
- AUTHOR: "Heungsub Lee <sublee@lunant.com>",
+VERSION: "0.0.10",
+AUTHORS: ["Heungsub Lee <sublee@lunant.com>",
+          "Kijun Seo <kijun@lunant.com>"],
     URL: "http://lunant.github.com/jdoctest",
  GITHUB: "http://github.com/lunant/jdoctest"
 /** jDoctest has to have meta data.

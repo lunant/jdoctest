@@ -34,7 +34,7 @@
 <li><a class="reference internal" href="#">jDoctest</a><ul>
 <li><a class="reference internal" href="#browser-support">Browser Support</a></li>
 <li><a class="reference internal" href="#getting-jdoctest">Getting jDoctest</a></li>
-<li><a class="reference internal" href="#how-to-use">How To Use</a><ul>
+<li><a class="reference internal" href="#using-jdoctest">Using jDoctest</a><ul>
 <li><a class="reference internal" href="#simple-tutorial">Simple Tutorial</a></li>
 <li><a class="reference internal" href="#with-qunit">With QUnit</a></li>
 </ul>
@@ -50,10 +50,10 @@
 </li>
 <li><a class="reference internal" href="#api">API</a></li>
 <li><a class="reference internal" href="#license">License</a><ul>
-<li><a class="reference internal" href="#authors">Authors</a></li>
+<li><a class="reference internal" href="#author">Author</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#more-informations">More Informations</a></li>
+<li><a class="reference internal" href="#more-information">More Information</a></li>
 </ul>
 </li>
 </ul>
@@ -108,10 +108,10 @@ code with the following command.</p>
 <div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> git clone git://github.com/lunant/jdoctest.git jdoctest
 </pre></div>
 </div>
-<p>Or download the <a class="reference external" href="http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev">compressed file</a>.</p>
+<p>Or you can download the <a class="reference external" href="http://github.com/lunant/jdoctest/zipball/master#egg=jdoctest-dev">compressed file</a>.</p>
 </div>
-<div class="section" id="how-to-use">
-<h2>How To Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-jdoctest">
+<h2>Using jDoctest<a class="headerlink" href="#using-jdoctest" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="simple-tutorial">
 <h3>Simple Tutorial<a class="headerlink" href="#simple-tutorial" title="Permalink to this headline">¶</a></h3>
 <p>Here is a small sample code:</p>
@@ -565,12 +565,12 @@ the function returns <tt class="docutils literal"><span class="pre">false</span>
 </div>
 <div class="section" id="customization">
 <h3>Customization<a class="headerlink" href="#customization" title="Permalink to this headline">¶</a></h3>
-<p>jDoctest allows customization of the every symbols such as the
+<p>jDoctest allows customization of the every symbol such as the
 docstring-prefix(<tt class="docutils literal"><span class="pre">/**</span></tt>), the docstring-suffix(<tt class="docutils literal"><span class="pre">*/</span></tt>), and the
 prompt-markers(<tt class="docutils literal"><span class="pre">&gt;&gt;&gt;</span></tt>, <tt class="docutils literal"><span class="pre">...</span></tt>).</p>
-<p>Let&#8217;s assume what you want to use different symbols that <tt class="docutils literal"><span class="pre">/*DOCSTRING*</span></tt> as
-the docstring-prefix, <tt class="docutils literal"><span class="pre">*DOCSTRING*/</span></tt> as the docstring-suffix, <tt class="docutils literal"><span class="pre">$</span></tt> and <tt class="docutils literal"><span class="pre">&gt;</span></tt>
-as the prompt-markers. Then follow this example:</p>
+<p>Let&#8217;s assume you want to use <tt class="docutils literal"><span class="pre">/*DOCSTRING*</span></tt> as the docstring-prefix,
+<tt class="docutils literal"><span class="pre">*DOCSTRING*/</span></tt> as the docstring-suffix, <tt class="docutils literal"><span class="pre">$</span></tt> and <tt class="docutils literal"><span class="pre">&gt;</span></tt> as the
+prompt-markers. Then follow this example:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;source-which-contains-some-docstrings.js&quot;</span><span class="p">,</span> <span class="p">{</span>
     <span class="nx">symbols</span><span class="o">:</span> <span class="p">{</span>
         <span class="nx">docPrefix</span><span class="o">:</span> <span class="s2">&quot;/*DOCSTRING*&quot;</span><span class="p">,</span>
@@ -582,7 +582,7 @@ as the prompt-markers. Then follow this example:</p>
 </pre></div>
 </div>
 <p>If you want to customize more freely or make an extension for jDoctest, see the
-API chapter that is next.</p>
+API chapter.</p>
 </div>
 </div>
 <div class="section" id="api">
@@ -591,18 +591,36 @@ API chapter that is next.</p>
 <dt id="jDoctest">
 <em class="property">class </em><tt class="descname">jDoctest</tt><big>(</big><em>examples[, name[, source[, fileName[, lineNo ] ] ]</em><big>)</big><a class="headerlink" href="#jDoctest" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collaction of examples.</p>
-<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">([],</span> <span class="s2">&quot;lykit&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;lykit.js&quot;</span> <span class="p">);</span>
-<span class="go">&lt;jDoctest lykit from lykit.js:1 (no examples)&gt;</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">([</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">(</span> <span class="s2">&quot;1;&quot;</span> <span class="p">)</span> <span class="p">]);</span>
-<span class="go">&lt;jDoctest (1 example)&gt;</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">([</span>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">([</span>
 <span class="gp">...</span>     <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">(</span> <span class="s2">&quot;1;&quot;</span> <span class="p">),</span>
 <span class="gp">...</span>     <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">(</span> <span class="s2">&quot;1;&quot;</span> <span class="p">),</span>
 <span class="gp">...</span>     <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">(</span> <span class="s2">&quot;2;&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span> <span class="p">)</span>
 <span class="gp">...</span> <span class="p">]);</span>
 <span class="go">&lt;jDoctest (3 examples)&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">([</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">(</span> <span class="s2">&quot;1;&quot;</span> <span class="p">)</span> <span class="p">]);</span>
+<span class="go">&lt;jDoctest (1 example)&gt;</span>
 </pre></div>
 </div>
+<p>It could have the identity. An identity is useful for debugging.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">([],</span> <span class="s2">&quot;lykit&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;lykit.js&quot;</span> <span class="p">);</span>
+<span class="go">&lt;jDoctest lykit from lykit.js:1 (no examples)&gt;</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>examples</strong> &#8211; the array of <a class="reference internal" href="#jDoctest.Example" title="jDoctest.Example"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Example()</span></tt></a></li>
+<li><strong>name</strong> &#8211; the name of the doctest</li>
+<li><strong>source</strong> &#8211; the source code of the doctest</li>
+<li><strong>fileName</strong> &#8211; the file name which contains the doctest</li>
+<li><strong>lineNo</strong> &#8211; the starting line number of the docstest</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="jDoctest.OutputChecker">
 <em class="property">static </em><tt class="descname">OutputChecker</tt><a class="headerlink" href="#jDoctest.OutputChecker" title="Permalink to this definition">¶</a></dt>
@@ -656,10 +674,22 @@ is not available in there.</p>
 <dl class="staticmethod">
 <dt id="jDoctest._escapeRegExp">
 <em class="property">static </em><tt class="descname">_escapeRegExp</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#jDoctest._escapeRegExp" title="Permalink to this definition">¶</a></dt>
-<dd><div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span> <span class="n">jDoctest</span><span class="o">.</span><span class="n">_escapeRegExp</span><span class="p">(</span> <span class="s">&quot;/.*+?|&quot;</span> <span class="p">)</span> <span class="p">);</span>
+<dd><p>Escapes for the regular expression.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">_escapeRegExp</span><span class="p">(</span> <span class="s2">&quot;/.*+?|&quot;</span> <span class="p">)</span> <span class="p">);</span>
 <span class="go">\/\.\*\+\?\|</span>
 </pre></div>
 </div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>text</strong> &#8211; a text</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -675,12 +705,80 @@ is not available in there.</p>
  <span class="nx">def</span>
 </pre></div>
 </div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>indent</strong> &#8211; a indentation string</li>
+<li><strong>text</strong> &#8211; a text which is been indented</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="jDoctest._linearize">
+<em class="property">static </em><tt class="descname">_linearize</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#jDoctest._linearize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a multiline text to the linear text.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="o">/</span><span class="err">\</span><span class="nx">n</span><span class="o">/</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">_linearize</span><span class="p">(</span> <span class="s2">&quot;ab\ncd&quot;</span> <span class="p">)</span> <span class="p">);</span>
+<span class="go">null</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>text</strong> &#8211; a text</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="jDoctest._outindent">
 <em class="property">static </em><tt class="descname">_outindent</tt><big>(</big><em>indent</em>, <em>text</em><big>)</big><a class="headerlink" href="#jDoctest._outindent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes an indent from each lines.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>indent</strong> &#8211; a removing indentation string</li>
+<li><strong>text</strong> &#8211; a text which is been outdented</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="jDoctest._unlinearize">
+<em class="property">static </em><tt class="descname">_unlinearize</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#jDoctest._unlinearize" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inverse function of <a class="reference internal" href="#jDoctest._linearize" title="jDoctest._linearize"><tt class="xref js js-func docutils literal"><span class="pre">jDoctest._linearize()</span></tt></a>.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="o">/</span><span class="err">\</span><span class="nx">n</span><span class="o">/</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">_unlinearize</span><span class="p">(</span>
+<span class="gp">...</span>     <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">_linearize</span><span class="p">(</span> <span class="s2">&quot;ab\ncd&quot;</span> <span class="p">)</span>
+<span class="gp">...</span> <span class="p">)</span> <span class="p">)</span> <span class="o">!==</span> <span class="kc">null</span><span class="p">;</span>
+<span class="go">true</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>text</strong> &#8211; a text</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -688,9 +786,6 @@ is not available in there.</p>
 <em class="property">static </em><tt class="descname">getMaterials</tt><big>(</big><em>options</em><big>)</big><a class="headerlink" href="#jDoctest.getMaterials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <a class="reference internal" href="#jDoctest.Parser" title="jDoctest.Parser"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Parser()</span></tt></a> and a <a class="reference internal" href="#jDoctest.Runner" title="jDoctest.Runner"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Runner()</span></tt></a> from
 <tt class="docutils literal"><span class="pre">options</span></tt>.</p>
-<p><tt class="docutils literal"><span class="pre">options</span></tt> is <a class="reference internal" href="#jDoctest.Runner" title="jDoctest.Runner"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Runner()</span></tt></a>&#8216;s <tt class="docutils literal"><span class="pre">options</span></tt> parameter. But it
-also contains <tt class="docutils literal"><span class="pre">symbols</span></tt> key for <a class="reference internal" href="#jDoctest.Parser" title="jDoctest.Parser"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Parser()</span></tt></a>&#8216;s <tt class="docutils literal"><span class="pre">symbols</span></tt>
-parameter.</p>
 <div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">pr</span> <span class="o">=</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">getMaterials</span><span class="p">({</span>
 <span class="gp">...</span>     <span class="nx">verbose</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
 <span class="gp">...</span>     <span class="nx">symbols</span><span class="o">:</span> <span class="p">{</span>
@@ -708,6 +803,19 @@ parameter.</p>
 <span class="go">true</span>
 </pre></div>
 </div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>options</strong> &#8211; <a class="reference internal" href="#jDoctest.Runner" title="jDoctest.Runner"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Runner()</span></tt></a>&#8216;s <tt class="docutils literal"><span class="pre">options</span></tt> parameter. But it
+also contains <tt class="docutils literal"><span class="pre">symbols</span></tt> key for
+<a class="reference internal" href="#jDoctest.Parser" title="jDoctest.Parser"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Parser()</span></tt></a>&#8216;s <tt class="docutils literal"><span class="pre">symbols</span></tt> parameter.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -729,32 +837,63 @@ parameter.</p>
 <span class="go">&#39;&lt;jDoctest.flags.SKIP&gt;&#39;</span>
 </pre></div>
 </div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>val</strong> &#8211; the value</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="jDoctest.testFile">
 <em class="property">static </em><tt class="descname">testFile</tt><big>(</big><em>fileName</em><span class="optional">[</span>, <em>options</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#jDoctest.testFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests a file</p>
+<dd><p>Load a file and tests its content as a docstring:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testFile</span><span class="p">(</span> <span class="s2">&quot;a-docstring.txt&quot;</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>The content of the file is a docstring. <a class="reference internal" href="#jDoctest.Parser" title="jDoctest.Parser"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Parser()</span></tt></a> finds
 only examples(not docstrings).</p>
-<div class="highlight-js"><pre>- :meth:`jDoctest.testSource`</pre>
-</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fileName</strong> &#8211; the file name</li>
+<li><strong>options</strong> &#8211; the same as <a class="reference internal" href="#jDoctest.getMaterials" title="jDoctest.getMaterials"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.getMaterials()</span></tt></a>&#8216;s</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="jDoctest.testSource">
 <em class="property">static </em><tt class="descname">testSource</tt><big>(</big><em>fileName</em><span class="optional">[</span>, <em>options</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#jDoctest.testSource" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests a JavaScript source file</p>
+<dd><p>Tests a JavaScript source file:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="nx">jDoctest</span><span class="p">.</span><span class="nx">testSource</span><span class="p">(</span> <span class="s2">&quot;source-which-contains-docstrings.js&quot;</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>The source file should contain some docstrings. A docstring is a
 multiline-comment which starts with <tt class="docutils literal"><span class="pre">/**</span></tt> or a specified doc-prefix.</p>
-<div class="highlight-js"><pre>- :meth:`jDoctest.testFile`</pre>
-</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fileName</strong> &#8211; the file name</li>
+<li><strong>options</strong> &#8211; the same as <a class="reference internal" href="#jDoctest.getMaterials" title="jDoctest.getMaterials"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.getMaterials()</span></tt></a>&#8216;s</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -784,12 +923,12 @@ multiline-comment which starts with <tt class="docutils literal"><span class="pr
 <dd><p>Returns a flag list from the source code.</p>
 <div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">src</span> <span class="o">=</span> <span class="s2">&quot;1; //doctest: +SKIP +ELLIPSIS&quot;</span><span class="p">;</span>
 <span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">exam</span> <span class="o">=</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">.</span><span class="nx">prototype</span><span class="p">;</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">flags</span> <span class="o">=</span> <span class="nx">exam</span><span class="p">.</span><span class="nx">_findFlags</span><span class="p">(</span> <span class="nx">src</span> <span class="p">);</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">positive</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">SKIP</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">flags</span> <span class="o">=</span> <span class="nx">exam</span><span class="p">.</span><span class="nx">_findFlags</span><span class="p">(</span> <span class="nx">src</span> <span class="p">).</span><span class="nx">positive</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nc">$</span><span class="p">.</span><span class="nx">inArray</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">SKIP</span><span class="p">,</span> <span class="nx">flags</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
 <span class="go">true</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">positive</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ELLIPSIS</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nc">$</span><span class="p">.</span><span class="nx">inArray</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ELLIPSIS</span><span class="p">,</span> <span class="nx">flags</span> <span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span>
 <span class="go">true</span>
-<span class="gp">&gt;&gt;&gt;</span> <span class="nx">flags</span><span class="p">.</span><span class="nx">positive</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ACCEPT_BLANKLINE</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nc">$</span><span class="p">.</span><span class="nx">inArray</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">ACCEPT_BLANKLINE</span><span class="p">,</span> <span class="nx">flags</span> <span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span>
 <span class="go">true</span>
 </pre></div>
 </div>
@@ -819,6 +958,17 @@ multiline-comment which starts with <tt class="docutils literal"><span class="pr
 <span class="go">1</span>
 </pre></div>
 </div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>symbols</strong> &#8211; the parsing symbols</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="jDoctest.Parser.prototype.getDoctests">
 <tt class="descname">getDoctests</tt><big>(</big><em>source</em><big>)</big><a class="headerlink" href="#jDoctest.Parser.prototype.getDoctests" title="Permalink to this definition">¶</a></dt>
@@ -938,13 +1088,13 @@ have arrays named tries, successes, failures, and skips.</p>
 <dt id="jDoctest.Runner.prototype.run">
 <tt class="descname">run</tt><big>(</big><span class="optional">[</span><em>doctest</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method registers a doctest to its task list first. And runs
-tasks</p>
+tasks:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">({});</span>
 <span class="kd">var</span> <span class="nx">doctest</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">();</span>
 <span class="nx">runner</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span> <span class="nx">doctest</span> <span class="p">);</span>
 </pre></div>
 </div>
-<p>Or</p>
+<p>Or:</p>
 <div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">({});</span>
 <span class="kd">var</span> <span class="nx">doctest</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">();</span>
 <span class="nx">runner</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span> <span class="nx">doctest</span> <span class="p">);</span>
@@ -984,6 +1134,12 @@ shares some attributes with the other runner.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="jDoctest.errors.StopRunning">
+<em class="property">class </em><tt class="descclassname">jDoctest.errors.</tt><tt class="descname">StopRunning</tt><big>(</big><big>)</big><a class="headerlink" href="#jDoctest.errors.StopRunning" title="Permalink to this definition">¶</a></dt>
+<dd><p>This exception will stop the jDoctest running process.</p>
+</dd></dl>
+
 <dl class="data">
 <dt id="jDoctest.Runner.prototype.options.flags">
 <tt class="descclassname">jDoctest.Runner.prototype.options.</tt><tt class="descname">flags</tt><a class="headerlink" href="#jDoctest.Runner.prototype.options.flags" title="Permalink to this definition">¶</a></dt>
@@ -998,36 +1154,23 @@ shares some attributes with the other runner.</p>
 <div class="section" id="license">
 <h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
 <p>jDoctest is licensed with <a class="reference external" href="http://en.wikipedia.org/wiki/MIT_License">MIT</a> + <a class="reference external" href="http://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2">GPL2</a>, so feel free to use and manipulate
-as long as you respect these licenses. To get the details, see
-<tt class="file docutils literal"><span class="pre">MIT-LICENSE.txt</span></tt> and <tt class="file docutils literal"><span class="pre">GPL-LICENSE.txt</span></tt>.</p>
-<div class="section" id="authors">
-<h3>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h3>
-<p>jDoctest is written by <a class="reference external" href="http://lunant.com/">Lunant</a>&#8216;s jDoctest team.</p>
-<dl class="docutils">
-<dt><a class="reference external" href="mailto:sublee&#37;&#52;&#48;lunant&#46;com">Lee Heung-sub</a>:</dt>
-<dd><ul class="first last simple">
-<li>Propose the project.</li>
-<li>Development the project.</li>
-<li>Make the logo.</li>
-<li>Design the Sphinx theme.</li>
-<li>Write the documentation and the docstrings.</li>
-</ul>
-</dd>
-<dt><a class="reference external" href="mailto:kijun&#37;&#52;&#48;lunant&#46;com">Kijun Seo</a>:</dt>
-<dd><ul class="first last simple">
-<li>Inspect the documentation and the docstrings.</li>
-</ul>
-</dd>
-</dl>
+as long as you respect these licenses. See <tt class="file docutils literal"><span class="pre">MIT-LICENSE.txt</span></tt> and
+<tt class="file docutils literal"><span class="pre">GPL-LICENSE.txt</span></tt> for the details.</p>
+<div class="section" id="author">
+<h3>Author<a class="headerlink" href="#author" title="Permalink to this headline">¶</a></h3>
+<p>jDoctest was written by <a class="reference external" href="http://sublee.kr/">Heungsub Lee</a> and is being maintained by <a class="reference external" href="http://lunant.com/">Lunant</a>&#8216;s
+jDoctest team.</p>
 </div>
 </div>
-<div class="section" id="more-informations">
-<h2>More Informations<a class="headerlink" href="#more-informations" title="Permalink to this headline">¶</a></h2>
-<p>You can propose an issue to the <a class="reference external" href="http://github.com/lunant/jdoctest/issues">issues</a> page and ask some question to the
-mailing list. To subscribe the mailing list, send a mail to
-<a class="reference external" href="mailto:jdoctest&#37;&#52;&#48;librelist&#46;com">jdoctest<span>&#64;</span>librelist<span>&#46;</span>com</a>.</p>
-<p>And there is <a class="reference external" href="http://ianb.github.com/doctestjs">doctest.js</a> which is good alternative JavaScript implementation
-of doctest from a different angle.</p>
+<div class="section" id="more-information">
+<h2>More Information<a class="headerlink" href="#more-information" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>You can report any issues at the <a class="reference external" href="http://github.com/lunant/jdoctest/issues">issues</a> page.</li>
+<li>If you have any questions, join the mailing list by sending a mail to
+<a class="reference external" href="mailto:jdoctest&#37;&#52;&#48;librelist&#46;com">jdoctest<span>&#64;</span>librelist<span>&#46;</span>com</a>.</li>
+<li><a class="reference external" href="http://ianb.github.com/doctestjs">doctest.js</a> is another JavaScript implementation of doctest from a
+different angle.</li>
+</ul>
 </div>
 </div>
 

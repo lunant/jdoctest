@@ -225,6 +225,8 @@ j.repr = function( val ) {
         '[\'It\\\'s my world!\']'
         >>> jDoctest.repr( jDoctest.flags.SKIP );
         '<jDoctest.flags.SKIP>'
+        >>> print( jDoctest.repr( "\n\n\n" ) );
+        '\n\n\n'
 
     :param val: the value
     */
@@ -237,7 +239,10 @@ j.repr = function( val ) {
         }
         return "[" + reprs.join( ", " ) + "]";
     } else if ( typeof val === "string" ) {
-        return "'" + val.replace( /('|\\)/g, "\\$1" ) + "'";
+        val = val.replace( /('|\\)/g, "\\$1" );
+        val = val.replace( /\n/g, "\\n" );
+        val = val.replace( /\r/g, "\\r" );
+        return "'" + val + "'";
     }
     return String( val );
 };
@@ -791,6 +796,10 @@ j.Runner.prototype = {
 
     // Reporting functions
     reportStart: function( exam ) {
+        /**:jDoctest.Runner.prototype.reportStart( exam )
+
+        Reports before the example runs.
+        */
         if ( this.options.verbose ) {
             var msg = [
                 "Trying:",
@@ -806,11 +815,19 @@ j.Runner.prototype = {
         }
     },
     reportSuccess: function( exam, got ) {
+        /**:jDoctest.Runner.prototype.reportSuccess( exam, got )
+
+        Reports when the example is succeeded.
+        */
         if ( this.options.verbose ) {
             this.console.log( "ok" );
         }
     },
     reportFailure: function( exam, got ) {
+        /**:jDoctest.Runner.prototype.reportFailure( exam, got )
+
+        Reports when the example is failed.
+        */
         var doctest = this.getCurrentDoctest(),
             msg = [
                 "File " + doctest.fileName + ", line " + exam.lineNo,
@@ -832,8 +849,11 @@ j.Runner.prototype = {
         msg = msg.join( "\n" );
         this.console.error( msg );
     },
-    reportError: function( exam, error ) {},
     reportFinally: function() {
+        /**:jDoctest.Runner.prototype.reportFinally()
+
+        Reports when the doctest done.
+        */
         var msg = "";
         if ( this.options.verbose ) {
             msg += this.result.successes.length + " passed";
@@ -857,13 +877,13 @@ j.Runner.prototype = {
         This method registers a doctest to its task list first. And runs
         tasks::
 
-            var runner = new jDoctest.Runner({});
+            var runner = new jDoctest.Runner();
             var doctest = new jDoctest();
             runner.run( doctest );
 
         Or::
 
-            var runner = new jDoctest.Runner({});
+            var runner = new jDoctest.Runner();
             var doctest = new jDoctest();
             runner.register( doctest );
             runner.run();
@@ -873,14 +893,14 @@ j.Runner.prototype = {
         }
         clearTimeout( this._running.timer );
         this._running.timer = setTimeout( $.proxy(function() {
-            this._run();
+            this.progress();
         }, this ), 0 );
     },
 
     register: function( doctest ) {
         /**:jDoctest.Runner.prototype.register( doctest )
 
-        Register a doctest to the task list.
+        Registers the given doctest to the task list.
         */
         this._tasks.push( doctest );
         for ( var i = 0; i < doctest.examples.length; i++ ) {
@@ -889,6 +909,23 @@ j.Runner.prototype = {
     },
 
     checkExample: function( exam, got ) {
+        /**:jDoctest.Runner.prototype.checkExample( exam, got )
+
+        Checks if the got value equals to the expected value using the own
+        :class:`OutputChecker` instance. The example will be kept in the
+        ``result`` object.
+
+            >>> var runner = new jDoctest.Runner();
+            >>> var mockExample = { want: "Hello", flags: [] };
+            >>> runner.checkExample( mockExample, "Hello" );
+            true
+            >>> runner.result.successes.length;
+            1
+            >>> runner.checkExample( mockExample, "World" );
+            false
+            >>> runner.result.failures.length;
+            1
+        */
         var flags = this.adjustFlags( exam.flags, exam.negetiveFlags );
         this.result.tries.push( exam );
         if ( this.checker.checkOutput( exam.want, got, flags ) ) {
@@ -900,11 +937,12 @@ j.Runner.prototype = {
         }
     },
 
-    runDoctest: function( doctest ) {
-        // pass...
-    },
+    runExample: function( exam ) {
+        /**:jDoctest.Runner.prototype.runExample( exam )
 
-    runExample: function( exam, doctest ) {
+        Runs the given example and reports a result. If the example throws a
+        ``StopRunning`` exception, it makes the running to stop.
+        */
         try {
             var got = this.getOutput( exam.source ),
                 succeeded = this.checkExample( exam, got );
@@ -918,24 +956,57 @@ j.Runner.prototype = {
                 this.reportSuccess( exam );
                 this.stop();
             } else {
-                this.reportError( exam, error );
+                throw error;
             }
         }
     },
 
     runFinally: function() {
+        /**:jDoctest.Runner.prototype.runFinally()
+
+        It will be called after all examples ran.
+        */
         this.reportFinally();
     },
 
-    _run: function() {
+    progress: function( justOneStep ) {
+        /**:jDoctest.Runner.prototype.progress()
+
+        Processes the top task and call this method again if the task list is
+        not empty.
+        
+        A task could be an instance of :class:`jDoctest` or
+        :class:`jDoctest.Example`. If the task is an instance of
+        :class:`jDoctest`, this method just updates the current doctest object.
+        But the task is an instance of :class:`jDoctest.Example`, it calls
+        :meth:`jDoctest.Runner.prototype.reportStart` and tests the example.
+
+            >>> var runner = new jDoctest.Runner( undefined, {
+            ...     onComplete: function() {
+            ...         print( "ALL TASKS HAVE PROCESSED" );
+            ...     }
+            ... });
+            >>> var doctest = new jDoctest([
+            ...     new jDoctest.Example( "1;", "1" )
+            ... ]);
+            >>> runner.register( doctest );
+            >>> runner.getCurrentDoctest();
+            null
+            >>> runner.progress();
+            ALL TASKS HAVE PROCESSED
+            >>> runner.getCurrentDoctest() instanceof jDoctest;
+            true
+
+        :param justOneStep: if set it to ``true``, this method doesn't go to
+                            next step.
+        */
         if ( !this._tasks.length ) {
             return;
         }
         var exam = this._tasks.shift();
         if ( exam instanceof jDoctest ) {
             this._running.doctest = exam;
-            this.runDoctest( exam );
-            return this._run();
+            return !justOneStep ? this.progress() : undefined;
         }
 
         var runner = this,
@@ -959,8 +1030,8 @@ j.Runner.prototype = {
         }
 
         if ( test.call( runner, exam ) ) {
-            if ( this._tasks.length ) {
-                this._run();
+            if ( this._tasks.length && !justOneStep ) {
+                this.progress();
             } else {
                 if ( $.isFunction( this.options.onComplete ) ) {
                     this.options.onComplete.call( this, this.result );
@@ -971,18 +1042,40 @@ j.Runner.prototype = {
     },
 
     stop: function() {
+        /**:jDoctest.Runner.prototype.stop()
+
+        Stops the running process.
+        */
         this._running.stopped = true;
     },
 
     start: function() {
-        this._run();
+        /**:jDoctest.Runner.prototype.start()
+
+        Starts the running process.
+        */
+        this.progress();
     },
 
     getCurrentDoctest: function() {
+        /**:jDoctest.Runner.prototype.getCurrentDoctest()
+
+        Returns the last processed :class:`jDoctest` object.
+        */
         return this._running.doctest;
     },
 
     getOutput: function( source ) {
+        /**:jDoctest.Runner.prototype.getOutput( source )
+
+        Returns the representation of the returned value and the output(with
+        :meth:`jDoctest.Runner.prototype.context.print`) from the given source
+        code.
+
+            >>> var runner = new jDoctest.Runner();
+            >>> runner.getOutput( "print( 'abc' ); 'def';" );
+            'abc\n\'def\''
+        */
         var got = j.repr( this.eval( source ) );
         if ( this._output ) {
             if ( got === undefined ) {
@@ -996,6 +1089,17 @@ j.Runner.prototype = {
     },
 
     eval: function( source ) {
+        /**:jDoctest.Runner.prototype.eval( source )
+
+        Evaluates the given source code. And returns the returned value or
+        exception object.
+
+            >>> var runner = new jDoctest.Runner();
+            >>> runner.eval( "'abc' + 'def'" );
+            'abcdef'
+            >>> runner.eval( "throw new Error( 'TEST' );" );
+            Error: TEST
+        */
         var origVals = {},
             varName,
             replVal,

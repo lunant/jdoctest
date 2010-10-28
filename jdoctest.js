@@ -20,7 +20,7 @@ this.jDoctest = (function( window, $ ) { var meta = {
 VERSION: "0.0.10",
 AUTHORS: ["Heungsub Lee <sublee@lunant.com>",
           "Kijun Seo <kijun@lunant.com>"],
-    URL: "http://lunant.github.com/jdoctest",
+    URL: "http://jdoctest.lunant.org/",
  GITHUB: "http://github.com/lunant/jdoctest"
 /** jDoctest has to have meta data.
 

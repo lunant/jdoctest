@@ -835,6 +835,8 @@ also contains <tt class="docutils literal"><span class="pre">symbols</span></tt>
 <span class="go">&#39;[\&#39;It\\\&#39;s my world!\&#39;]&#39;</span>
 <span class="gp">&gt;&gt;&gt;</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">repr</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">flags</span><span class="p">.</span><span class="nx">SKIP</span> <span class="p">);</span>
 <span class="go">&#39;&lt;jDoctest.flags.SKIP&gt;&#39;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">print</span><span class="p">(</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">repr</span><span class="p">(</span> <span class="s2">&quot;\n\n\n&quot;</span> <span class="p">)</span> <span class="p">);</span>
+<span class="go">&#39;\n\n\n&#39;</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1079,9 +1081,127 @@ have arrays named tries, successes, failures, and skips.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="jDoctest.Runner.prototype.checkExample">
+<tt class="descname">checkExample</tt><big>(</big><em>exam</em>, <em>got</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.checkExample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the got value equals to the expected value using the own
+<tt class="xref js js-class docutils literal"><span class="pre">OutputChecker()</span></tt> instance. The example will be kept in the
+<tt class="docutils literal"><span class="pre">result</span></tt> object.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">();</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">mockExample</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">want</span><span class="o">:</span> <span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="nx">flags</span><span class="o">:</span> <span class="p">[]</span> <span class="p">};</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">checkExample</span><span class="p">(</span> <span class="nx">mockExample</span><span class="p">,</span> <span class="s2">&quot;Hello&quot;</span> <span class="p">);</span>
+<span class="go">true</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">result</span><span class="p">.</span><span class="nx">successes</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">checkExample</span><span class="p">(</span> <span class="nx">mockExample</span><span class="p">,</span> <span class="s2">&quot;World&quot;</span> <span class="p">);</span>
+<span class="go">false</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">result</span><span class="p">.</span><span class="nx">failures</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.eval">
+<tt class="descname">eval</tt><big>(</big><em>source</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the given source code. And returns the returned value or
+exception object.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">();</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nb">eval</span><span class="p">(</span> <span class="s2">&quot;&#39;abc&#39; + &#39;def&#39;&quot;</span> <span class="p">);</span>
+<span class="go">&#39;abcdef&#39;</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nb">eval</span><span class="p">(</span> <span class="s2">&quot;throw new Error( &#39;TEST&#39; );&quot;</span> <span class="p">);</span>
+<span class="go">Error: TEST</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.getCurrentDoctest">
+<tt class="descname">getCurrentDoctest</tt><big>(</big><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.getCurrentDoctest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the last processed <a class="reference internal" href="#jDoctest" title="jDoctest"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest()</span></tt></a> object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.getOutput">
+<tt class="descname">getOutput</tt><big>(</big><em>source</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.getOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the representation of the returned value and the output(with
+<a class="reference internal" href="#jDoctest.Runner.prototype.context.print" title="jDoctest.Runner.prototype.context.print"><tt class="xref js js-meth docutils literal"><span class="pre">jDoctest.Runner.prototype.context.print()</span></tt></a>) from the given source
+code.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">();</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">getOutput</span><span class="p">(</span> <span class="s2">&quot;print( &#39;abc&#39; ); &#39;def&#39;;&quot;</span> <span class="p">);</span>
+<span class="go">&#39;abc\n\&#39;def\&#39;&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.progress">
+<tt class="descname">progress</tt><big>(</big><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the top task and call this method again if the task list is
+not empty.</p>
+<p>A task could be an instance of <a class="reference internal" href="#jDoctest" title="jDoctest"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest()</span></tt></a> or
+<a class="reference internal" href="#jDoctest.Example" title="jDoctest.Example"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Example()</span></tt></a>. If the task is an instance of
+<a class="reference internal" href="#jDoctest" title="jDoctest"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest()</span></tt></a>, this method just updates the current doctest object.
+But the task is an instance of <a class="reference internal" href="#jDoctest.Example" title="jDoctest.Example"><tt class="xref js js-class docutils literal"><span class="pre">jDoctest.Example()</span></tt></a>, it calls
+<a class="reference internal" href="#jDoctest.Runner.prototype.reportStart" title="jDoctest.Runner.prototype.reportStart"><tt class="xref js js-meth docutils literal"><span class="pre">jDoctest.Runner.prototype.reportStart()</span></tt></a> and tests the example.</p>
+<div class="highlight-jscon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="p">{</span>
+<span class="gp">...</span>     <span class="nx">onComplete</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="gp">...</span>         <span class="nx">print</span><span class="p">(</span> <span class="s2">&quot;ALL TASKS HAVE PROCESSED&quot;</span> <span class="p">);</span>
+<span class="gp">...</span>     <span class="p">}</span>
+<span class="gp">...</span> <span class="p">});</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="kd">var</span> <span class="nx">doctest</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">([</span>
+<span class="gp">...</span>     <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Example</span><span class="p">(</span> <span class="s2">&quot;1;&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span> <span class="p">)</span>
+<span class="gp">...</span> <span class="p">]);</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span> <span class="nx">doctest</span> <span class="p">);</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">getCurrentDoctest</span><span class="p">();</span>
+<span class="go">null</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">progress</span><span class="p">();</span>
+<span class="go">ALL TASKS HAVE PROCESSED</span>
+<span class="gp">&gt;&gt;&gt;</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">getCurrentDoctest</span><span class="p">()</span> <span class="k">instanceof</span> <span class="nx">jDoctest</span><span class="p">;</span>
+<span class="go">true</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>justOneStep</strong> &#8211; if set it to <tt class="docutils literal"><span class="pre">true</span></tt>, this method doesn&#8217;t go to
+next step.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="jDoctest.Runner.prototype.register">
 <tt class="descname">register</tt><big>(</big><em>doctest</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.register" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a doctest to the task list.</p>
+<dd><p>Registers the given doctest to the task list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.reportFailure">
+<tt class="descname">reportFailure</tt><big>(</big><em>exam</em>, <em>got</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.reportFailure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reports when the example is failed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.reportFinally">
+<tt class="descname">reportFinally</tt><big>(</big><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.reportFinally" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reports when the doctest done.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.reportStart">
+<tt class="descname">reportStart</tt><big>(</big><em>exam</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.reportStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reports before the example runs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.reportSuccess">
+<tt class="descname">reportSuccess</tt><big>(</big><em>exam</em>, <em>got</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.reportSuccess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reports when the example is succeeded.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1089,18 +1209,43 @@ have arrays named tries, successes, failures, and skips.</p>
 <tt class="descname">run</tt><big>(</big><span class="optional">[</span><em>doctest</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method registers a doctest to its task list first. And runs
 tasks:</p>
-<div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">({});</span>
+<div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">();</span>
 <span class="kd">var</span> <span class="nx">doctest</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">();</span>
 <span class="nx">runner</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span> <span class="nx">doctest</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>Or:</p>
-<div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">({});</span>
+<div class="highlight-js"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">runner</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">.</span><span class="nx">Runner</span><span class="p">();</span>
 <span class="kd">var</span> <span class="nx">doctest</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jDoctest</span><span class="p">();</span>
 <span class="nx">runner</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span> <span class="nx">doctest</span> <span class="p">);</span>
 <span class="nx">runner</span><span class="p">.</span><span class="nx">run</span><span class="p">();</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.runExample">
+<tt class="descname">runExample</tt><big>(</big><em>exam</em><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.runExample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the given example and reports a result. If the example throws a
+<tt class="docutils literal"><span class="pre">StopRunning</span></tt> exception, it makes the running to stop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.runFinally">
+<tt class="descname">runFinally</tt><big>(</big><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.runFinally" title="Permalink to this definition">¶</a></dt>
+<dd><p>It will be called after all examples ran.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the running process.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="jDoctest.Runner.prototype.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#jDoctest.Runner.prototype.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the running process.</p>
 </dd></dl>
 
 <dl class="staticmethod">

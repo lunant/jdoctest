@@ -1,4 +1,4 @@
-Copyright (c) 2010 by Lee Heung-sub and Kijun Seo. See AUTHORS
+Copyright (c) 2010-2011 by Heungsub Lee. See AUTHORS
 for more details.
 
 Permission is hereby granted, free of charge, to any person obtaining

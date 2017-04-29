@@ -1,4 +1,4 @@
-(function( window, jDoctest ) {
+(((window, jDoctest) => {
 
 var j = jDoctest;
 
@@ -16,10 +16,11 @@ j.testWithQUnit = function( fileName, options ) {
 
     .. _QUnit: http://docs.jquery.com/Qunit
     */
-    var materials = this.getMaterials( options ),
-        parser = materials.parser,
-        runner = new this.QUnitRunner( materials.runner );
-    $.get( fileName, function( src ) {
+    var materials = this.getMaterials( options );
+
+    var parser = materials.parser;
+    var runner = new this.QUnitRunner( materials.runner );
+    $.get( fileName, src => {
         var doctests = parser.getDoctests( src, fileName );
         if ( !options || !options.alreadyLoaded ) {
             window.eval.call( window, src );
@@ -31,13 +32,13 @@ j.testWithQUnit = function( fileName, options ) {
 };
 
 j.QUnitRunner = j.Runner.extend({
-    start: function() {
+    start() {
         start();
     },
-    runDoctest: function( doctest ) {
+    runDoctest(doctest) {
         module( doctest.name );
     },
-    runExample: function( exam, doctest ) {
+    runExample(exam, doctest) {
         var testFunc = $.proxy(function() {
                 try {
                     var got = this.getOutput( exam.source );
@@ -53,8 +54,9 @@ j.QUnitRunner = j.Runner.extend({
                         throw error;
                     }
                 }
-            }, this ),
-            source = exam.source.split( "\n" );
+            }, this );
+
+        var source = exam.source.split( "\n" );
         if ( source.length === 1 ) {
             source = source[ 0 ];
         } else {
@@ -62,10 +64,10 @@ j.QUnitRunner = j.Runner.extend({
         }
         test( source + " (line " + exam.lineNo + ")", testFunc );
     },
-    runFinally: function() {
+    runFinally() {
         start();
     }
 });
 
-})( this, jDoctest );
+}))( this, jDoctest );
 
